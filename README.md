@@ -1,5 +1,6 @@
 # TutoUIS-Project
 ## Link del proyecto en Jira
+https://id.atlassian.com/invite/p/jira-software?id=s1VgERFPSRmvjvDPKLjWMw
 
 ## Diseño de la Base de Datos
 <p align="center">
