@@ -1,0 +1,67 @@
+:root {
+  --uis-green: #006F3E;
+}
+
+.search-container {
+  background: linear-gradient(45deg, var(--uis-green), #004d2b);
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0,0,0,.1);
+  margin-bottom: 2rem;
+}
+
+.search-container h2 {
+  color: #fff;
+}
+
+.search-box {
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.schedule-header {
+  background-color: var(--uis-green);
+  color: #fff;
+  text-align: center;
+}
+
+.time-cell {
+  width: 120px;
+  background: #f8f9fa;
+  font-weight: 600;
+  text-align: center;
+}
+
+.schedule-cell {
+  height: 110px;
+  border: 1px solid #dee2e6;
+  position: relative;
+  padding: 8px;
+}
+
+.tutoria-item {
+  background: #e8f5e9;
+  border-left: 4px solid var(--uis-green);
+  padding: 6px;
+  border-radius: 6px;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.tutoria-item:hover {
+  transform: scale(1.02);
+  background: #dff3e2;
+}
+
+.tutoria-title {
+  color: var(--uis-green);
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.tutoria-info {
+  color: #6c757d;
+  font-size: 0.78rem;
+}

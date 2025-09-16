@@ -1,0 +1,111 @@
+<div class="container py-4">
+  <!-- Buscador -->
+  <div class="search-container mb-4">
+    <h2 class="mb-3"><i class="bi bi-search"></i> Buscar Materias</h2>
+    <div class="search-box">
+      <input class="form-control form-control-lg" placeholder="Escribe el nombre de la materia…" />
+      <!-- Lista sugerencias (solo vista) -->
+      <div class="list-group mt-2" style="display:block;">
+        <!-- <a class="list-group-item list-group-item-action">Programación I</a> -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Calendario -->
+  <div class="card">
+    <div class="card-header bg-light">
+      <h3 class="mb-0"><i class="bi bi-calendar3"></i> Horario Disponible</h3>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+          <thead>
+            <tr class="schedule-header">
+              <th class="time-cell">Hora</th>
+              <th>Lunes</th>
+              <th>Martes</th>
+              <th>Miércoles</th>
+              <th>Jueves</th>
+              <th>Viernes</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <!-- Fila ejemplo (repite para maqueta visual) -->
+            <tr>
+              <td class="time-cell">6:00 - 8:00</td>
+              <td class="schedule-cell"></td>
+              <td class="schedule-cell"></td>
+              <td class="schedule-cell"></td>
+              <td class="schedule-cell"></td>
+              <td class="schedule-cell"></td>
+            </tr>
+
+            <tr>
+              <td class="time-cell">8:00 - 10:00</td>
+              <td class="schedule-cell">
+                <div class="tutoria-item">
+                  <div class="tutoria-title">Cálculo I</div>
+                  <div class="tutoria-info">Límites • Juan Pérez • Cupos: 3/5</div>
+                </div>
+              </td>
+              <td class="schedule-cell"></td>
+              <td class="schedule-cell"></td>
+              <td class="schedule-cell"></td>
+              <td class="schedule-cell"></td>
+            </tr>
+
+            <tr>
+              <td class="time-cell">10:00 - 12:00</td>
+              <td class="schedule-cell"></td>
+              <td class="schedule-cell"></td>
+              <td class="schedule-cell">
+                <div class="tutoria-item">
+                  <div class="tutoria-title">Programación I</div>
+                  <div class="tutoria-info">Arrays • Carlos Ruiz • Cupos: 4/6</div>
+                </div>
+              </td>
+              <td class="schedule-cell"></td>
+              <td class="schedule-cell"></td>
+            </tr>
+
+            <tr>
+              <td class="time-cell">14:00 - 16:00</td>
+              <td class="schedule-cell"></td>
+              <td class="schedule-cell">
+                <div class="tutoria-item">
+                  <div class="tutoria-title">Física I</div>
+                  <div class="tutoria-info">Cinemática • María González • Cupos: 2/4</div>
+                </div>
+              </td>
+              <td class="schedule-cell"></td>
+              <td class="schedule-cell"></td>
+              <td class="schedule-cell"></td>
+            </tr>
+
+            <tr>
+              <td class="time-cell">16:00 - 18:00</td>
+              <td class="schedule-cell"></td>
+              <td class="schedule-cell"></td>
+              <td class="schedule-cell"></td>
+              <td class="schedule-cell">
+                <div class="tutoria-item">
+                  <div class="tutoria-title">Álgebra Lineal</div>
+                  <div class="tutoria-info">Matrices • Ana Torres • Cupos: 3/5</div>
+                </div>
+              </td>
+              <td class="schedule-cell"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pie de página opcional -->
+      <div class="d-flex justify-content-between mt-3">
+        <small class="text-muted">* Maqueta visual. La lógica de filtros/calendario irá luego.</small>
+        <button class="btn btn-success btn-sm"><i class="bi bi-funnel"></i> Filtros</button>
+      </div>
+    </div>
+  </div>
+</div>
+
