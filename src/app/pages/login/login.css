@@ -1,0 +1,6 @@
+input.form-control {
+  padding-right: 2.5rem; /* espacio para el botón del ojo */
+}
+button.bg-transparent:hover {
+  color: #198754; /* verde UIS */
+}

@@ -1,67 +1,155 @@
-:root {
-  --uis-green: #006F3E;
+/* ========= Variables ========= */
+:root{
+  --uis-green: #66bb2d;
+  --uis-green-700: #2e7d32;
+  --grid: #e8edf2;          /* línea fina de cuadrícula */
+  --head-bg: #eaf7ee;
+  --head-border: #cfead6;
+  --hover-bg: #f5fbf7;      /* hover de celda */
+  --ring: #93e2ac;          /* foco suave */
+  --ring-strong: #40b061;   /* selección */
+  --time-bg: #f1f3f5;       /* fondo de pastilla de hora */
+  --time-text: #374151;     /* texto hora */
 }
 
-.search-container {
+/* ========= Buscador ========= */
+.search-container{
   background: linear-gradient(45deg, var(--uis-green), #004d2b);
-  padding: 2rem;
-  border-radius: 10px;
+  padding: 2rem; border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0,0,0,.1);
   margin-bottom: 2rem;
 }
-
-.search-container h2 {
-  color: #fff;
+.search-container h2{ color:#fff; }
+.search-box{
+  background: rgba(255,255,255,.96);
+  border-radius: 8px; padding: 1rem;
+}
+.search-card{ border-radius: 16px; }
+.search-card .form-control{ border-radius: 12px; }
+.list-group-item.active{
+  background:#e6f6ea; color:#198754; border-color:#cdebd4;
 }
 
-.search-box {
-  background: rgba(255, 255, 255, 0.96);
-  border-radius: 8px;
-  padding: 1rem;
+/* ========= Tabla / Calendario ========= */
+.calendar-card{ border-radius:14px; overflow:hidden; }
+.calendar-card .card-header{ border-bottom:1px solid var(--grid); }
+
+.calendar-scroll{ max-height:70vh; overflow:auto; }
+
+/* tabla base con rejilla fina */
+.calendar-table{ margin:0; border-collapse:separate; border-spacing:0; width:100%; }
+.calendar-table thead th, .calendar-table tbody td{ border:1px solid var(--grid); }
+
+/* encabezados pegajosos */
+.calendar-table thead th{
+  position: sticky; top:0; z-index:2;
+  background: var(--head-bg);
+  color: var(--uis-green-700);
+  font-weight: 700; text-align: center;
+  border-bottom: 2px solid var(--head-border);
 }
 
-.schedule-header {
-  background-color: var(--uis-green);
-  color: #fff;
-  text-align: center;
+/* primera columna fija (hora) */
+.time-col, .time-cell{
+  position: sticky; left:0; z-index:3;
+  background:#fff; width:130px; min-width:130px;
+  text-align:center; vertical-align:middle;
+  border-right: 2px solid var(--grid);
 }
 
-.time-cell {
-  width: 120px;
-  background: #f8f9fa;
-  font-weight: 600;
-  text-align: center;
+/* estilo visual de hora (pastilla) */
+.time-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  background: var(--time-bg);
+  color: var(--time-text);
+  font-weight:600;
+  font-size:.9rem;
+  border-radius:999px;
+  padding:6px 14px;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.05);
+  transition: all .2s ease;
+}
+.time-badge:hover{
+  background: #e3e7eb;
+  color: var(--uis-green-700);
 }
 
-.schedule-cell {
-  height: 110px;
-  border: 1px solid #dee2e6;
+/* celdas de horario */
+.schedule-cell{
   position: relative;
-  padding: 8px;
+  min-width: 180px; height: 120px;
+  padding: 10px; vertical-align: top;
+  background:#fff; cursor: pointer;
+  transition: background-color .12s ease, box-shadow .12s ease;
+  outline: none; /* foco custom */
 }
 
-.tutoria-item {
-  background: #e8f5e9;
-  border-left: 4px solid var(--uis-green);
-  padding: 6px;
-  border-radius: 6px;
-  font-size: 0.88rem;
-  cursor: pointer;
-  transition: transform 0.15s ease, background-color 0.15s ease;
+/* zebra suave */
+.calendar-table tbody tr:nth-child(odd) .schedule-cell{ background:#fcfdff; }
+
+/* hover columna/celda */
+.calendar-table td:hover{ background: var(--hover-bg); }
+.calendar-table th.day-col:hover{ background: var(--hover-bg); }
+
+/* foco accesible */
+.schedule-cell:focus-visible{
+  background: var(--hover-bg);
+  box-shadow:
+    inset 0 0 0 2px var(--ring),
+    0 0 0 2px rgba(64,176,97,.12);
 }
 
-.tutoria-item:hover {
-  transform: scale(1.02);
-  background: #dff3e2;
+/* seleccionada (clase desde TS) */
+.schedule-cell.is-selected{
+  background:#eaf7ee;
+  box-shadow:
+    inset 0 0 0 3px var(--ring-strong),
+    0 2px 6px rgba(0,0,0,.06);
 }
 
-.tutoria-title {
-  color: var(--uis-green);
-  font-weight: 700;
-  margin-bottom: 2px;
+/* separación vertical un poco más visible */
+.calendar-table td + td,
+.calendar-table th + th{ border-left-color:#dde4ea; }
+
+/* ========= Tarjetas de curso ========= */
+.curso-card, .tutoria-item{
+  background:#eaf7ee;
+  border:1px solid var(--head-border);
+  border-left:4px solid var(--uis-green);
+  border-radius:12px; padding:10px 12px;
+  box-shadow:0 1px 2px rgba(0,0,0,.06);
+  animation: pop .18s ease-out;
+  transition: transform .15s ease, background .15s ease;
+}
+.curso-card:hover, .tutoria-item:hover{
+  transform: translateY(-2px);
+  background:#dff3e2;
+}
+@keyframes pop{ from{transform:scale(.98);opacity:.6;} to{transform:scale(1);opacity:1;} }
+
+.curso-title, .tutoria-title{
+  margin:0 0 2px; font-weight:800; color:#1e3a1f; font-size:1rem;
+}
+.curso-meta, .tutoria-info{
+  margin:0; font-size:.86rem; color:#6b7280;
+}
+.curso-badges{ margin-top:6px; display:flex; gap:6px; align-items:center; }
+.badge-cap{
+  font-size:.75rem; background:#dff5e1; color:#1f7a39;
+  border:1px solid #bfe8c7; border-radius:999px; padding:2px 8px;
 }
 
-.tutoria-info {
-  color: #6c757d;
-  font-size: 0.78rem;
+/* variantes opcionales por área */
+.dept-math{ border-left-color:#0ea5e9; }
+.dept-phys{ border-left-color:#a855f7; }
+.dept-prog{ border-left-color:#22c55e; }
+
+/* ========= Responsive ========= */
+@media (max-width: 768px){
+  .schedule-cell{ min-width:160px; height:140px; }
+  .time-col, .time-cell{ width:90px; min-width:90px; }
+  .curso-title, .tutoria-title{ font-size:.95rem; }
+  .time-badge{ font-size:.8rem; padding:5px 10px; }
 }
