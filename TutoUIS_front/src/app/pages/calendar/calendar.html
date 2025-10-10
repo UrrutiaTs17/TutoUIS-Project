@@ -1,111 +1,122 @@
 <div class="container py-4">
 
   <!-- Buscador -->
-  <div class="card search-card mb-4">
-    <div class="card-body position-relative">
-      <h2 class="h4 mb-3">
-        <i class="bi bi-search me-2" aria-hidden="true"></i>
-        Buscar Materias
+  <div class="card search-card mb-4" style="max-width: 1200px; margin-left: auto; margin-right: auto; box-shadow: 0 8px 32px rgba(102,187,45,0.08); border-radius: 24px; background: #f8fafc; border: 1.5px solid #e0e7ef; padding: 2.5rem 2rem;">
+  <div class="card-body position-relative" style="padding:0;">
+      <h2 class="h4 mb-4 text-success" style="font-weight:1200; letter-spacing:1px;">
+        Buscar Materia
       </h2>
 
-      <div class="position-relative">
-        <input
-          class="form-control form-control-lg ps-5 pe-5"
-          placeholder="Escribe el nombre de la materia…"
-          [formControl]="searchControl"
-          (keydown.enter)="selectFirst()"
-          aria-label="Buscar materias"
-          autocomplete="off"
-        />
-        <!-- icono lupa -->
-        <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3" aria-hidden="true"></i>
-
-        <!-- botón limpiar -->
-        <button *ngIf="(suggestions$ | async)?.length || searchControl.value"
-                type="button"
-                class="btn btn-sm btn-link position-absolute top-50 end-0 translate-middle-y me-2"
-                (click)="clear()">
-          Limpiar
-        </button>
-
-        <!-- Sugerencias -->
-        <ul *ngIf="showDropdown"
-            class="list-group position-absolute w-100 mt-2 shadow-sm rounded-3"
+  <div class="position-relative w-100" style="max-width:900px; margin:0 auto 1.5rem auto;">
+  <!-- Ícono de lupa eliminado para evitar duplicado -->
+  <div class="d-flex align-items-center position-relative flex-row w-100" style="gap:0.5rem;">
+          <div style="position:relative; width:100%; display:flex; align-items:center;">
+            <i class="bi bi-search" aria-hidden="true" style="position:absolute; left:18px; top:50%; transform:translateY(-50%); color:#6c757d; font-size:1.3rem; pointer-events:none;"></i>
+            <input
+              class="form-control form-control-lg"
+              style="min-width:500px; width:100%; max-width:900px; padding-left:2.5rem; padding-right:6.5rem; border-radius:16px; background:#fff; box-shadow:0 2px 8px rgba(102,187,45,0.04); border:1.5px solid #e0e7ef; font-size:1.15rem;"
+              placeholder="Busca una materia por nombre, docente o código"
+              [formControl]="searchControl"
+              (keydown.enter)="selectFirst()"
+              aria-label="Buscar materias"
+              autocomplete="off"
+              (focus)="showDropdown = true" />
+            <button *ngIf="searchControl.value && searchControl.value.trim()" type="button"
+              class="btn-limpiar position-absolute border-0"
+              style="top:50%; right:8px; transform:translateY(-50%); height:2rem; max-width:110px; font-size:0.98rem; z-index:2; overflow:hidden; white-space:nowrap;"
+              (click)="searchControl.setValue('')" aria-label="Limpiar búsqueda">
+              <i class="bi bi-eraser-fill" style="font-size:1.1rem;"></i>
+              Limpiar
+            </button>
+          </div>
+          <span *ngIf="!searchControl.value || !searchControl.value.trim()" class="ms-2 text-secondary d-flex align-items-center search-help-animated" style="font-size:1rem; background:#f1f8f4; border-radius:12px; padding:0.35rem 0.8rem; margin-left:1rem;">
+            <i class="bi bi-info-circle me-2" style="color:#198754; font-size:1.15rem;"></i>
+            Escribe para filtrar materias disponibles
+          </span>
+        </div>
+        <ul *ngIf="showDropdown && searchControl.value && searchControl.value.trim()"
+            class="list-group position-absolute w-100 mt-2 shadow rounded-3"
             role="listbox" style="z-index:10;">
           <li *ngFor="let c of (suggestions$ | async); let i = index; trackBy: trackMateria"
             class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
             role="option" (click)="select(c)"
             [class.active]="i === activeIndex">
-          <span>
+            <span>
               {{ c.nombre }}
-            <small class="text-muted">• {{ c.docente }}</small>
+              <small class="text-muted">• {{ c.docente }}</small>
             </span>
             <span class="badge bg-success-subtle text-success">{{ c.cupos }}</span>
           </li>
-
-          <li *ngIf="(suggestions$ | async)?.length === 0"
-              class="list-group-item text-muted">
-            No hay resultados para “{{ searchControl.value }}”.
+          <li *ngIf="showDropdown && searchControl.value && searchControl.value.trim() && !(activeIndex > -1) && (suggestions$ | async)?.length === 0"
+              class="list-group-item text-muted text-center">
+            <i class="bi bi-emoji-frown me-2"></i>
+            No se encontraron materias con ese criterio
           </li>
         </ul>
+        <ng-container *ngIf="searchControl.value && searchControl.value.trim()">
+          <ng-container *ngIf="suggestions$ | async as results">
+            <div *ngIf="results.length > 0" style="margin-top:2.5rem;" class="card calendar-card">
+              <div class="card-header bg-light d-flex align-items-center gap-2">
+                <i class="bi bi-calendar3" aria-hidden="true"></i>
+                <h3 class="mb-0">Horario Disponible</h3>
+              </div>
+              <div class="card-body p-0">
+                <div class="table-responsive calendar-scroll">
+                  <table class="table calendar-table align-middle" role="grid" aria-label="Horario semanal">
+                    <caption class="visually-hidden">Calendario semanal de tutorías</caption>
+                    <thead>
+                      <tr>
+                        <th class="time-col" scope="col">Hora</th>
+                        <th scope="col" *ngFor="let d of dias; trackBy: trackDia">
+                          {{ d }}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let h of horas; trackBy: trackHora">
+                        <th class="time-col" scope="row">
+                          <span class="time-badge">
+                            <i class="bi bi-clock me-1" aria-hidden="true"></i>
+                            {{ h }}
+                          </span>
+                        </th>
+                        <td *ngFor="let d of dias; trackBy: trackDia"
+                            class="schedule-cell"
+                            tabindex="0" role="button"
+                            [attr.data-hora]="h" [attr.data-dia]="d"
+                            (click)="selectCell(h,d)"
+                            (keydown.enter)="selectCell(h,d)"
+                            [class.is-selected]="isSelected(h,d)">
+                          <!-- tarjeta si hay materia colocada en esa celda -->
+                          <ng-container *ngIf="getMateriaFiltrada(h,d) as m; else emptyCell">
+                            <article class="curso-card" [ngClass]="m.clase" [title]="m.tooltip || ''">
+                              <h4 class="curso-title">{{ m.nombre }}</h4>
+                              <p class="curso-meta">{{ m.detalle }}</p>
+                              <div class="curso-badges">
+                                <span class="badge-cap">Cupos: {{ m.cupos }}</span>
+                              </div>
+                            </article>
+                          </ng-container>
+                          <!-- celda vacía accesible -->
+                          <ng-template #emptyCell>
+                            <span class="visually-hidden">Sin asignación</span>
+                          </ng-template>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+        </ng-container>
       </div>
     </div>
   </div>
 
-  <!-- Calendario -->
-  <div class="card calendar-card">
-    <div class="card-header bg-light d-flex align-items-center gap-2">
-      <i class="bi bi-calendar3" aria-hidden="true"></i>
-      <h3 class="mb-0">Horario Disponible  </h3>
-    </div>
-
-    <div class="card-body p-0">
-      <div class="table-responsive calendar-scroll">
-        <table class="table calendar-table align-middle" role="grid" aria-label="Horario semanal">
-          <caption class="visually-hidden">Calendario semanal de tutorías</caption>
-
-          <thead>
-            <tr>
-              <th class="time-col" scope="col">Hora</th>
-              <th class="day-col" scope="col" *ngFor="let d of dias; trackBy: trackDia">
-                {{ d }}
-              </th>
-            </tr>
-          </thead>
-
-          <tbody>
-  <tr *ngFor="let h of horas; trackBy: trackHora">
-    <th class="time-col" scope="row">
-      <span class="time-badge">
-        <i class="bi bi-clock me-1" aria-hidden="true"></i>
-        {{ h }}
-      </span>
-    </th>
-
-    <td *ngFor="let d of dias; trackBy: trackDia"
-        class="schedule-cell"
-        tabindex="0" role="button"
-        [attr.data-hora]="h" [attr.data-dia]="d"
-        (click)="selectCell(h,d)"
-        (keydown.enter)="selectCell(h,d)"
-        [class.is-selected]="isSelected(h,d)">
-
-      <!-- tarjeta si hay materia colocada en esa celda -->
-      <ng-container *ngIf="getMateria(h,d) as m; else emptyCell">
-        <article class="curso-card" [ngClass]="m.clase" [title]="m.tooltip || ''">
-          <h4 class="curso-title">{{ m.nombre }}</h4>
-          <p class="curso-meta">{{ m.detalle }}</p>
-          <div class="curso-badges">
-            <span class="badge-cap">Cupos: {{ m.cupos }}</span>
-          </div>
-        </article>
-      </ng-container>
-
-      <!-- celda vacía accesible -->
-      <ng-template #emptyCell>
-        <span class="visually-hidden">Sin asignación</span>
-      </ng-template>
-    </td>
-  </tr>
-</tbody>>
+  <!-- Contenido principal -->
+  <div class="row g-4">
+    <!-- Se elimina el bloque de calendario dentro de la sección principal para evitar duplicados -->
+  </div>
+</div>
 
