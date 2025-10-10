@@ -1,20 +1,3 @@
-/* Botón de limpiar moderno y animado */
-.btn-limpiar {
-  background: #eaf7ee;
-  color: #198754;
-  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
-  box-shadow: 0 2px 8px rgba(102,187,45,0.08);
-  border-radius: 8px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-.btn-limpiar:hover {
-  background: #dff3e2;
-  color: #145c2e;
-  box-shadow: 0 4px 16px rgba(102,187,45,0.15);
-}
 /* Animación y efecto para el mensaje de ayuda */
 .search-help-animated {
   animation: fadeInHelp 1s cubic-bezier(.4,1.4,.6,1), glowHelp 2.5s infinite alternate;

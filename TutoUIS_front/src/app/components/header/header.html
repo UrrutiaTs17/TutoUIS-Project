@@ -1,32 +1,49 @@
 <header>
-    <nav class="navbar navbar-expand-lg">
+    <nav class="navbar navbar-expand-lg shadow-lg animate__animated animate__fadeInDown" style="background: linear-gradient(90deg, #e9f7ef 60%, #b7e4c7 100%);">
         <div class="container-fluid">
-            <a class="navbar-brand" routerLink="/">TutoUIS</a>
+            <a class="navbar-brand fw-bold text-success d-flex align-items-center" routerLink="/" style="font-size:2rem; letter-spacing:2px;">
+                TutoUIS
+            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText"
                 aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarText">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" routerLink="/">
-                            <i class="bi bi-house-door"></i> Inicio
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" routerLink="/calendar">
-                            <i class="bi bi-calendar-check"></i> Mis Reservas
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" routerLink="/login">
-                            <i class="bi bi-person"></i> Mi Perfil
-                        </a>
-                    </li>
+                                <li class="nav-item">
+                                    <a class="nav-link d-flex align-items-center animate__animated animate__fadeInLeft menu-btn"
+                                         routerLink="/"
+                                         routerLinkActive="active-reserva"
+                                         [routerLinkActiveOptions]="{ exact: true }">
+                                        <i class="bi bi-house-door me-1 fs-5"></i> <span class="d-none d-md-inline">Inicio</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link d-flex align-items-center animate__animated animate__fadeInLeft menu-btn"
+                                         routerLink="/calendar"
+                                         routerLinkActive="active-reserva"
+                                         [routerLinkActiveOptions]="{ exact: true }">
+                                        <i class="bi bi-calendar-check me-1 fs-5"></i> <span class="d-none d-md-inline">Mis Reservas</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link d-flex align-items-center animate__animated animate__fadeInLeft menu-btn"
+                                         routerLink="/ayuda"
+                                         routerLinkActive="active-reserva"
+                                         [routerLinkActiveOptions]="{ exact: true }">
+                                        <i class="bi bi-question-circle me-1 fs-5"></i> <span class="d-none d-md-inline">Ayuda</span>
+                                    </a>
+                                </li>
                 </ul>
-                <span class="navbar-text">
-                    Aquí va el nombre del perfil cuando se implemente la autenticación
-                </span>
+                                <div class="d-flex align-items-center gap-3">
+                                    <a class="btn btn-perfil-solo animate__animated animate__fadeInRight"
+                                       routerLink="/login" routerLinkActive="active-reserva" [routerLinkActiveOptions]="{ exact: true }"
+                                       title="Mi Perfil" data-bs-toggle="tooltip" data-bs-placement="bottom">
+                                        <span class="perfil-icon-solo">
+                                            <i class="bi bi-person-circle"></i>
+                                        </span>
+                                    </a>
+                                </div>
             </div>
         </div>
     </nav>
