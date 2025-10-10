@@ -31,7 +31,7 @@ export class CalendarComponent implements OnInit {
 
   // ======== Cabeceras de tabla ========
   dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
-  horas = ['6:00 - 8:00', '8:00 - 10:00', '10:00 - 12:00', '14:00 - 16:00', '16:00 - 18:00'];
+  horas = ['6:00 - 8:00', '8:00 - 10:00', '10:00 - 12:00', '12:00 - 14:00', '14:00 - 16:00', '16:00 - 18:00'];
 
   // ======== Buscador (demo) ========
   searchControl = new FormControl<string>('', { nonNullable: true });
@@ -109,6 +109,15 @@ trackMateria = (_: number, m: MateriaCatalogo) => m.id; // o `${m.id}-${m.nombre
 
   getMateria(hora: string, dia: string): MateriaCelda | undefined {
     return this.schedule.get(this.key(hora, dia));
+  }
+
+  // Nueva función: solo muestra la materia buscada
+  getMateriaFiltrada(hora: string, dia: string): MateriaCelda | undefined {
+    const materia = this.getMateria(hora, dia);
+    const query = this.searchControl.value?.toLowerCase().trim();
+    if (!materia || !query) return undefined;
+    // Coincidencia por nombre de materia
+    return materia.nombre.toLowerCase().includes(query) ? materia : undefined;
   }
 
   selectCell(hora: string, dia: string) {
