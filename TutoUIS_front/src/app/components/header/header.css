@@ -1,0 +1,492 @@
+.btn-perfil-solo {
+    display: flex;
+    align-items: center;
+    background: none;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 0;
+}
+.perfil-icon-solo {
+    background: #fff;
+    border: 2px solid #229954;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(44,62,80,0.12);
+    transition: box-shadow 0.2s, border-color 0.2s, background 0.2s, transform 0.2s;
+}
+.btn-perfil-solo:hover .perfil-icon-solo,
+.btn-perfil-solo:focus .perfil-icon-solo {
+    background: #2299541a;
+    border-color: #145a32;
+    box-shadow: 0 0 12px 2px #22995488;
+    transform: scale(1.08);
+}
+.perfil-icon-solo i {
+    color: #229954;
+    font-size: 1.7rem;
+    transition: color 0.2s;
+}
+.btn-perfil-solo:hover .perfil-icon-solo i,
+.btn-perfil-solo:focus .perfil-icon-solo i {
+    color: #145a32;
+}
+.btn-perfil {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    background: none;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.2s;
+}
+.perfil-icon {
+    background: #fff;
+    border: 2px solid #229954;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(44,62,80,0.12);
+    transition: box-shadow 0.2s, border-color 0.2s, background 0.2s;
+}
+.btn-perfil:hover .perfil-icon,
+.btn-perfil:focus .perfil-icon {
+    background: #2299541a;
+    border-color: #145a32;
+    box-shadow: 0 0 16px 4px #22995488;
+}
+.perfil-icon i {
+    color: #229954;
+    font-size: 2rem;
+    transition: color 0.2s;
+}
+.btn-perfil:hover .perfil-icon i,
+.btn-perfil:focus .perfil-icon i {
+    color: #145a32;
+}
+.perfil-label {
+    opacity: 0;
+    max-width: 0;
+    background: #fff;
+    color: #229954;
+    font-weight: 500;
+    font-size: 0.78rem;
+    letter-spacing: 0.3px;
+    border-radius: 12px;
+    border: 1px solid #229954;
+    box-shadow: 0 1px 4px rgba(44,62,80,0.08);
+    padding: 0.08rem 0.45rem;
+    margin-left: 0;
+    transition: opacity 0.3s, max-width 0.3s, margin-left 0.3s, border 0.2s, color 0.2s;
+    overflow: hidden;
+    display: inline-block;
+    white-space: nowrap;
+}
+.btn-perfil:hover .perfil-label,
+.btn-perfil:focus .perfil-label {
+    opacity: 1;
+    max-width: 45px;
+    margin-left: 0.2rem;
+    background: #fff;
+    color: #229954;
+    border: 1px solid #229954;
+    white-space: nowrap;
+}
+.perfil-animado {
+    background: #fff;
+    border: 2.5px solid #229954;
+    border-radius: 60px;
+    box-shadow: 0 4px 16px rgba(44,62,80,0.22);
+    color: #229954;
+    min-width: 56px;
+    height: 56px !important;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0.5rem 1.1rem;
+    gap: 0.7rem;
+    transition: box-shadow 0.2s, border-color 0.2s, background 0.2s, min-width 0.3s;
+    cursor: pointer;
+    overflow: hidden;
+}
+.perfil-animado:hover,
+.perfil-animado:focus {
+    background: linear-gradient(90deg, #229954 40%, #b7e4c7 100%);
+    border-color: #145a32;
+    min-width: 170px;
+    box-shadow: 0 0 24px 8px #22995488;
+}
+.perfil-animado .bi-person-circle {
+    color: #229954;
+    font-size: 2.7rem;
+    transition: color 0.2s, transform 0.2s;
+}
+.perfil-animado:hover .bi-person-circle,
+.perfil-animado:focus .bi-person-circle {
+    color: #fff;
+    transform: scale(1.08);
+}
+.perfil-label {
+    opacity: 0;
+    max-width: 0;
+    background: #229954;
+    color: #fff;
+    font-weight: 600;
+    font-size: 1.2rem;
+    letter-spacing: 1.5px;
+    margin-left: 0.3rem;
+    border-radius: 20px;
+    box-shadow: 0 2px 8px rgba(44,62,80,0.18);
+    padding: 0.2rem 1rem;
+    transition: opacity 0.3s, max-width 0.3s, margin-left 0.3s, background 0.2s, color 0.2s;
+    overflow: hidden;
+    display: inline-block;
+}
+.perfil-animado:hover .perfil-label,
+.perfil-animado:focus .perfil-label {
+    opacity: 1;
+    max-width: 120px;
+    background: #229954;
+    color: #fff;
+    margin-left: 0.3rem;
+}
+.btn-outline-success[title="Mi Perfil"] {
+    background: #fff;
+    border: 2.5px solid #229954;
+    border-radius: 60px;
+    box-shadow: 0 4px 16px rgba(44,62,80,0.22);
+    color: #229954;
+    min-width: 170px;
+    height: 56px !important;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0.5rem 1.5rem;
+    gap: 1.1rem;
+    transition: box-shadow 0.2s, border-color 0.2s, transform 0.2s;
+}
+.btn-outline-success[title="Mi Perfil"]:hover {
+    background: #2299541a;
+    box-shadow: 0 0 24px 8px #22995488;
+    border-color: #145a32;
+    transform: scale(1.07);
+}
+.btn-outline-success[title="Mi Perfil"] .bi-person-circle {
+    color: #229954;
+    font-size: 2.7rem;
+    transition: color 0.2s, transform 0.2s;
+}
+.perfil-label {
+    font-weight: 600;
+    color: #229954;
+    font-size: 1.35rem;
+    letter-spacing: 1.5px;
+    margin-left: 0.3rem;
+}
+.btn-outline-success[title="Mi Perfil"] {
+    background: #fff;
+    border: 2px solid #229954;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(44,62,80,0.18);
+    color: #229954;
+    width: 40px !important;
+    height: 40px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: box-shadow 0.2s, border-color 0.2s, transform 0.2s;
+}
+.btn-outline-success[title="Mi Perfil"]:hover {
+    background: #2299541a;
+    box-shadow: 0 0 16px 4px #22995488;
+    border-color: #145a32;
+    transform: scale(1.08);
+}
+.btn-outline-success[title="Mi Perfil"] .bi-person-circle {
+    color: #229954;
+    font-size: 2rem;
+    transition: color 0.2s, transform 0.2s;
+}
+/* Botón de notificaciones con estilo similar al de Mi Perfil */
+.btn-light.position-relative {
+    background: #fff;
+    border: 2px solid #229954;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(44,62,80,0.18);
+    transition: box-shadow 0.2s, border-color 0.2s, transform 0.2s;
+    color: #229954;
+    width: 40px !important;
+    height: 40px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+.btn-light.position-relative:hover {
+    background: #2299541a;
+    box-shadow: 0 0 16px 4px #22995488;
+    border-color: #145a32;
+    transform: scale(1.08);
+}
+.bi-bell-fill {
+    color: #229954;
+    font-size: 1.7rem;
+    transition: color 0.2s, transform 0.2s;
+}
+.btn-light.position-relative .badge {
+    font-size: 0.8rem;
+    box-shadow: 0 0 8px 2px #d32f2f88;
+}
+/* Animación de campana al recibir notificación */
+.btn-light.position-relative[data-has-notif="true"] .bi-bell {
+    animation: bellRing 0.7s cubic-bezier(.36,.07,.19,.97) both;
+}
+@keyframes bellRing {
+    0% { transform: rotate(0); }
+    10% { transform: rotate(20deg); }
+    20% { transform: rotate(-18deg); }
+    30% { transform: rotate(16deg); }
+    40% { transform: rotate(-14deg); }
+    50% { transform: rotate(12deg); }
+    60% { transform: rotate(-10deg); }
+    70% { transform: rotate(8deg); }
+    80% { transform: rotate(-6deg); }
+    90% { transform: rotate(4deg); }
+    100% { transform: rotate(0); }
+}
+.navbar-brand {
+    font-family: 'Oswald', 'Montserrat', 'Arial Black', Arial, sans-serif !important;
+    font-weight: 900 !important;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: #fff !important;
+    text-shadow: 3px 3px 8px #061a0f, 0 0 4px #0b3d1c;
+    background: linear-gradient(90deg, #061a0f 40%, #0b3d1c 100%);
+    border-radius: 18px;
+    font-style: normal;
+    font-size: 2.2rem !important;
+    padding: 0.3rem 1.2rem;
+    margin-left: 0.2rem;
+    box-shadow: 0 2px 12px rgba(44,62,80,0.18);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.navbar-brand:hover {
+    transform: scale(1.06) translateY(-2px);
+    box-shadow: 0 6px 24px rgba(44,62,80,0.22);
+}
+.navbar-brand {
+    font-family: 'Oswald', 'Montserrat', 'Arial Black', Arial, sans-serif !important;
+    font-weight: 900 !important;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: #145a32 !important;
+    text-shadow: 3px 3px 8px #b7e4c7, 0 0 4px #229954;
+    background: none !important;
+    font-style: normal;
+    font-size: 2.2rem !important;
+    padding-top: 0.1rem;
+    padding-bottom: 0.1rem;
+}
+.navbar-brand {
+    font-family: 'Oswald', 'Montserrat', 'Arial Black', Arial, sans-serif !important;
+    font-weight: 900 !important;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: #145a32 !important;
+    text-shadow: 2px 2px 4px #b7e4c7, 0 0 2px #229954;
+    background: none !important;
+    font-style: normal;
+}
+.navbar-brand {
+    font-family: 'Pacifico', 'Segoe Script', cursive, Arial, sans-serif !important;
+    font-style: italic;
+    font-weight: 700 !important;
+    letter-spacing: 2px;
+    color: #198754 !important;
+    text-shadow: 1px 1px 2px #b7e4c7, 0 0 1px #229954;
+    -webkit-text-fill-color: #198754;
+    background: none !important;
+}
+.navbar-brand {
+    font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif !important;
+    font-weight: 800 !important;
+    letter-spacing: 2px;
+    color: #229954 !important;
+    text-shadow: 1px 1px 2px #b7e4c7, 0 0 1px #229954;
+    background: linear-gradient(90deg, #229954 40%, #b7e4c7 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.navbar {
+    min-height: 36px;
+    padding-top: 0.05rem;
+    padding-bottom: 0.05rem;
+}
+.nav-link {
+    font-size: 0.85rem;
+    padding: 0.25rem 0.5rem;
+    margin-right: 0.4rem;
+}
+.navbar-brand {
+    font-size: 1rem !important;
+    padding-top: 0.05rem;
+    padding-bottom: 0.05rem;
+}
+.btn-outline-success,
+.btn-light.position-relative {
+    width: 24px !important;
+    height: 24px !important;
+    font-size: 0.9rem !important;
+}
+.navbar {
+    min-height: 48px;
+    padding-top: 0.2rem;
+    padding-bottom: 0.2rem;
+}
+.nav-link {
+    font-size: 1rem;
+    padding: 0.4rem 0.8rem;
+    margin-right: 0.7rem;
+}
+.navbar-brand {
+    font-size: 1.3rem !important;
+    padding-top: 0.1rem;
+    padding-bottom: 0.1rem;
+}
+.btn-outline-success,
+.btn-light.position-relative {
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 1.1rem !important;
+}
+.menu-btn {
+    position: relative;
+    overflow: hidden;
+}
+.menu-btn:active {
+    animation: btnPulse 0.2s;
+}
+@keyframes btnPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(0.93); }
+    100% { transform: scale(1); }
+}
+.menu-btn:hover {
+    background: linear-gradient(90deg, #b7e4c7 60%, #229954 100%) !important;
+    color: #fff !important;
+    box-shadow: 0 4px 16px rgba(44, 62, 80, 0.18);
+}
+
+.navbar {
+    background: linear-gradient(90deg, #e9f7ef 60%, #b7e4c7 100%);
+    box-shadow: 0 4px 16px rgba(44, 62, 80, 0.12);
+    border-bottom: 2px solid #a3e4d7;
+    animation: fadeInDown 0.7s;
+}
+
+.nav-link {
+    color: #229954 !important;
+    font-weight: 500;
+    font-size: 1.2rem;
+    margin-right: 1.2rem;
+    transition: color 0.2s, background 0.2s, box-shadow 0.2s, transform 0.2s;
+    border-radius: 24px;
+    padding: 0.6rem 1.2rem;
+    box-shadow: none;
+}
+.nav-link.active-reserva, .nav-link.router-link-active {
+    background: #2299541a;
+    color: #229954 !important;
+    box-shadow: 0 2px 8px rgba(44, 62, 80, 0.12);
+    transform: scale(1.08);
+}
+.nav-link:hover {
+    background: #22995426;
+    color: #229954 !important;
+    box-shadow: 0 4px 16px rgba(44, 62, 80, 0.16);
+    transform: translateY(-2px) scale(1.05);
+}
+
+.btn-outline-success {
+    border: 2px solid #229954;
+    color: #229954;
+    background: #fff;
+    transition: box-shadow 0.2s, border-color 0.2s, transform 0.2s;
+    font-size: 1.3rem;
+    box-shadow: none;
+}
+.btn-outline-success.active-reserva, .btn-outline-success.router-link-active {
+    border-color: #229954;
+    box-shadow: 0 2px 8px rgba(44, 62, 80, 0.16);
+    transform: scale(1.08);
+}
+.btn-outline-success:hover {
+    background: #2299541a;
+    color: #229954;
+    box-shadow: 0 4px 16px rgba(44, 62, 80, 0.18);
+    transform: translateY(-2px) scale(1.07);
+}
+
+.btn-light.position-relative {
+    box-shadow: none;
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+.btn-light.position-relative:hover {
+    box-shadow: 0 4px 16px rgba(44, 62, 80, 0.18);
+    transform: translateY(-2px) scale(1.07);
+}
+
+.bi-person-circle {
+    transition: color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+.btn-outline-success.active-reserva .bi-person-circle,
+.btn-outline-success.router-link-active .bi-person-circle {
+    color: #229954;
+    box-shadow: 0 2px 8px rgba(44, 62, 80, 0.14);
+    border-radius: 50%;
+    transform: scale(1.12);
+}
+.btn-outline-success .bi-person-circle {
+    color: #229954;
+}
+.btn-outline-success:not(.active-reserva):not(.router-link-active) .bi-person-circle {
+    border: none;
+}
+
+/* Tooltip personalizado para el icono de perfil */
+[title="Mi Perfil"] {
+    position: relative;
+}
+[title="Mi Perfil"]::after {
+    content: attr(title);
+    position: absolute;
+    left: 50%;
+    bottom: -2.5em;
+    transform: translateX(-50%);
+    background: linear-gradient(90deg, #229954 60%, #b7e4c7 100%);
+    color: #fff;
+    padding: 0.3em 1em;
+    border-radius: 10px;
+    font-size: 1em;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s, transform 0.2s;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(44, 62, 80, 0.14);
+}
+[title="Mi Perfil"]:hover::after {
+    opacity: 1;
+    transform: translateX(-50%) scale(1.05);
+}

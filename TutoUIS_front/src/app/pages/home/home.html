@@ -1,0 +1,48 @@
+<router-outlet></router-outlet>
+<div class="home-bg min-vh-100 d-flex flex-column justify-content-center align-items-center" style="background: linear-gradient(135deg, #e9f7ef 60%, #f8f9fa 100%);">
+  <div class="card shadow-lg p-4 animate__animated animate__fadeIn" style="max-width: 800px; width: 100%; border-radius: 18px;">
+    <h1 class="mb-3 text-success fw-bold">Reserva rápidamente con TutoUIS</h1>
+    <img
+      src="https://comunicaciones.uis.edu.co/wp-content/uploads/2022/09/logo_verde_horz_2.png"
+      alt="Logo UIS"
+      class="img-fluid mb-3"
+      style="max-width: 220px;"
+    />
+    <p class="lead mb-4 text-secondary text-center">
+      Accede a nuestra plataforma para gestionar tus reservas de espacios de estudio en la Universidad Industrial de Santander.
+    </p>
+
+    <div class="row g-2 mb-3">
+      <div class="col-12 col-md-4">
+        <div class="card border-0 shadow-sm p-2 h-100 text-center animate__animated animate__fadeInUp" style="border-radius: 12px;">
+          <i class="bi bi-calendar-check text-success mb-2" style="font-size: 2rem;"></i>
+          <div class="fw-semibold">Reserva fácil</div>
+          <small class="text-muted">Elige tu espacio en segundos.</small>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="card border-0 shadow-sm p-2 h-100 text-center animate__animated animate__fadeInUp" style="border-radius: 12px; animation-delay: 0.2s;">
+          <i class="bi bi-clock-history text-primary mb-2" style="font-size: 2rem;"></i>
+          <div class="fw-semibold">Gestión rápida</div>
+          <small class="text-muted">Administra tus reservas fácilmente.</small>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="card border-0 shadow-sm p-2 h-100 text-center animate__animated animate__fadeInUp" style="border-radius: 12px; animation-delay: 0.4s;">
+          <i class="bi bi-shield-check text-warning mb-2" style="font-size: 2rem;"></i>
+          <div class="fw-semibold">Seguro y confiable</div>
+          <small class="text-muted">Tus datos siempre protegidos.</small>
+        </div>
+      </div>
+    </div>
+
+    <a routerLink="/login" class="btn btn-success btn-lg shadow-sm animate__animated animate__pulse animate__infinite" style="border-radius: 8px;">
+      <i class="bi bi-person-plus me-2"></i>Regístrate
+    </a>
+
+    <div class="mt-4 d-flex flex-wrap justify-content-center gap-3">
+      <a routerLink="/calendar" class="btn btn-outline-success btn-sm"><i class="bi bi-calendar-event me-1"></i> Calendario</a>
+      <a routerLink="/ayuda" class="btn btn-outline-secondary btn-sm"><i class="bi bi-question-circle me-1"></i> Ayuda</a>
+    </div>
+  </div>
+</div>
