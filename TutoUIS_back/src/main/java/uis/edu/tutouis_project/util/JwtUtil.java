@@ -14,19 +14,19 @@ public class JwtUtil {
     @Value("${jwt.expiration}")
     private Long expiration;
 
-    public String generateToken(String correo) {
+    public String generateToken(String codigo) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expiration);
         SecretKey key = Keys.hmacShaKeyFor(secret.getBytes());
         return Jwts.builder()
-                .subject(correo)
+                .subject(codigo)
                 .issuedAt(now)
                 .expiration(expiryDate)
                 .signWith(key)
                 .compact();
     }
 
-    public String getCorreoFromToken(String token) {
+    public String getCodigoFromToken(String token) {
         SecretKey key = Keys.hmacShaKeyFor(secret.getBytes());
         Claims claims = Jwts.parser()
                 .verifyWith(key)
@@ -59,3 +59,4 @@ public class JwtUtil {
         return claims.getExpiration().before(new Date());
     }
 }
+

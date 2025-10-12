@@ -13,4 +13,6 @@ public interface IUsuarioService {
     int eliminarUsuario(Integer id);
     ResponseEntity<?> loginConJwt(LoginDto loginDto);
     Usuario findByCorreo(String correo);
+    Usuario findByCodigo(String codigo);
 }
+
