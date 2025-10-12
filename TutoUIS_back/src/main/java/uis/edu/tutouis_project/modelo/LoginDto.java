@@ -1,15 +1,15 @@
 package uis.edu.tutouis_project.modelo;
 
 public class LoginDto {
-    private String correo;
+    private String codigo;
     private String contrasena;
 
-    public String getCorreo() {
-        return correo;
+    public String getCodigo() {
+        return codigo;
     }
 
-    public void setCorreo(String correo) {
-        this.correo = correo;
+    public void setCodigo(String codigo) {
+        this.codigo = codigo;
     }
 
     public String getContrasena() {

@@ -8,4 +8,6 @@ import uis.edu.tutouis_project.modelo.Usuario;
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     Usuario findByCorreo(String correo);
+    Usuario findByCodigo(String codigo);
 }
+

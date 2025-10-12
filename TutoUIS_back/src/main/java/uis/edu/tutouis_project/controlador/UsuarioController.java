@@ -43,7 +43,8 @@ public class UsuarioController {
         Usuario actual = usuarioService.buscarUsuario(usuario.getId_usuario());
         if (actual != null) {
             actual.setNombre(usuario.getNombre());
-            actual.setCorreo(usuario.getCorreo());
+            actual.setApellido(usuario.getApellido());
+            actual.setCodigo(usuario.getCodigo());
             actual.setContrasena(usuario.getContrasena());
             actual.setTelefono(usuario.getTelefono());
             actual.setId_rol(usuario.getId_rol());
@@ -68,8 +69,8 @@ public class UsuarioController {
 
     @GetMapping("/profile")
     public ResponseEntity<?> getProfile() {
-        String correo = SecurityContextHolder.getContext().getAuthentication().getName();
-        Usuario usuario = usuarioService.findByCorreo(correo);
+        String codigo = SecurityContextHolder.getContext().getAuthentication().getName();
+        Usuario usuario = usuarioService.findByCodigo(codigo);
         if (usuario != null) {
             usuario.setContrasena(null);
             return ResponseEntity.ok(usuario);
@@ -78,3 +79,4 @@ public class UsuarioController {
         }
     }
 }
+
