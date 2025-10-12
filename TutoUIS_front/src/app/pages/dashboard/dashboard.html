@@ -1,0 +1,306 @@
+<!-- Dashboard con Sidebar Layout -->
+<div class="dashboard-layout" [class.sidebar-open]="isSidebarOpen">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <img
+        src="/LOGO UIS_PNG.png"
+        alt="Logo UIS"
+        class="logo-sidebar"
+      />
+    </div>
+
+    <div class="user-profile">
+      <div class="avatar">{{ userInitials }}</div>
+      <h6 class="user-name">{{ userName }}</h6>
+      <small class="user-email">{{ userEmail }}</small>
+    </div>
+
+    <nav class="nav-menu">
+      <a class="nav-item" [class.active]="activeSection === 'inicio'" (click)="setActiveSection('inicio')">
+        <i class="bi bi-house-door"></i>
+        <span>Inicio</span>
+      </a>
+      <a class="nav-item" [class.active]="activeSection === 'nueva-reserva'" (click)="setActiveSection('nueva-reserva')">
+        <i class="bi bi-calendar-plus"></i>
+        <span>Nueva Reserva</span>
+      </a>
+      <a class="nav-item" [class.active]="activeSection === 'mis-reservas'" (click)="setActiveSection('mis-reservas')">
+        <i class="bi bi-list-ul"></i>
+        <span>Mis Reservas</span>
+      </a>
+      <a class="nav-item" [class.active]="activeSection === 'historial'" (click)="setActiveSection('historial')">
+        <i class="bi bi-clock-history"></i>
+        <span>Historial</span>
+      </a>
+      <a class="nav-item" [class.active]="activeSection === 'perfil'" (click)="setActiveSection('perfil')">
+        <i class="bi bi-person"></i>
+        <span>Mi Perfil</span>
+      </a>
+      <a class="nav-item" [class.active]="activeSection === 'configuracion'" (click)="setActiveSection('configuracion')">
+        <i class="bi bi-gear"></i>
+        <span>Configuración</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="btn btn-outline-light btn-sm w-100" (click)="logout()">
+        <i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <div class="top-bar-left">
+        <button class="btn btn-link mobile-menu-toggle" (click)="toggleSidebar()">
+          <i class="bi bi-list"></i>
+        </button>
+        <h3 class="page-title">{{ currentPageTitle }}</h3>
+      </div>
+      <div class="top-bar-right">
+        <button class="btn btn-icon" title="Notificaciones">
+          <i class="bi bi-bell"></i>
+          <span class="notification-badge">3</span>
+        </button>
+        <button class="btn btn-icon" title="Ayuda">
+          <i class="bi bi-question-circle"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content-area">
+      <!-- Sección: Inicio -->
+      @if (activeSection === 'inicio') {
+        <div class="section-content">
+          <!-- Alert de notificaciones -->
+          @if (todayReservations > 0) {
+            <div class="alert alert-info mb-4">
+              <i class="bi bi-info-circle me-2"></i>
+              Tienes <strong>{{ todayReservations }}</strong> reserva(s) para hoy
+            </div>
+          }
+
+          <!-- Quick Stats -->
+          <div class="row g-3 mb-4">
+            <div class="col-md-3 col-sm-6">
+              <div class="stat-card">
+                <div class="stat-icon bg-success">
+                  <i class="bi bi-calendar-check"></i>
+                </div>
+                <div class="stat-info">
+                  <h4>{{ activeReservationsCount }}</h4>
+                  <p>Reservas Activas</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <div class="stat-card">
+                <div class="stat-icon bg-primary">
+                  <i class="bi bi-clock-history"></i>
+                </div>
+                <div class="stat-info">
+                  <h4>{{ upcomingReservationsCount }}</h4>
+                  <p>Próximas</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <div class="stat-card">
+                <div class="stat-icon bg-warning">
+                  <i class="bi bi-bookmark-check"></i>
+                </div>
+                <div class="stat-info">
+                  <h4>{{ completedReservationsCount }}</h4>
+                  <p>Completadas</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <div class="stat-card">
+                <div class="stat-icon bg-danger">
+                  <i class="bi bi-star"></i>
+                </div>
+                <div class="stat-info">
+                  <h4>{{ favoriteRoomsCount }}</h4>
+                  <p>Favoritos</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Próximas Reservas -->
+          <div class="row g-4">
+            <div class="col-lg-8">
+              <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                  <h5 class="mb-0">
+                    <i class="bi bi-calendar-event me-2"></i>Mis Próximas Reservas
+                  </h5>
+                  <button class="btn btn-sm btn-success" (click)="setActiveSection('nueva-reserva')">
+                    <i class="bi bi-plus-circle me-1"></i>Nueva
+                  </button>
+                </div>
+                <div class="card-body">
+                  @if (upcomingReservationsList.length === 0) {
+                    <div class="text-center py-5 text-muted">
+                      <i class="bi bi-calendar-x" style="font-size: 3rem;"></i>
+                      <p class="mt-3">No tienes reservas próximas</p>
+                      <button class="btn btn-success" (click)="setActiveSection('nueva-reserva')">
+                        Crear una reserva
+                      </button>
+                    </div>
+                  }
+
+                  @for (reservation of upcomingReservationsList; track reservation.id) {
+                    <div class="reservation-item">
+                      <div class="reservation-info">
+                        <div class="reservation-icon">
+                          <i class="bi bi-door-open"></i>
+                        </div>
+                        <div class="reservation-details">
+                          <h6 class="mb-1">{{ reservation.roomName }}</h6>
+                          <small class="text-muted">
+                            <i class="bi bi-calendar3 me-1"></i>{{ reservation.date }}
+                            <span class="mx-2">|</span>
+                            <i class="bi bi-clock me-1"></i>{{ reservation.time }}
+                          </small>
+                        </div>
+                      </div>
+                      <div class="reservation-actions">
+                        <button class="btn btn-sm btn-outline-primary" title="Ver detalles">
+                          <i class="bi bi-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" title="Cancelar">
+                          <i class="bi bi-x-circle"></i>
+                        </button>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-4">
+              <!-- Acciones Rápidas -->
+              <div class="card mb-3">
+                <div class="card-header">
+                  <h5 class="mb-0">
+                    <i class="bi bi-lightning me-2"></i>Acciones Rápidas
+                  </h5>
+                </div>
+                <div class="card-body d-grid gap-2">
+                  <button class="btn btn-success" (click)="setActiveSection('nueva-reserva')">
+                    <i class="bi bi-plus-circle me-2"></i>Nueva Reserva
+                  </button>
+                  <button class="btn btn-outline-primary" routerLink="/calendar">
+                    <i class="bi bi-calendar me-2"></i>Ver Calendario
+                  </button>
+                  <button class="btn btn-outline-secondary" (click)="setActiveSection('historial')">
+                    <i class="bi bi-clock-history me-2"></i>Ver Historial
+                  </button>
+                </div>
+              </div>
+
+              <!-- Espacios Favoritos -->
+              <div class="card">
+                <div class="card-header">
+                  <h5 class="mb-0">
+                    <i class="bi bi-star me-2"></i>Espacios Favoritos
+                  </h5>
+                </div>
+                <div class="card-body">
+                  @for (favorite of favoriteRoomsList; track favorite.id) {
+                    <div class="favorite-item">
+                      <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                          <h6 class="mb-0">{{ favorite.name }}</h6>
+                          <small class="text-muted">{{ favorite.building }}</small>
+                        </div>
+                        <button class="btn btn-sm btn-outline-success" title="Reservar">
+                          <i class="bi bi-calendar-plus"></i>
+                        </button>
+                      </div>
+                    </div>
+                  }
+                  @if (favoriteRoomsList.length === 0) {
+                    <div class="text-center text-muted py-3">
+                      <i class="bi bi-star" style="font-size: 2rem;"></i>
+                      <p class="small mt-2">No tienes favoritos aún</p>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Sección: Nueva Reserva -->
+      @if (activeSection === 'nueva-reserva') {
+        <div class="section-content">
+          <div class="card">
+            <div class="card-body">
+              <h4 class="mb-4">Crear Nueva Reserva</h4>
+              <p class="text-muted">Aquí irá el formulario de nueva reserva</p>
+              <button class="btn btn-outline-secondary" (click)="setActiveSection('inicio')">
+                <i class="bi bi-arrow-left me-2"></i>Volver al inicio
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Sección: Mis Reservas -->
+      @if (activeSection === 'mis-reservas') {
+        <div class="section-content">
+          <div class="card">
+            <div class="card-body">
+              <h4 class="mb-4">Todas Mis Reservas</h4>
+              <p class="text-muted">Aquí se mostrarán todas tus reservas</p>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Sección: Historial -->
+      @if (activeSection === 'historial') {
+        <div class="section-content">
+          <div class="card">
+            <div class="card-body">
+              <h4 class="mb-4">Historial de Reservas</h4>
+              <p class="text-muted">Aquí se mostrará el historial completo</p>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Sección: Perfil -->
+      @if (activeSection === 'perfil') {
+        <div class="section-content">
+          <div class="card">
+            <div class="card-body">
+              <h4 class="mb-4">Mi Perfil</h4>
+              <p class="text-muted">Aquí podrás editar tu información personal</p>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Sección: Configuración -->
+      @if (activeSection === 'configuracion') {
+        <div class="section-content">
+          <div class="card">
+            <div class="card-body">
+              <h4 class="mb-4">Configuración</h4>
+              <p class="text-muted">Aquí podrás ajustar las preferencias de la aplicación</p>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </main>
+</div>

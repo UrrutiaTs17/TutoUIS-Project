@@ -490,3 +490,17 @@
     opacity: 1;
     transform: translateX(-50%) scale(1.05);
 }
+
+/* Asegurar misma altura en ambos headers - Altura reducida */
+.navbar {
+    min-height: 56px;
+    padding: 4px 0;
+}
+
+.navbar-nav {
+    align-items: center;
+}
+
+.navbar-collapse {
+    align-items: center;
+}

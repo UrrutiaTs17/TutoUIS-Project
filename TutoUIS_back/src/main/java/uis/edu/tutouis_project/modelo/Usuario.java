@@ -52,39 +52,99 @@ public class Usuario {
     private java.sql.Timestamp fecha_desbloqueo;
 
     // Getters y Setters
-    public Integer getId_usuario() { return id_usuario; }
-    public void setId_usuario(Integer id_usuario) { this.id_usuario = id_usuario; }
+    public Integer getId_usuario() {
+        return id_usuario;
+    }
 
-    public String getNombre() { return nombre; }
-    public void setNombre(String nombre) { this.nombre = nombre; }
+    public void setId_usuario(Integer id_usuario) {
+        this.id_usuario = id_usuario;
+    }
 
-    public String getCorreo() { return correo; }
-    public void setCorreo(String correo) { this.correo = correo; }
+    public String getNombre() {
+        return nombre;
+    }
 
-    public String getContrasena() { return contrasena; }
-    public void setContrasena(String contrasena) { this.contrasena = contrasena; }
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
 
-    public String getTelefono() { return telefono; }
-    public void setTelefono(String telefono) { this.telefono = telefono; }
+    public String getCorreo() {
+        return correo;
+    }
 
-    public Integer getId_rol() { return id_rol; }
-    public void setId_rol(Integer id_rol) { this.id_rol = id_rol; }
+    public void setCorreo(String correo) {
+        this.correo = correo;
+    }
 
-    public Integer getId_carrera() { return id_carrera; }
-    public void setId_carrera(Integer id_carrera) { this.id_carrera = id_carrera; }
+    public String getContrasena() {
+        return contrasena;
+    }
 
-    public Boolean getActivo() { return activo; }
-    public void setActivo(Boolean activo) { this.activo = activo; }
+    public void setContrasena(String contrasena) {
+        this.contrasena = contrasena;
+    }
 
-    public Boolean getBloqueado() { return bloqueado; }
-    public void setBloqueado(Boolean bloqueado) { this.bloqueado = bloqueado; }
+    public String getTelefono() {
+        return telefono;
+    }
 
-    public java.sql.Timestamp getFecha_creacion() { return fecha_creacion; }
-    public void setFecha_creacion(java.sql.Timestamp fecha_creacion) { this.fecha_creacion = fecha_creacion; }
+    public void setTelefono(String telefono) {
+        this.telefono = telefono;
+    }
 
-    public java.sql.Timestamp getFecha_ultima_modificacion() { return fecha_ultima_modificacion; }
-    public void setFecha_ultima_modificacion(java.sql.Timestamp fecha_ultima_modificacion) { this.fecha_ultima_modificacion = fecha_ultima_modificacion; }
+    public Integer getId_rol() {
+        return id_rol;
+    }
 
-    public java.sql.Timestamp getFecha_desbloqueo() { return fecha_desbloqueo; }
-    public void setFecha_desbloqueo(java.sql.Timestamp fecha_desbloqueo) { this.fecha_desbloqueo = fecha_desbloqueo; }
+    public void setId_rol(Integer id_rol) {
+        this.id_rol = id_rol;
+    }
+
+    public Integer getId_carrera() {
+        return id_carrera;
+    }
+
+    public void setId_carrera(Integer id_carrera) {
+        this.id_carrera = id_carrera;
+    }
+
+    public Boolean getActivo() {
+        return activo;
+    }
+
+    public void setActivo(Boolean activo) {
+        this.activo = activo;
+    }
+
+    public Boolean getBloqueado() {
+        return bloqueado;
+    }
+
+    public void setBloqueado(Boolean bloqueado) {
+        this.bloqueado = bloqueado;
+    }
+
+    public java.sql.Timestamp getFecha_creacion() {
+        return fecha_creacion;
+    }
+
+    public void setFecha_creacion(java.sql.Timestamp fecha_creacion) {
+        this.fecha_creacion = fecha_creacion;
+    }
+
+    public java.sql.Timestamp getFecha_ultima_modificacion() {
+        return fecha_ultima_modificacion;
+    }
+
+    public void setFecha_ultima_modificacion(java.sql.Timestamp fecha_ultima_modificacion) {
+        this.fecha_ultima_modificacion = fecha_ultima_modificacion;
+    }
+
+    public java.sql.Timestamp getFecha_desbloqueo() {
+        return fecha_desbloqueo;
+    }
+
+    public void setFecha_desbloqueo(java.sql.Timestamp fecha_desbloqueo) {
+        this.fecha_desbloqueo = fecha_desbloqueo;
+    }
 }
