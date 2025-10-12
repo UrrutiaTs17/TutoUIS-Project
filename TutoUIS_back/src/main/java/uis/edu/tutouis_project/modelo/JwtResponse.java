@@ -12,7 +12,8 @@ public class JwtResponse {
         this.idUsuario = idUsuario;
     }
 
-    public JwtResponse() {}
+    public JwtResponse() {
+    }
 
     public String getToken() { return token; }
     public void setToken(String token) { this.token = token; }
@@ -22,4 +23,5 @@ public class JwtResponse {
     public void setCodigo(String codigo) { this.codigo = codigo; }
     public Integer getIdUsuario() { return idUsuario; }
     public void setIdUsuario(Integer idUsuario) { this.idUsuario = idUsuario; }
+
 }

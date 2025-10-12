@@ -45,7 +45,6 @@ public class UsuarioController {
             actual.setNombre(usuario.getNombre());
             actual.setApellido(usuario.getApellido());
             actual.setCodigo(usuario.getCodigo());
-            actual.setCorreo(usuario.getCorreo());
             actual.setContrasena(usuario.getContrasena());
             actual.setTelefono(usuario.getTelefono());
             actual.setId_rol(usuario.getId_rol());
