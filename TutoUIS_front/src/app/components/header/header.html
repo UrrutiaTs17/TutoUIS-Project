@@ -36,13 +36,27 @@
                                 </li>
                 </ul>
                                 <div class="d-flex align-items-center gap-3">
+                                    <!-- Información del usuario -->
+                                    <div class="d-flex align-items-center me-3">
+                                        <span class="text-success fw-semibold me-2">{{ usuario }}</span>
+                                        <i class="bi bi-person-circle text-success fs-4"></i>
+                                    </div>
+                                    
+                                    <!-- Botón de perfil -->
                                     <a class="btn btn-perfil-solo animate__animated animate__fadeInRight"
                                        routerLink="/dashboard" routerLinkActive="active-reserva" [routerLinkActiveOptions]="{ exact: true }"
                                        title="Mi Perfil" data-bs-toggle="tooltip" data-bs-placement="bottom">
                                         <span class="perfil-icon-solo">
-                                            <i class="bi bi-person-circle"></i>
+                                            <i class="bi bi-gear"></i>
                                         </span>
                                     </a>
+                                    
+                                    <!-- Botón de logout -->
+                                    <button class="btn btn-outline-danger btn-sm animate__animated animate__fadeInRight"
+                                            (click)="logout()"
+                                            title="Cerrar Sesión" data-bs-toggle="tooltip" data-bs-placement="bottom">
+                                        <i class="bi bi-box-arrow-right"></i>
+                                    </button>
                                 </div>
             </div>
         </div>

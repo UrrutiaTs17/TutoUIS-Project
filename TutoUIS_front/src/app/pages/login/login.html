@@ -6,31 +6,51 @@
       <h2 class="fw-bold text-success">TutoUIS</h2>
     </div>
 
-    <form>
+    <form (ngSubmit)="onLogin()">
+      <!-- Mensaje de error -->
+      <div *ngIf="errorLogin" class="alert alert-danger mb-3" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        {{ errorLogin }}
+      </div>
+
       <div class="mb-3">
-        <input type="text" class="form-control" placeholder="Usuario" required>
+        <input 
+          type="text" 
+          class="form-control" 
+          placeholder="Usuario" 
+          [(ngModel)]="usuario"
+          name="usuario"
+          required
+          [disabled]="cargando">
       </div>
 
       <div class="mb-3 position-relative">
-  <input
-    [type]="mostrarContrasena ? 'text' : 'password'"
-    class="form-control"
-    placeholder="Contraseña"
-    required
-  >
+        <input
+          [type]="mostrarContrasena ? 'text' : 'password'"
+          class="form-control"
+          placeholder="Contraseña"
+          [(ngModel)]="contrasena"
+          name="contrasena"
+          required
+          [disabled]="cargando">
 
-  <button
-    type="button"
-    class="btn btn-sm position-absolute top-50 end-0 translate-middle-y me-2 border-0 bg-transparent"
-    (click)="togglePassword()"
-  >
-    <i class="bi" [ngClass]="mostrarContrasena ? 'bi-eye-slash' : 'bi-eye'"></i>
-  </button>
-</div>
+        <button
+          type="button"
+          class="btn btn-sm position-absolute top-50 end-0 translate-middle-y me-2 border-0 bg-transparent"
+          (click)="togglePassword()"
+          [disabled]="cargando">
+          <i class="bi" [ngClass]="mostrarContrasena ? 'bi-eye-slash' : 'bi-eye'"></i>
+        </button>
+      </div>
 
-      
       <div class="d-grid mb-3">
-        <button class="btn btn-success">Acceder</button>
+        <button 
+          type="submit" 
+          class="btn btn-success"
+          [disabled]="cargando || !usuario || !contrasena">
+          <span *ngIf="cargando" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+          {{ cargando ? 'Iniciando sesión...' : 'Acceder' }}
+        </button>
       </div>
     </form>
 
