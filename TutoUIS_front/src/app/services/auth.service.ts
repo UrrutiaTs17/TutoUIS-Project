@@ -75,7 +75,7 @@ export class AuthService {
   }
 
   isLoggedIn(): boolean {
-    return this.hasToken();
+    return this.hasValidToken();
   }
 
   private hasToken(): boolean {
@@ -83,6 +83,39 @@ export class AuthService {
       return !!this.getToken();
     }
     return false;
+  }
+
+  private hasValidToken(): boolean {
+    if (!isPlatformBrowser(this.platformId)) {
+      return false;
+    }
+
+    const token = this.getToken();
+    if (!token) {
+      return false;
+    }
+
+    // Verificar si el token ha expirado
+    if (this.isTokenExpired(token)) {
+      this.logout(); // Limpiar token expirado
+      return false;
+    }
+
+    return true;
+  }
+
+  private isTokenExpired(token: string): boolean {
+    try {
+      // Decodificar el payload del JWT (sin verificar la firma)
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const currentTime = Math.floor(Date.now() / 1000);
+      
+      // Verificar si el token ha expirado
+      return payload.exp < currentTime;
+    } catch (error) {
+      // Si hay error al decodificar, considerar el token como inválido
+      return true;
+    }
   }
 
   private setToken(token: string): void {
