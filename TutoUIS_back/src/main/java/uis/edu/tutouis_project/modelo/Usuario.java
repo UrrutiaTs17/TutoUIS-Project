@@ -6,9 +6,11 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 @Entity
 @Table(name = "usuario")
+@Schema(description = "Modelo Usuario: representa un usuario del sistema")
 public class Usuario {
 
     public static final String TABLE_NAME = "usuario";
@@ -16,36 +18,47 @@ public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_usuario")
+    @Schema(description = "ID autogenerado del usuario", example = "1")
     private Integer id_usuario;
 
     @Column(name = "nombre")
+    @Schema(description = "Nombre del usuario", example = "Juan")
     private String nombre;
 
     @Column(name = "apellido")
+    @Schema(description = "Apellido del usuario", example = "Perez")
     private String apellido;
 
     @Column(name = "codigo", length = 10,  unique = true, nullable = false)
+    @Schema(description = "Código único del usuario (login)", example = "jperez")
     private String codigo;
 
     @Column(name = "correo", unique = true, nullable = false)
+    @Schema(description = "Correo electrónico", example = "juan@example.com")
     private String correo;
 
     @Column(name = "contrasena", nullable = false)
+    @Schema(description = "Contraseña (no se retornará al solicitar perfil)", example = "miPassword123")
     private String contrasena;
 
     @Column(name = "telefono")
+    @Schema(description = "Teléfono de contacto", example = "+573001112233")
     private String telefono;
 
     @Column(name = "id_rol", nullable = false)
+    @Schema(description = "ID del rol del usuario (ej: 1=admin, 2=estudiante)", example = "2")
     private Integer id_rol;
 
     @Column(name = "id_carrera")
+    @Schema(description = "ID de la carrera (opcional)", example = "3")
     private Integer id_carrera; // Puede ser null
 
     @Column(name = "activo")
+    @Schema(description = "Si el usuario está activo", example = "true")
     private Boolean activo;
 
     @Column(name = "bloqueado")
+    @Schema(description = "Si el usuario está bloqueado", example = "false")
     private Boolean bloqueado;
 
     @Column(name = "fecha_creacion", insertable = false, updatable = false)
