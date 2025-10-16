@@ -1,11 +1,13 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common'; // 👈 necesario para ngClass
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router, ActivatedRoute } from '@angular/router';
+import { AuthService, LoginRequest } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule], // 👈 agrega esto si no está
+  imports: [CommonModule, FormsModule],
   templateUrl: './login.html',
   styleUrls: ['./login.css']
 })
@@ -16,28 +18,54 @@ export class Login {
   cargando: boolean = false;
   errorLogin: string | null = null;
 
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private route: ActivatedRoute
+  ) {}
+
   togglePassword() {
     this.mostrarContrasena = !this.mostrarContrasena;
   }
 
   onLogin() {
     this.errorLogin = null;
+    
     if (!this.usuario || !this.contrasena) {
       this.errorLogin = 'Por favor ingrese usuario y contraseña.';
       return;
     }
+
     this.cargando = true;
-    // Simulación de petición de login (reemplaza por tu lógica real)
-    setTimeout(() => {
-      if (this.usuario === 'estudiante' && this.contrasena === '1234') {
-        // Login exitoso (aquí iría la navegación o lógica real)
+
+    const loginRequest: LoginRequest = {
+      codigo: this.usuario,
+      contrasena: this.contrasena
+    };
+
+    this.authService.login(loginRequest).subscribe({
+      next: (response) => {
+        this.cargando = false;
         this.errorLogin = null;
-        alert('¡Bienvenido!');
-      } else {
-        this.errorLogin = 'Usuario o contraseña incorrectos.';
+        console.log('Login exitoso:', response);
+        
+        // Redirigir a la URL original o al dashboard por defecto
+        const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
+        this.router.navigate([returnUrl]);
+      },
+      error: (error) => {
+        this.cargando = false;
+        console.error('Error en login:', error);
+        
+        if (error.status === 401) {
+          this.errorLogin = error.error || 'Usuario o contraseña incorrectos.';
+        } else if (error.status === 0) {
+          this.errorLogin = 'No se pudo conectar con el servidor. Verifique que el backend esté ejecutándose.';
+        } else {
+          this.errorLogin = 'Error del servidor. Intente nuevamente.';
+        }
       }
-      this.cargando = false;
-    }, 1500);
+    });
   }
 }
 
