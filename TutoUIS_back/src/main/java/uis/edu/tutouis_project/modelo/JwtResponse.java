@@ -1,9 +1,19 @@
 package uis.edu.tutouis_project.modelo;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(description = "Respuesta JWT devuelta al autenticarse")
 public class JwtResponse {
+    @Schema(description = "Token JWT", example = "eyJhbGciOiJI...")
     private String token;
+
+    @Schema(description = "Tipo de token", example = "Bearer")
     private String type = "Bearer";
+
+    @Schema(description = "Código del usuario autenticado", example = "jperez")
     private String codigo;
+
+    @Schema(description = "ID del usuario autenticado", example = "12")
     private Integer idUsuario;
 
     public JwtResponse(String token, String codigo, Integer idUsuario) {
