@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 import { AuthService, LoginRequest } from '../../services/auth.service';
 
 @Component({
@@ -20,8 +20,7 @@ export class Login {
 
   constructor(
     private authService: AuthService,
-    private router: Router,
-    private route: ActivatedRoute
+    private router: Router
   ) {}
 
   togglePassword() {
@@ -49,9 +48,8 @@ export class Login {
         this.errorLogin = null;
         console.log('Login exitoso:', response);
         
-        // Redirigir a la URL original o al dashboard por defecto
-        const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
-        this.router.navigate([returnUrl]);
+        // Redirigir al dashboard después del login exitoso
+        this.router.navigate(['/dashboard']);
       },
       error: (error) => {
         this.cargando = false;
