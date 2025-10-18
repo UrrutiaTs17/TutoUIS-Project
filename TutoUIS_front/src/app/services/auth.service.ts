@@ -20,6 +20,7 @@ export interface LoginResponse {
 })
 export class AuthService {
   private readonly API_URL = 'http://localhost:8080/auth';
+  private readonly API_USUARIOS_URL = 'http://localhost:8080/api/usuarios';
   private readonly TOKEN_KEY = 'auth_token';
   private readonly USER_KEY = 'user_data';
 
@@ -103,5 +104,10 @@ export class AuthService {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
     });
+  }
+
+  getUserProfile(): Observable<any> {
+    const headers = this.getAuthHeaders();
+    return this.http.get<any>(`${this.API_USUARIOS_URL}/profile`, { headers });
   }
 }
