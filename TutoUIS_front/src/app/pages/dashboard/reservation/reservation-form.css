@@ -14,6 +14,48 @@
   }
 }
 
+.card {
+  border: 1px solid #e0e0e0;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.card-header {
+  border-bottom: 2px solid #f0f0f0;
+  background: #fafafa;
+  padding: 1.5rem;
+  border-radius: 0.5rem 0.5rem 0 0;
+}
+
+.card-header h5 {
+  color: #155724;
+  font-weight: 600;
+}
+
+.card-body {
+  padding: 2rem 1.5rem;
+}
+
+.calendar-section {
+  border: 1px solid #e0e0e0;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  background: #fafafa;
+}
+
+.form-section {
+  border-top: 2px solid #f0f0f0;
+  padding-top: 2rem;
+}
+
+.section-subtitle {
+  color: #155724;
+  font-weight: 600;
+  font-size: 1rem;
+  border-bottom: 2px solid #e0e0e0;
+  padding-bottom: 0.75rem;
+}
+
 .form-label {
   font-weight: 600;
   color: #333;
@@ -31,8 +73,14 @@
 
 .form-control:focus,
 .form-select:focus {
-  border-color: #28a745;
-  box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.25);
+  border-color: #20c953;
+  box-shadow: 0 0 0 3px rgba(32, 201, 83, 0.15);
+}
+
+.form-control:disabled {
+  background-color: #f8f9fa;
+  border-color: #e0e0e0;
+  color: #666;
 }
 
 .form-control::placeholder {
@@ -51,25 +99,26 @@ textarea.form-control {
 }
 
 .btn-success {
-  background-color: #28a745;
-  border-color: #28a745;
+  background: linear-gradient(135deg, #20c953, #1aa74a);
+  border: none;
   color: white;
 }
 
 .btn-success:hover {
-  background-color: #218838;
-  border-color: #218838;
-  transform: translateY(-2px);
+  background: linear-gradient(135deg, #1aa74a, #155724);
+  color: white;
+  box-shadow: 0 4px 12px rgba(32, 201, 83, 0.3);
 }
 
 .btn-outline-secondary {
-  color: #6c757d;
-  border-color: #6c757d;
+  color: #666;
+  border-color: #ccc;
 }
 
 .btn-outline-secondary:hover {
-  background-color: #6c757d;
-  color: white;
+  background: #f8f9fa;
+  color: #333;
+  border-color: #999;
 }
 
 .alert-info {
@@ -106,5 +155,13 @@ textarea.form-control {
   .btn {
     flex: 1;
     min-width: 120px;
+  }
+
+  .card-body {
+    padding: 1.5rem 1rem;
+  }
+
+  .calendar-section {
+    padding: 1rem;
   }
 }
