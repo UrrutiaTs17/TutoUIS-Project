@@ -20,44 +20,33 @@
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link d-flex align-items-center animate__animated animate__fadeInLeft menu-btn"
-                                         routerLink="/calendar"
+                                         routerLink="/login"
                                          routerLinkActive="active-reserva"
                                          [routerLinkActiveOptions]="{ exact: true }">
-                                        <i class="bi bi-calendar-check me-1 fs-5"></i> <span class="d-none d-md-inline">Reservas</span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link d-flex align-items-center animate__animated animate__fadeInLeft menu-btn"
-                                         routerLink="/ayuda"
-                                         routerLinkActive="active-reserva"
-                                         [routerLinkActiveOptions]="{ exact: true }">
-                                        <i class="bi bi-question-circle me-1 fs-5"></i> <span class="d-none d-md-inline">Ayuda</span>
+                                        <i class="bi bi-question-circle me-1 fs-5"></i> <span class="d-none d-md-inline">Información</span>
                                     </a>
                                 </li>
                 </ul>
-                                <div class="d-flex align-items-center gap-3">
-                                    <!-- Información del usuario -->
-                                    <div class="d-flex align-items-center me-3">
-                                        <span class="text-success fw-semibold me-2">{{ usuario }}</span>
-                                        <i class="bi bi-person-circle text-success fs-4"></i>
-                                    </div>
-                                    
-                                    <!-- Botón de perfil -->
-                                    <a class="btn btn-perfil-solo animate__animated animate__fadeInRight"
-                                       routerLink="/dashboard" routerLinkActive="active-reserva" [routerLinkActiveOptions]="{ exact: true }"
-                                       title="Mi Perfil" data-bs-toggle="tooltip" data-bs-placement="bottom">
-                                        <span class="perfil-icon-solo">
-                                            <i class="bi bi-gear"></i>
-                                        </span>
-                                    </a>
-                                    
-                                    <!-- Botón de logout -->
-                                    <button class="btn btn-outline-danger btn-sm animate__animated animate__fadeInRight"
-                                            (click)="logout()"
-                                            title="Cerrar Sesión" data-bs-toggle="tooltip" data-bs-placement="bottom">
-                                        <i class="bi bi-box-arrow-right"></i>
-                                    </button>
-                                </div>
+                
+                <!-- Menú de usuario logueado -->
+                <div class="d-flex align-items-center gap-2" *ngIf="isLoggedIn">
+                    <!-- Información del usuario -->
+                    <span class="text-success fw-semibold">{{ usuario }}</span>
+                    
+                    <!-- Botón de logout -->
+                    <button class="btn btn-outline-danger btn-sm animate__animated animate__fadeInRight"
+                            (click)="logout()"
+                            title="Cerrar Sesión" data-bs-toggle="tooltip" data-bs-placement="bottom">
+                        <i class="bi bi-box-arrow-right"></i>
+                    </button>
+                </div>
+
+                <!-- Botón de login (solo si no está logueado) -->
+                <div *ngIf="!isLoggedIn">
+                    <a routerLink="/login" class="btn btn-success btn-sm animate__animated animate__fadeInRight fw-semibold">
+                        <i class="bi bi-person-fill me-2"></i>Iniciar Sesión
+                    </a>
+                </div>
             </div>
         </div>
     </nav>

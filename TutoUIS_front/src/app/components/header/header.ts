@@ -13,6 +13,7 @@ export class Header implements OnInit {
   usuario: string = '';
   notificaciones: number = 2;
   userData: LoginResponse | null = null;
+  isLoggedIn: boolean = false;
 
   constructor(
     private authService: AuthService,
@@ -21,12 +22,13 @@ export class Header implements OnInit {
 
   ngOnInit() {
     this.userData = this.authService.getUserData();
+    this.isLoggedIn = this.authService.isLoggedIn();
     this.usuario = this.userData?.codigo || 'Usuario';
   }
 
   logout() {
     this.authService.logout();
-    this.router.navigate(['/login']);
+    this.router.navigate(['/']);
   }
 
   playNotifSound() {
