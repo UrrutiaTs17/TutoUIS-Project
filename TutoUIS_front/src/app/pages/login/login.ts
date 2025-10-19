@@ -49,8 +49,18 @@ export class Login {
         this.errorLogin = null;
         console.log('Login exitoso:', response);
         
-        // Redirigir al dashboard después del login exitoso
-        this.router.navigate(['/dashboard']);
+        // Cargar y cachear el perfil del usuario después del login
+        this.authService.getUserProfile().subscribe({
+          next: () => {
+            // Perfil cacheado, redirigir al dashboard
+            this.router.navigate(['/dashboard']);
+          },
+          error: (error) => {
+            console.warn('Advertencia: No se pudo cargar el perfil, pero continuando:', error);
+            // Continuamos incluso si hay error al cargar el perfil
+            this.router.navigate(['/dashboard']);
+          }
+        });
       },
       error: (error) => {
         this.cargando = false;

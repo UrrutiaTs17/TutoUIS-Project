@@ -83,5 +83,26 @@ public class UsuarioController {
             return ResponseEntity.status(404).body("Usuario no encontrado");
         }
     }
-}
 
+    @Operation(summary = "Actualizar perfil", description = "Permite que el usuario autenticado edite su propio perfil (sin cambiar el código)")
+    @PutMapping("/profile")
+    public ResponseEntity<?> updateProfile(@RequestBody Usuario usuarioActualizado) {
+        String codigo = SecurityContextHolder.getContext().getAuthentication().getName();
+        Usuario usuario = usuarioService.findByCodigo(codigo);
+        
+        if (usuario != null) {
+            // Actualizar solo los campos permitidos (no el código)
+            usuario.setNombre(usuarioActualizado.getNombre());
+            usuario.setApellido(usuarioActualizado.getApellido());
+            usuario.setCorreo(usuarioActualizado.getCorreo());
+            usuario.setTelefono(usuarioActualizado.getTelefono());
+            usuario.setId_carrera(usuarioActualizado.getId_carrera());
+            
+            Usuario editado = usuarioService.crearUsuario(usuario);
+            editado.setContrasena(null);
+            return ResponseEntity.ok(editado);
+        } else {
+            return ResponseEntity.status(404).body("Usuario no encontrado");
+        }
+    }
+}

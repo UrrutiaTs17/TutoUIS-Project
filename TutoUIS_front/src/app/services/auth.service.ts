@@ -23,6 +23,7 @@ export class AuthService {
   private readonly API_USUARIOS_URL = 'http://localhost:8080/api/usuarios';
   private readonly TOKEN_KEY = 'auth_token';
   private readonly USER_KEY = 'user_data';
+  private readonly PROFILE_KEY = 'user_profile';
 
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
@@ -108,6 +109,36 @@ export class AuthService {
 
   getUserProfile(): Observable<any> {
     const headers = this.getAuthHeaders();
-    return this.http.get<any>(`${this.API_USUARIOS_URL}/profile`, { headers });
+    return this.http.get<any>(`${this.API_USUARIOS_URL}/profile`, { headers })
+      .pipe(
+        tap(response => {
+          // Cachear el perfil para acceso rápido
+          if (isPlatformBrowser(this.platformId)) {
+            localStorage.setItem(this.PROFILE_KEY, JSON.stringify(response));
+          }
+        })
+      );
+  }
+
+  getCachedProfile(): any {
+    if (isPlatformBrowser(this.platformId)) {
+      const cachedProfile = localStorage.getItem(this.PROFILE_KEY);
+      return cachedProfile ? JSON.parse(cachedProfile) : null;
+    }
+    return null;
+  }
+
+  updateUserProfile(profileData: any): Observable<any> {
+    const headers = this.getAuthHeaders();
+    return this.http.put<any>(`${this.API_USUARIOS_URL}/profile`, profileData, { headers })
+      .pipe(
+        tap(response => {
+          // Actualizar datos locales si es necesario
+          const userData = this.getUserData();
+          if (userData) {
+            this.setUserData(userData);
+          }
+        })
+      );
   }
 }
