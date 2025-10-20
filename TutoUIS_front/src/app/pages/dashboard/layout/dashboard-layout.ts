@@ -35,10 +35,6 @@ import { AuthService } from '../../../services/auth.service';
             <i class="bi bi-calendar-plus"></i>
             <span>Nueva Reserva</span>
           </a>
-          <a class="nav-item" [routerLink]="'/dashboard/reservations'" [routerLinkActive]="'active'">
-            <i class="bi bi-list-ul"></i>
-            <span>Mis Reservas</span>
-          </a>
           <a class="nav-item" [routerLink]="'/dashboard/history'" [routerLinkActive]="'active'">
             <i class="bi bi-clock-history"></i>
             <span>Historial</span>
@@ -46,10 +42,6 @@ import { AuthService } from '../../../services/auth.service';
           <a class="nav-item" [routerLink]="'/dashboard/profile'" [routerLinkActive]="'active'">
             <i class="bi bi-person"></i>
             <span>Mi Perfil</span>
-          </a>
-          <a class="nav-item" [routerLink]="'/dashboard/settings'" [routerLinkActive]="'active'">
-            <i class="bi bi-gear"></i>
-            <span>Configuración</span>
           </a>
         </nav>
 
@@ -74,9 +66,6 @@ import { AuthService } from '../../../services/auth.service';
             <button class="btn btn-icon" title="Notificaciones">
               <i class="bi bi-bell"></i>
               <span class="notification-badge">3</span>
-            </button>
-            <button class="btn btn-icon" title="Ayuda">
-              <i class="bi bi-question-circle"></i>
             </button>
           </div>
         </div>
@@ -112,23 +101,39 @@ export class DashboardLayout implements OnInit {
   private loadUserData(): void {
     const userData = this.authService.getUserData();
     if (userData && userData.codigo) {
-      this.userName = userData.codigo;
-      this.userEmail = `${userData.codigo}@uis.edu.co`;
-      this.userInitials = this.getUserInitials(this.userName);
-      
-      // Intentar obtener el perfil completo
-      this.authService.getUserProfile().subscribe(
-        (profile: any) => {
-          if (profile.nombre || profile.apellido) {
-            this.userName = `${profile.nombre || ''} ${profile.apellido || ''}`.trim();
-            this.userEmail = profile.correo || this.userEmail;
-            this.userInitials = this.getUserInitials(this.userName);
+      // Primero intentar usar el perfil cacheado
+      const cachedProfile = this.authService.getCachedProfile();
+      if (cachedProfile && (cachedProfile.nombre || cachedProfile.apellido)) {
+        this.userName = `${cachedProfile.nombre || ''} ${cachedProfile.apellido || ''}`.trim();
+        this.userEmail = cachedProfile.correo || `${userData.codigo}@uis.edu.co`;
+        this.userInitials = this.getUserInitials(this.userName);
+        console.log('Perfil cargado desde caché:', this.userName);
+      } else {
+        // Si no hay perfil cacheado, usar el código como fallback
+        this.userName = userData.codigo;
+        this.userEmail = `${userData.codigo}@uis.edu.co`;
+        this.userInitials = this.getUserInitials(this.userName);
+        
+        // Intentar obtener el perfil completo del servidor
+        this.authService.getUserProfile().subscribe(
+          (profile: any) => {
+            console.log('Respuesta del servidor:', profile);
+            if (profile && (profile.nombre || profile.apellido)) {
+              this.userName = `${profile.nombre || ''} ${profile.apellido || ''}`.trim();
+              this.userEmail = profile.correo || this.userEmail;
+              this.userInitials = this.getUserInitials(this.userName);
+              console.log('Perfil cargado desde servidor:', this.userName);
+            } else {
+              console.log('El perfil no contiene nombre o apellido:', profile);
+            }
+          },
+          (error) => {
+            console.error('Error al cargar el perfil completo:', error);
+            console.error('Detalles del error:', error.error || error.message);
+            // Mantener los valores por defecto (código)
           }
-        },
-        (error) => {
-          console.warn('No se pudo cargar el perfil completo:', error);
-        }
-      );
+        );
+      }
     }
   }
 

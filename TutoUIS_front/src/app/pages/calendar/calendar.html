@@ -118,5 +118,10 @@
   <div class="row g-4">
     <!-- Se elimina el bloque de calendario dentro de la sección principal para evitar duplicados -->
   </div>
+
+  <!-- Calendar Modal -->
+  @if (showModal) {
+    <app-calendar-modal (modalClosed)="closeModal()"></app-calendar-modal>
+  }
 </div>
 
