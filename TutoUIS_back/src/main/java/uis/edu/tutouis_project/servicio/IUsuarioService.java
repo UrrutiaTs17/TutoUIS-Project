@@ -9,6 +9,7 @@ import uis.edu.tutouis_project.modelo.Usuario;
 public interface IUsuarioService {
     List<Usuario> getUsuarios();
     Usuario crearUsuario(Usuario usuario);
+    Usuario actualizarUsuario(Usuario usuario);
     Usuario buscarUsuario(Integer id);
     int eliminarUsuario(Integer id);
     ResponseEntity<?> loginConJwt(LoginDto loginDto);
