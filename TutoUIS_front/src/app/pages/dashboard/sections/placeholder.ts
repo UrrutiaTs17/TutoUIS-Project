@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../services/auth.service';
+import { CarreraService } from '../../../services/carrera.service';
 
 interface UserProfile {
   id_usuario: number;
@@ -92,7 +93,7 @@ interface UserProfile {
                     <p>
                       <i class="bi bi-book"></i>
                       <strong>Carrera:</strong> 
-                      <span>{{ profileData?.id_carrera || 'No asignada' }}</span>
+                      <span>{{ getCarreraName(profileData?.id_carrera) }}</span>
                     </p>
                     <p>
                       <i class="bi bi-calendar"></i>
@@ -237,10 +238,14 @@ export class Profile implements OnInit {
   isLoading: boolean = false;
   errorMessage: string = '';
 
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private carreraService: CarreraService
+  ) {}
 
   ngOnInit(): void {
     this.loadProfileData();
+    this.loadCarreras();
   }
 
   loadProfileData(): void {
@@ -283,6 +288,23 @@ export class Profile implements OnInit {
       4: 'Personal'
     };
     return roles[rolId] || `Rol ${rolId}`;
+  }
+
+  loadCarreras(): void {
+    // Cargar carreras desde el servidor
+    this.carreraService.getCarreras().subscribe({
+      next: (carreras) => {
+        console.log('Carreras cargadas:', carreras);
+      },
+      error: (error) => {
+        console.error('Error cargando carreras:', error);
+      }
+    });
+  }
+
+  getCarreraName(carreraId: number | undefined): string {
+    if (!carreraId) return 'No asignada';
+    return this.carreraService.getCarreraNameById(carreraId);
   }
 
   toggleEditMode(): void {
