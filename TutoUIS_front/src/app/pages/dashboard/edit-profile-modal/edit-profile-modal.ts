@@ -29,32 +29,32 @@ import { AuthService } from '../../../services/auth.service';
               <form (ngSubmit)="onSubmit()">
                 <div class="row">
                   <div class="col-md-6 mb-3">
-                    <label for="nombre" class="form-label">Nombre <span class="text-danger">*</span></label>
+                    <label for="nombre" class="form-label">NOMBRE</label>
                     <input
                       type="text"
                       class="form-control"
                       id="nombre"
-                      [(ngModel)]="profileData.nombre"
-                      name="nombre"
-                      required
+                      [value]="profileData.nombre"
+                      disabled
                     />
+                    <small class="text-muted">Este campo no es editable</small>
                   </div>
                   <div class="col-md-6 mb-3">
-                    <label for="apellido" class="form-label">Apellido <span class="text-danger">*</span></label>
+                    <label for="apellido" class="form-label">APELLIDO</label>
                     <input
                       type="text"
                       class="form-control"
                       id="apellido"
-                      [(ngModel)]="profileData.apellido"
-                      name="apellido"
-                      required
+                      [value]="profileData.apellido"
+                      disabled
                     />
+                    <small class="text-muted">Este campo no es editable</small>
                   </div>
                 </div>
 
                 <div class="row">
                   <div class="col-md-6 mb-3">
-                    <label for="codigo" class="form-label">Código (No editable)</label>
+                    <label for="codigo" class="form-label">CÓDIGO</label>
                     <input
                       type="text"
                       class="form-control"
@@ -62,10 +62,10 @@ import { AuthService } from '../../../services/auth.service';
                       [value]="profileData.codigo"
                       disabled
                     />
-                    <small class="text-muted">El código no puede ser editado</small>
+                    <small class="text-muted">Este campo no es editable</small>
                   </div>
                   <div class="col-md-6 mb-3">
-                    <label for="correo" class="form-label">Correo Electrónico <span class="text-danger">*</span></label>
+                    <label for="correo" class="form-label">CORREO ELECTRÓNICO <span class="text-danger">*</span></label>
                     <input
                       type="email"
                       class="form-control"
@@ -79,7 +79,7 @@ import { AuthService } from '../../../services/auth.service';
 
                 <div class="row">
                   <div class="col-md-6 mb-3">
-                    <label for="telefono" class="form-label">Teléfono</label>
+                    <label for="telefono" class="form-label">TELÉFONO</label>
                     <input
                       type="tel"
                       class="form-control"
@@ -89,43 +89,40 @@ import { AuthService } from '../../../services/auth.service';
                     />
                   </div>
                   <div class="col-md-6 mb-3">
-                    <label for="id_rol" class="form-label">Rol <span class="text-danger">*</span></label>
+                    <label for="id_rol" class="form-label">ROL</label>
                     <input
                       type="number"
                       class="form-control"
                       id="id_rol"
-                      [(ngModel)]="profileData.id_rol"
-                      name="id_rol"
-                      required
+                      [value]="profileData.id_rol"
+                      disabled
                     />
+                    <small class="text-muted">Este campo no es editable</small>
                   </div>
                 </div>
 
                 <div class="row">
                   <div class="col-md-6 mb-3">
-                    <label for="id_carrera" class="form-label">Carrera</label>
+                    <label for="id_carrera" class="form-label">CARRERA</label>
                     <input
                       type="number"
                       class="form-control"
                       id="id_carrera"
-                      [(ngModel)]="profileData.id_carrera"
-                      name="id_carrera"
+                      [value]="profileData.id_carrera"
+                      disabled
                     />
+                    <small class="text-muted">Este campo no es editable</small>
                   </div>
                   <div class="col-md-6 mb-3">
-                    <label for="activo" class="form-label">Estado Activo</label>
-                    <div class="form-check">
-                      <input
-                        type="checkbox"
-                        class="form-check-input"
-                        id="activo"
-                        [(ngModel)]="profileData.activo"
-                        name="activo"
-                      />
-                      <label class="form-check-label" for="activo">
-                        Usuario activo
-                      </label>
-                    </div>
+                    <label for="activo" class="form-label">ESTADO</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="activo"
+                      [value]="profileData.activo ? 'Activo' : 'Inactivo'"
+                      disabled
+                    />
+                    <small class="text-muted">Este campo no es editable</small>
                   </div>
                 </div>
 
@@ -195,7 +192,12 @@ export class EditProfileModalComponent implements OnInit {
     this.errorMessage = '';
 
     // No enviar la contraseña en la actualización
-    const dataToUpdate = { ...this.profileData };
+    // Solo enviar los campos editables (teléfono y correo)
+    const dataToUpdate = {
+      ...this.profileData,
+      telefono: this.profileData.telefono,
+      correo: this.profileData.correo
+    };
 
     this.authService.updateUserProfile(dataToUpdate).subscribe({
       next: (response) => {
