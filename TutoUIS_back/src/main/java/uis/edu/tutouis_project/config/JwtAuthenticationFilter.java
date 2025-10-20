@@ -25,25 +25,32 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
-        String authHeader = request.getHeader("Authorization");
-        String token = null;
-        String codigo = null;
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            token = authHeader.substring(7);
-            try {
-                codigo = jwtUtil.getCodigoFromToken(token);
-            } catch (Exception e) {
-                System.out.println("JWT Token inválido: " + e.getMessage());
+        try {
+            String authHeader = request.getHeader("Authorization");
+            String token = null;
+            String codigo = null;
+            
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                token = authHeader.substring(7);
+                
+                // Primero validar que el token no esté expirado
+                if (!jwtUtil.isTokenExpired(token) && jwtUtil.validateToken(token)) {
+                    codigo = jwtUtil.getCodigoFromToken(token);
+                }
             }
-        }
-        if (codigo != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            if (jwtUtil.validateToken(token) && !jwtUtil.isTokenExpired(token)) {
+            
+            if (codigo != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(codigo, null, new ArrayList<>());
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
+                System.out.println("✅ Token validado para usuario: " + codigo);
             }
+        } catch (Exception e) {
+            System.err.println("❌ Error en JWT Filter: " + e.getMessage());
+            e.printStackTrace();
         }
+        
         filterChain.doFilter(request, response);
     }
 }

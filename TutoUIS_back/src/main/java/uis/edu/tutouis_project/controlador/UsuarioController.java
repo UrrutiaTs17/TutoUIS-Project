@@ -34,75 +34,129 @@ public class UsuarioController {
         return usuarioService.getUsuarios();
     }
 
-    @Operation(summary = "Obtener usuario por id", description = "Retorna un usuario dado su id")
-    @GetMapping("/list/{id}")
-    public Usuario buscarPorId(@PathVariable Integer id) {
-        return usuarioService.buscarUsuario(id);
+    @Operation(summary = "Obtener usuario por id", description = "Retorna un usuario dado su id (protegido)")
+    @GetMapping("/{id}")
+    public ResponseEntity<?> buscarPorId(@PathVariable Integer id) {
+        try {
+            Usuario usuario = usuarioService.buscarUsuario(id);
+            if (usuario != null) {
+                usuario.setContrasena(null); // No retornar contraseña
+                return ResponseEntity.ok(usuario);
+            }
+            return ResponseEntity.status(404).body("Usuario no encontrado");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error: " + e.getMessage());
+        }
     }
 
-    @Operation(summary = "Editar usuario", description = "Edita los datos de un usuario (enviar objeto Usuario con id existente)")
-    @PutMapping("/")
-    public ResponseEntity<Usuario> editar(@RequestBody Usuario usuario) {
-        Usuario actual = usuarioService.buscarUsuario(usuario.getId_usuario());
-        if (actual != null) {
-            actual.setNombre(usuario.getNombre());
-            actual.setApellido(usuario.getApellido());
-            actual.setCodigo(usuario.getCodigo());
-            actual.setContrasena(usuario.getContrasena());
-            actual.setTelefono(usuario.getTelefono());
-            actual.setId_rol(usuario.getId_rol());
-            actual.setId_carrera(usuario.getId_carrera());
-            actual.setActivo(usuario.getActivo());
-            actual.setBloqueado(usuario.getBloqueado());
+    @Operation(summary = "Editar usuario", description = "Edita los datos de un usuario (requiere el id en la ruta o en el body)")
+    @PutMapping("/{id}")
+    public ResponseEntity<?> editar(@PathVariable Integer id, @RequestBody Usuario usuario) {
+        try {
+            Usuario actual = usuarioService.buscarUsuario(id);
+            if (actual == null) {
+                return ResponseEntity.status(404).body("Usuario no encontrado");
+            }
+            
+            // Actualizar solo campos permitidos
+            if (usuario.getNombre() != null) {
+                actual.setNombre(usuario.getNombre());
+            }
+            if (usuario.getApellido() != null) {
+                actual.setApellido(usuario.getApellido());
+            }
+            if (usuario.getCorreo() != null) {
+                actual.setCorreo(usuario.getCorreo());
+            }
+            if (usuario.getTelefono() != null) {
+                actual.setTelefono(usuario.getTelefono());
+            }
+            if (usuario.getId_rol() != null) {
+                actual.setId_rol(usuario.getId_rol());
+            }
+            if (usuario.getId_carrera() != null) {
+                actual.setId_carrera(usuario.getId_carrera());
+            }
+            if (usuario.getActivo() != null) {
+                actual.setActivo(usuario.getActivo());
+            }
+            if (usuario.getBloqueado() != null) {
+                actual.setBloqueado(usuario.getBloqueado());
+            }
+            
             Usuario editado = usuarioService.crearUsuario(actual);
+            editado.setContrasena(null);
             return ResponseEntity.ok(editado);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error al editar: " + e.getMessage());
         }
-        return ResponseEntity.notFound().build();
     }
 
-    @Operation(summary = "Eliminar usuario", description = "Elimina el usuario indicado por id")
+    @Operation(summary = "Eliminar usuario", description = "Elimina el usuario indicado por id (protegido)")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Usuario> eliminar(@PathVariable Integer id) {
-        Usuario usuario = usuarioService.buscarUsuario(id);
-        if (usuario != null) {
+    public ResponseEntity<?> eliminar(@PathVariable Integer id) {
+        try {
+            Usuario usuario = usuarioService.buscarUsuario(id);
+            if (usuario == null) {
+                return ResponseEntity.status(404).body("Usuario no encontrado");
+            }
             usuarioService.eliminarUsuario(id);
-            return ResponseEntity.ok(usuario);
+            return ResponseEntity.ok("Usuario eliminado correctamente");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error al eliminar: " + e.getMessage());
         }
-        return ResponseEntity.notFound().build();
     }
 
     @Operation(summary = "Perfil", description = "Retorna los datos del usuario autenticado (sin contraseña)")
     @GetMapping("/profile")
     public ResponseEntity<?> getProfile() {
-        String codigo = SecurityContextHolder.getContext().getAuthentication().getName();
-        Usuario usuario = usuarioService.findByCodigo(codigo);
-        if (usuario != null) {
-            usuario.setContrasena(null);
-            return ResponseEntity.ok(usuario);
-        } else {
-            return ResponseEntity.status(404).body("Usuario no encontrado");
+        try {
+            String codigo = SecurityContextHolder.getContext().getAuthentication().getName();
+            Usuario usuario = usuarioService.findByCodigo(codigo);
+            if (usuario != null) {
+                usuario.setContrasena(null);
+                return ResponseEntity.ok(usuario);
+            } else {
+                return ResponseEntity.status(404).body("Usuario no encontrado");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error: " + e.getMessage());
         }
     }
 
     @Operation(summary = "Actualizar perfil", description = "Permite que el usuario autenticado edite su propio perfil (sin cambiar el código)")
     @PutMapping("/profile")
     public ResponseEntity<?> updateProfile(@RequestBody Usuario usuarioActualizado) {
-        String codigo = SecurityContextHolder.getContext().getAuthentication().getName();
-        Usuario usuario = usuarioService.findByCodigo(codigo);
-        
-        if (usuario != null) {
-            // Actualizar solo los campos permitidos (no el código)
-            usuario.setNombre(usuarioActualizado.getNombre());
-            usuario.setApellido(usuarioActualizado.getApellido());
-            usuario.setCorreo(usuarioActualizado.getCorreo());
-            usuario.setTelefono(usuarioActualizado.getTelefono());
-            usuario.setId_carrera(usuarioActualizado.getId_carrera());
+        try {
+            String codigo = SecurityContextHolder.getContext().getAuthentication().getName();
+            Usuario usuario = usuarioService.findByCodigo(codigo);
             
-            Usuario editado = usuarioService.crearUsuario(usuario);
-            editado.setContrasena(null);
-            return ResponseEntity.ok(editado);
-        } else {
-            return ResponseEntity.status(404).body("Usuario no encontrado");
+            if (usuario != null) {
+                // Actualizar solo los campos permitidos (no el código)
+                if (usuarioActualizado.getNombre() != null) {
+                    usuario.setNombre(usuarioActualizado.getNombre());
+                }
+                if (usuarioActualizado.getApellido() != null) {
+                    usuario.setApellido(usuarioActualizado.getApellido());
+                }
+                if (usuarioActualizado.getCorreo() != null) {
+                    usuario.setCorreo(usuarioActualizado.getCorreo());
+                }
+                if (usuarioActualizado.getTelefono() != null) {
+                    usuario.setTelefono(usuarioActualizado.getTelefono());
+                }
+                if (usuarioActualizado.getId_carrera() != null) {
+                    usuario.setId_carrera(usuarioActualizado.getId_carrera());
+                }
+                
+                Usuario editado = usuarioService.crearUsuario(usuario);
+                editado.setContrasena(null);
+                return ResponseEntity.ok(editado);
+            } else {
+                return ResponseEntity.status(404).body("Usuario no encontrado");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error: " + e.getMessage());
         }
     }
 }
