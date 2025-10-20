@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Observable, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, startWith } from 'rxjs/operators';
-import { CalendarModal } from '../../components/calendar-modal/calendar-modal';
+import { ModalService } from '../../services/modal.service';
 
 type MateriaCatalogo = {
   id: number;
@@ -24,7 +24,7 @@ type MateriaCelda = {
 @Component({
   selector: 'app-calendar',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, CalendarModal],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './calendar.html',
   styleUrls: ['./calendar.css']
 })
@@ -81,9 +81,8 @@ export class CalendarComponent implements OnInit {
 
   // selección de celda (para resaltar/acciones)
   selected: { hora: string; dia: string } | null = null;
-  
-  // Modal state
-  showModal: boolean = false;
+
+  constructor(private modalService: ModalService) {}
 
   // ======== Ciclo de vida ========
   ngOnInit(): void {
@@ -126,7 +125,7 @@ trackMateria = (_: number, m: MateriaCatalogo) => m.id; // o `${m.id}-${m.nombre
 
   selectCell(hora: string, dia: string) {
     this.selected = { hora, dia };
-    this.showModal = true;
+    this.modalService.showModal();
   }
 
   isSelected(hora: string, dia: string): boolean {
@@ -163,12 +162,6 @@ trackMateria = (_: number, m: MateriaCatalogo) => m.id; // o `${m.id}-${m.nombre
     this.suggestions$.subscribe(list => {
       if (list.length) this.select(list[0]);
     }).unsubscribe();
-  }
-
-  // Modal methods
-  closeModal(): void {
-    this.showModal = false;
-    this.selected = null;
   }
 }
 
