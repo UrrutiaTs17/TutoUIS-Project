@@ -103,4 +103,10 @@ public class UsuarioService implements IUsuarioService {
     public Usuario findByCodigo(String codigo) {
         return usuarioRepository.findByCodigo(codigo);
     }
+
+    @Override
+    public Usuario actualizarUsuario(Usuario usuario) {
+        // Actualizar sin reencriptar la contraseña
+        return usuarioRepository.save(usuario);
+    }
 }

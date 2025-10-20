@@ -58,15 +58,21 @@ public class UsuarioController {
                 return ResponseEntity.status(404).body("Usuario no encontrado");
             }
             
+            // Validar que el correo sea único (si se está cambiando)
+            if (usuario.getCorreo() != null && !usuario.getCorreo().equals(actual.getCorreo())) {
+                Usuario usuarioConCorreo = usuarioService.findByCorreo(usuario.getCorreo());
+                if (usuarioConCorreo != null) {
+                    return ResponseEntity.status(400).body("El correo ya está en uso por otro usuario");
+                }
+                actual.setCorreo(usuario.getCorreo());
+            }
+            
             // Actualizar solo campos permitidos
             if (usuario.getNombre() != null) {
                 actual.setNombre(usuario.getNombre());
             }
             if (usuario.getApellido() != null) {
                 actual.setApellido(usuario.getApellido());
-            }
-            if (usuario.getCorreo() != null) {
-                actual.setCorreo(usuario.getCorreo());
             }
             if (usuario.getTelefono() != null) {
                 actual.setTelefono(usuario.getTelefono());
@@ -84,7 +90,7 @@ public class UsuarioController {
                 actual.setBloqueado(usuario.getBloqueado());
             }
             
-            Usuario editado = usuarioService.crearUsuario(actual);
+            Usuario editado = usuarioService.actualizarUsuario(actual);
             editado.setContrasena(null);
             return ResponseEntity.ok(editado);
         } catch (Exception e) {
@@ -149,7 +155,7 @@ public class UsuarioController {
                     usuario.setId_carrera(usuarioActualizado.getId_carrera());
                 }
                 
-                Usuario editado = usuarioService.crearUsuario(usuario);
+                Usuario editado = usuarioService.actualizarUsuario(usuario);
                 editado.setContrasena(null);
                 return ResponseEntity.ok(editado);
             } else {
