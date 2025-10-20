@@ -1,0 +1,208 @@
+<!-- Modal de Editar Usuario -->
+<div class="modal fade" #editUserModal tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="editUserModalLabel">
+          <i class="bi bi-pencil-square me-2"></i>Editar Usuario
+        </h5>
+        <button type="button" class="btn-close" (click)="close()" aria-label="Close"></button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body">
+        <form (ngSubmit)="onSubmit()" #editForm="ngForm">
+          <!-- Alert de error -->
+          @if (errorMessage) {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+              <i class="bi bi-exclamation-triangle-fill me-2"></i>
+              {{ errorMessage }}
+              <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+            </div>
+          }
+
+          <!-- Información Personal -->
+          <div class="row mb-4">
+            <div class="col-12">
+              <h6 class="text-muted mb-3">
+                <i class="bi bi-person-badge me-2"></i>Información Personal
+              </h6>
+            </div>
+            
+            <div class="col-md-6 mb-3">
+              <label for="editNombre" class="form-label">Nombre <span class="text-danger">*</span></label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="editNombre" 
+                [(ngModel)]="formData.nombre"
+                name="nombre"
+                required
+                placeholder="Ingresa el nombre"
+              />
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="editApellido" class="form-label">Apellido <span class="text-danger">*</span></label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="editApellido" 
+                [(ngModel)]="formData.apellido"
+                name="apellido"
+                required
+                placeholder="Ingresa el apellido"
+              />
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="editCodigo" class="form-label">Código <span class="text-danger">*</span></label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="editCodigo" 
+                [(ngModel)]="formData.codigo"
+                name="codigo"
+                required
+                placeholder="Ej: 2203145"
+              />
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="editTelefono" class="form-label">Teléfono</label>
+              <input 
+                type="tel" 
+                class="form-control" 
+                id="editTelefono" 
+                [(ngModel)]="formData.telefono"
+                name="telefono"
+                placeholder="Ej: 3001234567"
+              />
+            </div>
+          </div>
+
+          <!-- Información de Cuenta -->
+          <div class="row mb-4">
+            <div class="col-12">
+              <h6 class="text-muted mb-3">
+                <i class="bi bi-envelope-at me-2"></i>Información de Cuenta
+              </h6>
+            </div>
+
+            <div class="col-md-12 mb-3">
+              <label for="editCorreo" class="form-label">Correo Electrónico <span class="text-danger">*</span></label>
+              <input 
+                type="email" 
+                class="form-control" 
+                id="editCorreo" 
+                [(ngModel)]="formData.correo"
+                name="correo"
+                required
+                placeholder="usuario@example.com"
+              />
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="editRol" class="form-label">Rol <span class="text-danger">*</span></label>
+              <select 
+                class="form-select" 
+                id="editRol" 
+                [(ngModel)]="formData.id_rol"
+                name="id_rol"
+                required
+              >
+                <option value="1">Administrador</option>
+                <option value="2">Usuario</option>
+              </select>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="editCarrera" class="form-label">Carrera <span class="text-danger">*</span></label>
+              <select 
+                class="form-select" 
+                id="editCarrera" 
+                [(ngModel)]="formData.id_carrera"
+                name="id_carrera"
+                required
+              >
+                <option value="1">Ingeniería de Sistemas</option>
+                <option value="2">Ingeniería Industrial</option>
+                <option value="3">Ingeniería Civil</option>
+                <option value="4">Administración de Empresas</option>
+                <option value="5">Medicina</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Estado del Usuario -->
+          <div class="row mb-3">
+            <div class="col-12">
+              <h6 class="text-muted mb-3">
+                <i class="bi bi-toggle2-on me-2"></i>Estado del Usuario
+              </h6>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <div class="form-check form-switch">
+                <input 
+                  class="form-check-input" 
+                  type="checkbox" 
+                  id="editActivo"
+                  [(ngModel)]="formData.activo"
+                  name="activo"
+                />
+                <label class="form-check-label" for="editActivo">
+                  <i class="bi" [class.bi-check-circle-fill]="formData.activo" [class.bi-x-circle-fill]="!formData.activo" [class.text-success]="formData.activo" [class.text-danger]="!formData.activo"></i>
+                  Usuario {{ formData.activo ? 'Activo' : 'Inactivo' }}
+                </label>
+              </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <div class="form-check form-switch">
+                <input 
+                  class="form-check-input" 
+                  type="checkbox" 
+                  id="editBloqueado"
+                  [(ngModel)]="formData.bloqueado"
+                  name="bloqueado"
+                />
+                <label class="form-check-label" for="editBloqueado">
+                  <i class="bi" [class.bi-lock-fill]="formData.bloqueado" [class.bi-unlock-fill]="!formData.bloqueado" [class.text-warning]="formData.bloqueado" [class.text-success]="!formData.bloqueado"></i>
+                  Usuario {{ formData.bloqueado ? 'Bloqueado' : 'Desbloqueado' }}
+                </label>
+              </div>
+            </div>
+          </div>
+
+        </form>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer">
+        <button 
+          type="button" 
+          class="btn btn-secondary" 
+          (click)="close()"
+          [disabled]="isSubmitting"
+        >
+          <i class="bi bi-x-circle me-2"></i>Cancelar
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-primary" 
+          (click)="onSubmit()"
+          [disabled]="isSubmitting"
+        >
+          @if (isSubmitting) {
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            Guardando...
+          } @else {
+            <i class="bi bi-check-circle me-2"></i>Guardar Cambios
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,513 @@
+<!-- Dashboard Administrativo con Sidebar Layout -->
+<div class="dashboard-layout" [class.sidebar-open]="isSidebarOpen">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <img
+        src="/TutoUIS_Logo.png"
+        alt="Logo TutoUIS"
+        class="logo-sidebar"
+      />
+      <div class="admin-badge">
+        <i class="bi bi-shield-check"></i>
+        <span>ADMINISTRADOR</span>
+      </div>
+    </div>
+
+    <div class="user-profile">
+      <div class="avatar admin-avatar">{{ adminInitials }}</div>
+      <h6 class="user-name">{{ adminName }}</h6>
+      <small class="user-email">{{ adminEmail }}</small>
+    </div>
+
+    <nav class="nav-menu">
+      <a class="nav-item" [class.active]="activeSection === 'inicio'" (click)="setActiveSection('inicio')">
+        <i class="bi bi-speedometer2"></i>
+        <span>Panel Principal</span>
+      </a>
+      <a class="nav-item" [class.active]="activeSection === 'usuarios'" (click)="setActiveSection('usuarios')">
+        <i class="bi bi-people"></i>
+        <span>Gestión de Usuarios</span>
+      </a>
+      <a class="nav-item" [class.active]="activeSection === 'reservas'" (click)="setActiveSection('reservas')">
+        <i class="bi bi-calendar-check"></i>
+        <span>Gestión de Reservas</span>
+      </a>
+      <a class="nav-item" [class.active]="activeSection === 'espacios'" (click)="setActiveSection('espacios')">
+        <i class="bi bi-door-open"></i>
+        <span>Gestión de Espacios</span>
+      </a>
+      <a class="nav-item" [class.active]="activeSection === 'reportes'" (click)="setActiveSection('reportes')">
+        <i class="bi bi-graph-up"></i>
+        <span>Reportes y Estadísticas</span>
+      </a>
+      <a class="nav-item" [class.active]="activeSection === 'configuracion'" (click)="setActiveSection('configuracion')">
+        <i class="bi bi-gear"></i>
+        <span>Configuración</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="btn btn-outline-light btn-sm w-100" (click)="logout()">
+        <i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <div class="top-bar-left">
+        <button class="btn btn-link mobile-menu-toggle" (click)="toggleSidebar()">
+          <i class="bi bi-list"></i>
+        </button>
+        <h3 class="page-title">{{ currentPageTitle }}</h3>
+      </div>
+      <div class="top-bar-right">
+        <button class="btn btn-icon" title="Notificaciones">
+          <i class="bi bi-bell"></i>
+          <span class="notification-badge">5</span>
+        </button>
+        <button class="btn btn-icon" title="Alertas">
+          <i class="bi bi-exclamation-triangle"></i>
+          <span class="notification-badge alert-badge">2</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content-area">
+      <!-- Sección: Panel Principal -->
+      @if (activeSection === 'inicio') {
+        <div class="section-content">
+          <!-- Panel de Bienvenida -->
+          <div class="welcome-banner mb-4">
+            <div class="welcome-content">
+              <h2>
+                <i class="bi bi-shield-check me-2"></i>
+                Bienvenido, {{ adminName }}
+              </h2>
+              <p>Panel de administración - TutoUIS Sistema de Reservas</p>
+            </div>
+            <div class="welcome-date">
+              <i class="bi bi-calendar3"></i>
+              <span>{{ 'Hoy: 19 de Octubre, 2025' }}</span>
+            </div>
+          </div>
+
+          <!-- Estadísticas Generales -->
+          <div class="row g-3 mb-4">
+            <!-- Usuarios -->
+            <div class="col-xl-3 col-md-6">
+              <div class="stat-card stat-card-admin">
+                <div class="stat-icon bg-primary">
+                  <i class="bi bi-people"></i>
+                </div>
+                <div class="stat-info">
+                  <h4>{{ userStats.totalUsers }}</h4>
+                  <p>Total Usuarios</p>
+                  <div class="stat-detail">
+                    <span class="badge bg-success">{{ userStats.activeUsers }} activos</span>
+                    <span class="badge bg-danger ms-2">{{ userStats.blockedUsers }} bloqueados</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Reservas -->
+            <div class="col-xl-3 col-md-6">
+              <div class="stat-card stat-card-admin">
+                <div class="stat-icon bg-success">
+                  <i class="bi bi-calendar-check"></i>
+                </div>
+                <div class="stat-info">
+                  <h4>{{ reservationStats.totalReservations }}</h4>
+                  <p>Total Reservas</p>
+                  <div class="stat-detail">
+                    <span class="badge bg-primary">{{ reservationStats.activeReservations }} activas</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Espacios -->
+            <div class="col-xl-3 col-md-6">
+              <div class="stat-card stat-card-admin">
+                <div class="stat-icon bg-warning">
+                  <i class="bi bi-door-open"></i>
+                </div>
+                <div class="stat-info">
+                  <h4>{{ roomStats.totalRooms }}</h4>
+                  <p>Espacios Totales</p>
+                  <div class="stat-detail">
+                    <span class="badge bg-success">{{ roomStats.availableRooms }} disponibles</span>
+                    <span class="badge bg-warning ms-2">{{ roomStats.maintenanceRooms }} mantenimiento</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Nuevos Usuarios -->
+            <div class="col-xl-3 col-md-6">
+              <div class="stat-card stat-card-admin">
+                <div class="stat-icon bg-info">
+                  <i class="bi bi-person-plus"></i>
+                </div>
+                <div class="stat-info">
+                  <h4>{{ userStats.newUsersThisMonth }}</h4>
+                  <p>Nuevos Este Mes</p>
+                  <div class="stat-detail">
+                    <span class="badge bg-info">+12% vs mes anterior</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contenido Principal -->
+          <div class="row g-4">
+            <!-- Actividad Reciente -->
+            <div class="col-lg-8">
+              <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                  <h5 class="mb-0">
+                    <i class="bi bi-activity me-2"></i>Actividad Reciente del Sistema
+                  </h5>
+                  <button class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-arrow-clockwise me-1"></i>Actualizar
+                  </button>
+                </div>
+                <div class="card-body">
+                  @if (recentActivities.length === 0) {
+                    <div class="text-center py-5 text-muted">
+                      <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                      <p class="mt-3">No hay actividad reciente</p>
+                    </div>
+                  }
+
+                  @for (activity of recentActivities; track activity.id) {
+                    <div class="activity-item">
+                      <div class="activity-icon" [ngClass]="getActivityColorClass(activity.type)">
+                        <i [class]="activity.icon"></i>
+                      </div>
+                      <div class="activity-details">
+                        <p class="mb-1">{{ activity.description }}</p>
+                        <small class="text-muted">
+                          <i class="bi bi-clock me-1"></i>{{ activity.timestamp }}
+                        </small>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <!-- Panel de Acciones Rápidas -->
+            <div class="col-lg-4">
+              <!-- Acciones Administrativas -->
+              <div class="card mb-3">
+                <div class="card-header">
+                  <h5 class="mb-0">
+                    <i class="bi bi-lightning me-2"></i>Acciones Rápidas
+                  </h5>
+                </div>
+                <div class="card-body d-grid gap-2">
+                  <button class="btn btn-primary" (click)="openCreateUserModal()">
+                    <i class="bi bi-person-plus me-2"></i>Nuevo Usuario
+                  </button>
+                  <button class="btn btn-success" (click)="setActiveSection('espacios')">
+                    <i class="bi bi-plus-circle me-2"></i>Nuevo Espacio
+                  </button>
+                  <button class="btn btn-info" (click)="setActiveSection('reportes')">
+                    <i class="bi bi-file-earmark-text me-2"></i>Generar Reporte
+                  </button>
+                  <button class="btn btn-warning" (click)="setActiveSection('reservas')">
+                    <i class="bi bi-calendar-event me-2"></i>Ver Reservas
+                  </button>
+                </div>
+              </div>
+
+              <!-- Alertas del Sistema -->
+              <div class="card">
+                <div class="card-header bg-warning text-white">
+                  <h5 class="mb-0">
+                    <i class="bi bi-exclamation-triangle me-2"></i>Alertas
+                  </h5>
+                </div>
+                <div class="card-body">
+                  <div class="alert-item">
+                    <i class="bi bi-tools text-warning"></i>
+                    <div>
+                      <strong>4 espacios en mantenimiento</strong>
+                      <small class="d-block text-muted">Requieren atención</small>
+                    </div>
+                  </div>
+                  <div class="alert-item">
+                    <i class="bi bi-person-x text-danger"></i>
+                    <div>
+                      <strong>15 usuarios bloqueados</strong>
+                      <small class="d-block text-muted">Revisar casos</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Sección: Gestión de Usuarios -->
+      @if (activeSection === 'usuarios') {
+        <div class="section-content">
+          <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h4 class="mb-0">
+                <i class="bi bi-people me-2"></i>Gestión de Usuarios
+              </h4>
+              <button class="btn btn-primary" (click)="openCreateUserModal()">
+                <i class="bi bi-person-plus me-2"></i>Nuevo Usuario
+              </button>
+            </div>
+            <div class="card-body">
+              <!-- Barra de búsqueda y filtros -->
+              <div class="search-filter-bar">
+                <div class="search-box">
+                  <input 
+                    type="text" 
+                    class="form-control" 
+                    placeholder="Buscar por nombre, código o correo..."
+                    [(ngModel)]="searchTerm"
+                    (input)="filterUsers()"
+                  />
+                </div>
+                <div class="filter-dropdown">
+                  <select 
+                    class="form-select"
+                    [(ngModel)]="filterRole"
+                    (change)="filterUsers()"
+                  >
+                    <option value="all">Todos los roles</option>
+                    <option value="admin">Administradores</option>
+                    <option value="student">Estudiantes</option>
+                  </select>
+                </div>
+                <div class="filter-dropdown">
+                  <select 
+                    class="form-select"
+                    [(ngModel)]="filterStatus"
+                    (change)="filterUsers()"
+                  >
+                    <option value="all">Todos los estados</option>
+                    <option value="active">Activos</option>
+                    <option value="inactive">Inactivos</option>
+                    <option value="blocked">Bloqueados</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Loading spinner -->
+              @if (loadingUsers) {
+                <div class="loading-spinner">
+                  <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                  </div>
+                </div>
+              }
+
+              <!-- Tabla de usuarios -->
+              @if (!loadingUsers && usuariosFiltrados.length > 0) {
+                <div class="users-table-container">
+                  <table class="users-table table">
+                    <thead>
+                      <tr>
+                        <th>Usuario</th>
+                        <th>Código</th>
+                        <th>Correo</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        <th>Fecha Registro</th>
+                        <th>Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (usuario of usuariosFiltrados; track usuario.id_usuario) {
+                        <tr>
+                          <td>
+                            <div class="user-info">
+                              <div class="user-avatar-small">
+                                {{ getUserAvatarInitials(usuario) }}
+                              </div>
+                              <div class="user-details">
+                                <h6>{{ getUserFullName(usuario) }}</h6>
+                                <small>{{ usuario.telefono || 'Sin teléfono' }}</small>
+                              </div>
+                            </div>
+                          </td>
+                          <td>
+                            <span class="fw-bold">{{ usuario.codigo }}</span>
+                          </td>
+                          <td>{{ usuario.correo }}</td>
+                          <td>
+                            <span class="role-badge" [ngClass]="getRoleBadgeClass(usuario.id_rol)">
+                              {{ getRoleName(usuario.id_rol) }}
+                            </span>
+                          </td>
+                          <td>
+                            <span class="status-badge" [ngClass]="getUserStatus(usuario).class">
+                              {{ getUserStatus(usuario).text }}
+                            </span>
+                          </td>
+                          <td>
+                            <small>{{ usuario.fecha_creacion | date: 'dd/MM/yyyy' }}</small>
+                          </td>
+                          <td>
+                            <div class="action-buttons">
+                              <button 
+                                class="btn btn-sm btn-outline-primary" 
+                                (click)="editUser(usuario)"
+                                title="Editar"
+                              >
+                                <i class="bi bi-pencil"></i>
+                              </button>
+                              <button 
+                                class="btn btn-sm"
+                                [ngClass]="usuario.bloqueado ? 'btn-outline-success' : 'btn-outline-warning'"
+                                (click)="toggleBlockUser(usuario)"
+                                [title]="usuario.bloqueado ? 'Desbloquear' : 'Bloquear'"
+                              >
+                                <i [class]="usuario.bloqueado ? 'bi bi-unlock' : 'bi bi-lock'"></i>
+                              </button>
+                              <button 
+                                class="btn btn-sm btn-outline-danger" 
+                                (click)="deleteUser(usuario)"
+                                title="Eliminar"
+                              >
+                                <i class="bi bi-trash"></i>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- Información de resultados -->
+                <div class="mt-3 text-muted">
+                  <small>
+                    Mostrando {{ usuariosFiltrados.length }} de {{ usuarios.length }} usuarios
+                  </small>
+                </div>
+              }
+
+              <!-- Estado vacío -->
+              @if (!loadingUsers && usuariosFiltrados.length === 0 && usuarios.length > 0) {
+                <div class="empty-state">
+                  <i class="bi bi-search"></i>
+                  <h5>No se encontraron usuarios</h5>
+                  <p>Intenta ajustar los filtros de búsqueda</p>
+                </div>
+              }
+
+              @if (!loadingUsers && usuarios.length === 0) {
+                <div class="empty-state">
+                  <i class="bi bi-people"></i>
+                  <h5>No hay usuarios registrados</h5>
+                  <p>Comienza agregando un nuevo usuario</p>
+                  <button class="btn btn-primary mt-3">
+                    <i class="bi bi-person-plus me-2"></i>Agregar Usuario
+                  </button>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Sección: Gestión de Reservas -->
+      @if (activeSection === 'reservas') {
+        <div class="section-content">
+          <div class="card">
+            <div class="card-header">
+              <h4 class="mb-0">
+                <i class="bi bi-calendar-check me-2"></i>Gestión de Reservas
+              </h4>
+            </div>
+            <div class="card-body">
+              <p class="text-muted">Aquí se mostrará la lista completa de reservas del sistema</p>
+              <button class="btn btn-outline-secondary" (click)="setActiveSection('inicio')">
+                <i class="bi bi-arrow-left me-2"></i>Volver al panel
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Sección: Gestión de Espacios -->
+      @if (activeSection === 'espacios') {
+        <div class="section-content">
+          <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h4 class="mb-0">
+                <i class="bi bi-door-open me-2"></i>Gestión de Espacios
+              </h4>
+              <button class="btn btn-success">
+                <i class="bi bi-plus-circle me-2"></i>Nuevo Espacio
+              </button>
+            </div>
+            <div class="card-body">
+              <p class="text-muted">Aquí se mostrará la lista de espacios disponibles con opciones de edición</p>
+              <button class="btn btn-outline-secondary" (click)="setActiveSection('inicio')">
+                <i class="bi bi-arrow-left me-2"></i>Volver al panel
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Sección: Reportes y Estadísticas -->
+      @if (activeSection === 'reportes') {
+        <div class="section-content">
+          <div class="card">
+            <div class="card-header">
+              <h4 class="mb-0">
+                <i class="bi bi-graph-up me-2"></i>Reportes y Estadísticas
+              </h4>
+            </div>
+            <div class="card-body">
+              <p class="text-muted">Aquí se mostrarán gráficas y reportes del sistema</p>
+              <button class="btn btn-outline-secondary" (click)="setActiveSection('inicio')">
+                <i class="bi bi-arrow-left me-2"></i>Volver al panel
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Sección: Configuración -->
+      @if (activeSection === 'configuracion') {
+        <div class="section-content">
+          <div class="card">
+            <div class="card-header">
+              <h4 class="mb-0">
+                <i class="bi bi-gear me-2"></i>Configuración del Sistema
+              </h4>
+            </div>
+            <div class="card-body">
+              <p class="text-muted">Aquí podrás configurar parámetros globales del sistema</p>
+              <button class="btn btn-outline-secondary" (click)="setActiveSection('inicio')">
+                <i class="bi bi-arrow-left me-2"></i>Volver al panel
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </main>
+</div>
+
+<!-- Modal de Crear Usuario -->
+<app-create-user-modal
+  (userCreated)="onUserCreated($event)"
+></app-create-user-modal>

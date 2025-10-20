@@ -88,6 +88,7 @@ export class DashboardLayout implements OnInit {
   // Control de navegación
   currentPageTitle: string = 'Dashboard';
   isSidebarOpen: boolean = false;
+  isLoggingOut: boolean = false; // Prevenir múltiples clicks
 
   constructor(
     private authService: AuthService,
@@ -151,9 +152,30 @@ export class DashboardLayout implements OnInit {
   }
 
   logout(): void {
-    if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
-      this.authService.logout();
-      this.router.navigate(['/login']);
+    // Prevenir múltiples ejecuciones
+    if (this.isLoggingOut) {
+      console.log('DashboardLayout - Ya hay un proceso de logout en curso');
+      return;
     }
+
+    console.log('DashboardLayout - Iniciando proceso de cierre de sesión...');
+    this.isLoggingOut = true;
+
+    // Sin confirmación - cierre directo
+    console.log('DashboardLayout - Cerrando sesión directamente...');
+    this.authService.logout();
+    console.log('DashboardLayout - Navegando a /login...');
+    
+    this.router.navigate(['/login']).then(() => {
+      console.log('DashboardLayout - Navegación completada');
+      this.isLoggingOut = false;
+      // Recargar la página para limpiar cualquier estado residual
+      window.location.reload();
+    }).catch((error) => {
+      console.error('DashboardLayout - Error en navegación:', error);
+      this.isLoggingOut = false;
+      // Forzar recarga si falla la navegación
+      window.location.href = '/login';
+    });
   }
 }

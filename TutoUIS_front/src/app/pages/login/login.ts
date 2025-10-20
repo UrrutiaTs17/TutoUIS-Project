@@ -51,13 +51,19 @@ export class Login {
         
         // Cargar y cachear el perfil del usuario después del login
         this.authService.getUserProfile().subscribe({
-          next: () => {
-            // Perfil cacheado, redirigir al dashboard
-            this.router.navigate(['/dashboard']);
+          next: (profile) => {
+            // Perfil cacheado, redirigir según el rol
+            if (profile.id_rol === 1) {
+              // Usuario administrador
+              this.router.navigate(['/admin-dashboard']);
+            } else {
+              // Usuario regular
+              this.router.navigate(['/dashboard']);
+            }
           },
           error: (error) => {
             console.warn('Advertencia: No se pudo cargar el perfil, pero continuando:', error);
-            // Continuamos incluso si hay error al cargar el perfil
+            // Continuamos con el dashboard regular si hay error
             this.router.navigate(['/dashboard']);
           }
         });
