@@ -216,3 +216,4 @@ export class ModalService {
     this.hideModal();
   }
 }
+

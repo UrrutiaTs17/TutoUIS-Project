@@ -43,6 +43,10 @@ import { AuthService } from '../../../services/auth.service';
             <i class="bi bi-person"></i>
             <span>Mi Perfil</span>
           </a>
+          <a *ngIf="userRole === 2" class="nav-item" [routerLink]="'/dashboard/agenda'" [routerLinkActive]="'active'">
+            <i class="bi bi-calendar-event"></i>
+            <span>Agenda</span>
+          </a>
         </nav>
 
         <div class="sidebar-footer">
@@ -84,6 +88,7 @@ export class DashboardLayout implements OnInit {
   userName: string = 'Usuario';
   userEmail: string = 'usuario@uis.edu.co';
   userInitials: string = 'U';
+  userRole: number | null = null;
 
   // Control de navegación
   currentPageTitle: string = 'Dashboard';
@@ -107,7 +112,8 @@ export class DashboardLayout implements OnInit {
         this.userName = `${cachedProfile.nombre || ''} ${cachedProfile.apellido || ''}`.trim();
         this.userEmail = cachedProfile.correo || `${userData.codigo}@uis.edu.co`;
         this.userInitials = this.getUserInitials(this.userName);
-        console.log('Perfil cargado desde caché:', this.userName);
+        this.userRole = cachedProfile.id_rol || null;
+        console.log('Perfil cargado desde caché:', this.userName, 'role=', this.userRole);
       } else {
         // Si no hay perfil cacheado, usar el código como fallback
         this.userName = userData.codigo;
@@ -122,7 +128,8 @@ export class DashboardLayout implements OnInit {
               this.userName = `${profile.nombre || ''} ${profile.apellido || ''}`.trim();
               this.userEmail = profile.correo || this.userEmail;
               this.userInitials = this.getUserInitials(this.userName);
-              console.log('Perfil cargado desde servidor:', this.userName);
+              this.userRole = profile.id_rol || null;
+              console.log('Perfil cargado desde servidor:', this.userName, 'role=', this.userRole);
             } else {
               console.log('El perfil no contiene nombre o apellido:', profile);
             }

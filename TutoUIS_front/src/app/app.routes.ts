@@ -6,6 +6,7 @@ import { AuthGuard } from './guards/auth.guard';
 import { DashboardLayout } from './pages/dashboard/layout/dashboard-layout';
 import { DashboardHome } from './pages/dashboard/home/dashboard-home';
 import { ReservationForm } from './pages/dashboard/reservation/reservation-form';
+import { Agenda } from './pages/dashboard/agenda/agenda';
 import { Reservations, History, Profile, Settings } from './pages/dashboard/sections/placeholder';
 
 export const routes: Routes = [
@@ -19,6 +20,7 @@ export const routes: Routes = [
         children: [
             { path: '', component: DashboardHome },
             { path: 'reservation', component: ReservationForm },
+            { path: 'agenda', component: Agenda },
             { path: 'reservations', component: Reservations },
             { path: 'history', component: History },
             { path: 'profile', component: Profile },
