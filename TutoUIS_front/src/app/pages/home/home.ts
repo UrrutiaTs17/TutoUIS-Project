@@ -5,9 +5,10 @@ import { CommonModule } from '@angular/common';
 import { Header } from '../../components/header/header';
 @Component({
   selector: 'app-home',
-  imports: [RouterOutlet,Header,RouterLink,Footer,CommonModule],
+  standalone: true,
+  imports: [RouterOutlet,RouterLink,Footer,CommonModule],
   templateUrl: './home.html',
-  styleUrl: './home.css'
+  styleUrls: ['./home.css']
 })
 export class Home {
 

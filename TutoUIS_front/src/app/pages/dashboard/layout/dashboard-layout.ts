@@ -35,10 +35,6 @@ import { AuthService } from '../../../services/auth.service';
             <i class="bi bi-calendar-plus"></i>
             <span>Nueva Reserva</span>
           </a>
-          <a class="nav-item" [routerLink]="'/dashboard/reservations'" [routerLinkActive]="'active'">
-            <i class="bi bi-list-ul"></i>
-            <span>Mis Reservas</span>
-          </a>
           <a class="nav-item" [routerLink]="'/dashboard/history'" [routerLinkActive]="'active'">
             <i class="bi bi-clock-history"></i>
             <span>Historial</span>
@@ -47,9 +43,9 @@ import { AuthService } from '../../../services/auth.service';
             <i class="bi bi-person"></i>
             <span>Mi Perfil</span>
           </a>
-          <a class="nav-item" [routerLink]="'/dashboard/settings'" [routerLinkActive]="'active'">
-            <i class="bi bi-gear"></i>
-            <span>Configuración</span>
+          <a *ngIf="userRole === 2" class="nav-item" [routerLink]="'/dashboard/agenda'" [routerLinkActive]="'active'">
+            <i class="bi bi-calendar-event"></i>
+            <span>Agenda</span>
           </a>
         </nav>
 
@@ -75,9 +71,6 @@ import { AuthService } from '../../../services/auth.service';
               <i class="bi bi-bell"></i>
               <span class="notification-badge">3</span>
             </button>
-            <button class="btn btn-icon" title="Ayuda">
-              <i class="bi bi-question-circle"></i>
-            </button>
           </div>
         </div>
 
@@ -95,10 +88,12 @@ export class DashboardLayout implements OnInit {
   userName: string = 'Usuario';
   userEmail: string = 'usuario@uis.edu.co';
   userInitials: string = 'U';
+  userRole: number | null = null;
 
   // Control de navegación
   currentPageTitle: string = 'Dashboard';
   isSidebarOpen: boolean = false;
+  isLoggingOut: boolean = false; // Prevenir múltiples clicks
 
   constructor(
     private authService: AuthService,
@@ -112,23 +107,41 @@ export class DashboardLayout implements OnInit {
   private loadUserData(): void {
     const userData = this.authService.getUserData();
     if (userData && userData.codigo) {
-      this.userName = userData.codigo;
-      this.userEmail = `${userData.codigo}@uis.edu.co`;
-      this.userInitials = this.getUserInitials(this.userName);
-      
-      // Intentar obtener el perfil completo
-      this.authService.getUserProfile().subscribe(
-        (profile: any) => {
-          if (profile.nombre || profile.apellido) {
-            this.userName = `${profile.nombre || ''} ${profile.apellido || ''}`.trim();
-            this.userEmail = profile.correo || this.userEmail;
-            this.userInitials = this.getUserInitials(this.userName);
+      // Primero intentar usar el perfil cacheado
+      const cachedProfile = this.authService.getCachedProfile();
+      if (cachedProfile && (cachedProfile.nombre || cachedProfile.apellido)) {
+        this.userName = `${cachedProfile.nombre || ''} ${cachedProfile.apellido || ''}`.trim();
+        this.userEmail = cachedProfile.correo || `${userData.codigo}@uis.edu.co`;
+        this.userInitials = this.getUserInitials(this.userName);
+        this.userRole = cachedProfile.id_rol || null;
+        console.log('Perfil cargado desde caché:', this.userName, 'role=', this.userRole);
+      } else {
+        // Si no hay perfil cacheado, usar el código como fallback
+        this.userName = userData.codigo;
+        this.userEmail = `${userData.codigo}@uis.edu.co`;
+        this.userInitials = this.getUserInitials(this.userName);
+        
+        // Intentar obtener el perfil completo del servidor
+        this.authService.getUserProfile().subscribe(
+          (profile: any) => {
+            console.log('Respuesta del servidor:', profile);
+            if (profile && (profile.nombre || profile.apellido)) {
+              this.userName = `${profile.nombre || ''} ${profile.apellido || ''}`.trim();
+              this.userEmail = profile.correo || this.userEmail;
+              this.userInitials = this.getUserInitials(this.userName);
+              this.userRole = profile.id_rol || null;
+              console.log('Perfil cargado desde servidor:', this.userName, 'role=', this.userRole);
+            } else {
+              console.log('El perfil no contiene nombre o apellido:', profile);
+            }
+          },
+          (error) => {
+            console.error('Error al cargar el perfil completo:', error);
+            console.error('Detalles del error:', error.error || error.message);
+            // Mantener los valores por defecto (código)
           }
-        },
-        (error) => {
-          console.warn('No se pudo cargar el perfil completo:', error);
-        }
-      );
+        );
+      }
     }
   }
 
@@ -146,9 +159,30 @@ export class DashboardLayout implements OnInit {
   }
 
   logout(): void {
-    if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
-      this.authService.logout();
-      this.router.navigate(['/login']);
+    // Prevenir múltiples ejecuciones
+    if (this.isLoggingOut) {
+      console.log('DashboardLayout - Ya hay un proceso de logout en curso');
+      return;
     }
+
+    console.log('DashboardLayout - Iniciando proceso de cierre de sesión...');
+    this.isLoggingOut = true;
+
+    // Sin confirmación - cierre directo
+    console.log('DashboardLayout - Cerrando sesión directamente...');
+    this.authService.logout();
+    console.log('DashboardLayout - Navegando a /login...');
+    
+    this.router.navigate(['/login']).then(() => {
+      console.log('DashboardLayout - Navegación completada');
+      this.isLoggingOut = false;
+      // Recargar la página para limpiar cualquier estado residual
+      window.location.reload();
+    }).catch((error) => {
+      console.error('DashboardLayout - Error en navegación:', error);
+      this.isLoggingOut = false;
+      // Forzar recarga si falla la navegación
+      window.location.href = '/login';
+    });
   }
 }

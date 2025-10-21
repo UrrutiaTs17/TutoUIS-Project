@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../services/auth.service';
+import { CarreraService } from '../../../services/carrera.service';
 
 interface UserProfile {
   id_usuario: number;
@@ -92,7 +93,7 @@ interface UserProfile {
                     <p>
                       <i class="bi bi-book"></i>
                       <strong>Carrera:</strong> 
-                      <span>{{ profileData?.id_carrera || 'No asignada' }}</span>
+                      <span>{{ getCarreraName(profileData?.id_carrera) }}</span>
                     </p>
                     <p>
                       <i class="bi bi-calendar"></i>
@@ -112,71 +113,15 @@ interface UserProfile {
         <div class="card">
           <div class="card-header" style="background: linear-gradient(135deg, #1e7e34 0%, #155724 100%); color: white;">
             <h5 class="mb-0">
-              <i class="bi bi-pencil-square me-2"></i>Editar Perfil de Usuario
+              <i class="bi bi-pencil-square me-2"></i>Editar Información de Contacto
             </h5>
           </div>
           <div class="card-body">
             <div class="edit-form-section">
               <form (ngSubmit)="onSubmit()">
-                <!-- Fila 1: Nombre y Apellido -->
                 <div class="row">
                   <div class="col-md-6">
-                    <label for="nombre" class="form-label">Nombre <span class="text-danger">*</span></label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="nombre"
-                      [(ngModel)]="editData.nombre"
-                      name="nombre"
-                      placeholder="Ingresa tu nombre"
-                      required
-                    />
-                  </div>
-                  <div class="col-md-6">
-                    <label for="apellido" class="form-label">Apellido <span class="text-danger">*</span></label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="apellido"
-                      [(ngModel)]="editData.apellido"
-                      name="apellido"
-                      placeholder="Ingresa tu apellido"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <!-- Fila 2: Código y Correo -->
-                <div class="row">
-                  <div class="col-md-6">
-                    <label for="codigo" class="form-label">Código</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="codigo"
-                      [value]="editData.codigo"
-                      disabled
-                    />
-                    <small class="text-muted"><i class="bi bi-info-circle me-1"></i>El código no puede ser modificado</small>
-                  </div>
-                  <div class="col-md-6">
-                    <label for="correo" class="form-label">Correo Electrónico <span class="text-danger">*</span></label>
-                    <input
-                      type="email"
-                      class="form-control"
-                      id="correo"
-                      [(ngModel)]="editData.correo"
-                      name="correo"
-                      placeholder="correo@ejemplo.com"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <!-- Fila 3: Teléfono y Carrera -->
-                <div class="row">
-                  <div class="col-md-6">
-                    <label for="telefono" class="form-label">Teléfono</label>
+                    <label for="telefono" class="form-label">TELÉFONO</label>
                     <input
                       type="tel"
                       class="form-control"
@@ -187,14 +132,15 @@ interface UserProfile {
                     />
                   </div>
                   <div class="col-md-6">
-                    <label for="id_carrera" class="form-label">Carrera</label>
+                    <label for="correo" class="form-label">CORREO ELECTRÓNICO <span class="text-danger">*</span></label>
                     <input
-                      type="number"
+                      type="email"
                       class="form-control"
-                      id="id_carrera"
-                      [(ngModel)]="editData.id_carrera"
-                      name="id_carrera"
-                      placeholder="ID de la carrera"
+                      id="correo"
+                      [(ngModel)]="editData.correo"
+                      name="correo"
+                      placeholder="correo@ejemplo.com"
+                      required
                     />
                   </div>
                 </div>
@@ -237,10 +183,14 @@ export class Profile implements OnInit {
   isLoading: boolean = false;
   errorMessage: string = '';
 
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private carreraService: CarreraService
+  ) {}
 
   ngOnInit(): void {
     this.loadProfileData();
+    this.loadCarreras();
   }
 
   loadProfileData(): void {
@@ -285,6 +235,23 @@ export class Profile implements OnInit {
     return roles[rolId] || `Rol ${rolId}`;
   }
 
+  loadCarreras(): void {
+    // Cargar carreras desde el servidor
+    this.carreraService.getCarreras().subscribe({
+      next: (carreras) => {
+        console.log('Carreras cargadas:', carreras);
+      },
+      error: (error) => {
+        console.error('Error cargando carreras:', error);
+      }
+    });
+  }
+
+  getCarreraName(carreraId: number | undefined): string {
+    if (!carreraId) return 'No asignada';
+    return this.carreraService.getCarreraNameById(carreraId);
+  }
+
   toggleEditMode(): void {
     if (this.isEditing) {
       this.cancelEdit();
@@ -301,15 +268,20 @@ export class Profile implements OnInit {
   }
 
   onSubmit(): void {
-    if (!this.editData.nombre || !this.editData.apellido || !this.editData.correo) {
-      this.errorMessage = 'Por favor completa todos los campos requeridos';
+    if (!this.editData.correo) {
+      this.errorMessage = 'El correo electrónico es requerido';
       return;
     }
 
     this.isSubmitting = true;
     this.errorMessage = '';
 
-    const dataToUpdate = { ...this.editData };
+    // Solo enviamos los campos editables y mantenemos el resto de datos sin cambios
+    const dataToUpdate = {
+      ...this.profileData,
+      correo: this.editData.correo,
+      telefono: this.editData.telefono
+    };
 
     this.authService.updateUserProfile(dataToUpdate).subscribe({
       next: (response) => {

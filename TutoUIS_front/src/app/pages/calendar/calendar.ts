@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Observable, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, startWith } from 'rxjs/operators';
+import { ModalService } from '../../services/modal.service';
 
 type MateriaCatalogo = {
   id: number;
@@ -81,6 +82,8 @@ export class CalendarComponent implements OnInit {
   // selección de celda (para resaltar/acciones)
   selected: { hora: string; dia: string } | null = null;
 
+  constructor(private modalService: ModalService) {}
+
   // ======== Ciclo de vida ========
   ngOnInit(): void {
     this.suggestions$ = this.searchControl.valueChanges.pipe(
@@ -121,10 +124,8 @@ trackMateria = (_: number, m: MateriaCatalogo) => m.id; // o `${m.id}-${m.nombre
   }
 
   selectCell(hora: string, dia: string) {
-    const same = this.selected &&
-                 this.selected.hora === hora &&
-                 this.selected.dia === dia;
-    this.selected = same ? null : { hora, dia };
+    this.selected = { hora, dia };
+    this.modalService.showModal();
   }
 
   isSelected(hora: string, dia: string): boolean {
