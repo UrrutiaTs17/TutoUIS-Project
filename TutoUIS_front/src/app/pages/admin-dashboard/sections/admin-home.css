@@ -195,6 +195,20 @@
   font-size: 0.85rem;
 }
 
+/* Center the activity list inside the activity card for better layout */
+.card.activity-card .card-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* center the list */
+  gap: 10px;
+}
+
+.card.activity-card .activity-item {
+  width: 100%;
+  max-width: 720px; /* limit width so it appears centered */
+  box-sizing: border-box;
+}
+
 /* ===============================================
    BUTTONS
    =============================================== */
