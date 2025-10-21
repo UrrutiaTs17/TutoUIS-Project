@@ -15,6 +15,19 @@ export interface LoginResponse {
   id_usuario: number;
 }
 
+export interface UserProfile {
+  id_usuario: number;
+  nombre: string;
+  apellido: string;
+  codigo: string;
+  correo: string;
+  telefono: string;
+  id_rol: number;
+  id_carrera: number;
+  activo: boolean;
+  bloqueado: boolean;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -54,11 +67,15 @@ export class AuthService {
   }
 
   logout(): void {
+    console.log('AuthService - Cerrando sesión...');
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem(this.TOKEN_KEY);
       localStorage.removeItem(this.USER_KEY);
+      localStorage.removeItem(this.PROFILE_KEY);
+      console.log('AuthService - LocalStorage limpiado');
     }
     this.isAuthenticatedSubject.next(false);
+    console.log('AuthService - Usuario desautenticado');
   }
 
   getToken(): string | null {
@@ -140,5 +157,21 @@ export class AuthService {
           }
         })
       );
+  }
+
+  // Método para verificar si el usuario es administrador
+  isAdmin(): boolean {
+    const profile = this.getCachedProfile();
+    if (profile && profile.id_rol !== undefined) {
+      // Asumiendo que id_rol = 1 es administrador
+      return profile.id_rol === 1;
+    }
+    return false;
+  }
+
+  // Método para obtener el rol del usuario
+  getUserRole(): number | null {
+    const profile = this.getCachedProfile();
+    return profile?.id_rol ?? null;
   }
 }

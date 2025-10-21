@@ -1,0 +1,275 @@
+<!-- Modal de Crear Usuario -->
+@if (showModal) {
+  <div class="modal-backdrop" (click)="close()"></div>
+  <div class="modal-container">
+    <div class="modal-content">
+      <!-- Header -->
+      <div class="modal-header">
+        <h3>
+          <i class="bi bi-person-plus-fill me-2"></i>
+          Crear Nuevo Usuario
+        </h3>
+        <button class="btn-close" (click)="close()" type="button">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="modal-body">
+        <form (ngSubmit)="onSubmit()" #userForm="ngForm">
+          <!-- Mensaje de Error -->
+          @if (errorMessage) {
+            <div class="alert alert-danger">
+              <i class="bi bi-exclamation-triangle-fill me-2"></i>
+              {{ errorMessage }}
+            </div>
+          }
+
+          <!-- Información Personal -->
+          <div class="form-section">
+            <h5 class="section-title">
+              <i class="bi bi-person-badge me-2"></i>
+              Información Personal
+            </h5>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="nombre" class="form-label">
+                    Nombre <span class="required">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="nombre"
+                    name="nombre"
+                    [(ngModel)]="formData.nombre"
+                    [class.is-invalid]="hasError('nombre')"
+                    placeholder="Ingrese el nombre"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="apellido" class="form-label">
+                    Apellido <span class="required">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="apellido"
+                    name="apellido"
+                    [(ngModel)]="formData.apellido"
+                    [class.is-invalid]="hasError('apellido')"
+                    placeholder="Ingrese el apellido"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="codigo" class="form-label">
+                    Código de Usuario <span class="required">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="codigo"
+                    name="codigo"
+                    [(ngModel)]="formData.codigo"
+                    [class.is-invalid]="hasError('código')"
+                    placeholder="Ej: 2201234"
+                    required
+                  />
+                  <small class="form-text">Código único de identificación</small>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="telefono" class="form-label">
+                    Teléfono
+                  </label>
+                  <input
+                    type="tel"
+                    class="form-control"
+                    id="telefono"
+                    name="telefono"
+                    [(ngModel)]="formData.telefono"
+                    [class.is-invalid]="hasError('teléfono')"
+                    placeholder="+57 300 123 4567"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Información de Cuenta -->
+          <div class="form-section">
+            <h5 class="section-title">
+              <i class="bi bi-envelope me-2"></i>
+              Información de Cuenta
+            </h5>
+
+            <div class="form-group">
+              <label for="correo" class="form-label">
+                Correo Electrónico <span class="required">*</span>
+              </label>
+              <input
+                type="email"
+                class="form-control"
+                id="correo"
+                name="correo"
+                [(ngModel)]="formData.correo"
+                [class.is-invalid]="hasError('correo')"
+                placeholder="usuario@uis.edu.co"
+                required
+              />
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="contrasena" class="form-label">
+                    Contraseña <span class="required">*</span>
+                  </label>
+                  <input
+                    type="password"
+                    class="form-control"
+                    id="contrasena"
+                    name="contrasena"
+                    [(ngModel)]="formData.contrasena"
+                    [class.is-invalid]="hasError('contraseña')"
+                    placeholder="Mínimo 6 caracteres"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="confirmarContrasena" class="form-label">
+                    Confirmar Contraseña <span class="required">*</span>
+                  </label>
+                  <input
+                    type="password"
+                    class="form-control"
+                    id="confirmarContrasena"
+                    name="confirmarContrasena"
+                    [(ngModel)]="formData.confirmarContrasena"
+                    [class.is-invalid]="hasError('coinciden')"
+                    placeholder="Repita la contraseña"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Información Académica -->
+          <div class="form-section">
+            <h5 class="section-title">
+              <i class="bi bi-building me-2"></i>
+              Información Académica/Laboral
+            </h5>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="id_rol" class="form-label">
+                    Rol <span class="required">*</span>
+                  </label>
+                  <select
+                    class="form-select"
+                    id="id_rol"
+                    name="id_rol"
+                    [(ngModel)]="formData.id_rol"
+                    required
+                  >
+                    @for (rol of roles; track rol.id) {
+                      <option [value]="rol.id">{{ rol.nombre }}</option>
+                    }
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="id_carrera" class="form-label">
+                    Carrera/Departamento
+                  </label>
+                  <select
+                    class="form-select"
+                    id="id_carrera"
+                    name="id_carrera"
+                    [(ngModel)]="formData.id_carrera"
+                  >
+                    <option [value]="null">Sin asignar</option>
+                    @for (carrera of carreras; track carrera.id) {
+                      <option [value]="carrera.id">{{ carrera.nombre }}</option>
+                    }
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Estado del Usuario -->
+          <div class="form-section">
+            <h5 class="section-title">
+              <i class="bi bi-toggle-on me-2"></i>
+              Estado
+            </h5>
+
+            <div class="form-check form-switch">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="activo"
+                name="activo"
+                [(ngModel)]="formData.activo"
+              />
+              <label class="form-check-label" for="activo">
+                Usuario activo
+              </label>
+              <small class="form-text d-block">
+                Los usuarios inactivos no podrán iniciar sesión
+              </small>
+            </div>
+          </div>
+
+          <!-- Footer con Botones -->
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              (click)="close()"
+              [disabled]="isSubmitting"
+            >
+              <i class="bi bi-x-circle me-2"></i>
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              class="btn btn-primary"
+              [disabled]="isSubmitting || !userForm.valid"
+            >
+              @if (isSubmitting) {
+                <span class="spinner-border spinner-border-sm me-2"></span>
+                Creando...
+              } @else {
+                <i class="bi bi-check-circle me-2"></i>
+                Crear Usuario
+              }
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+}

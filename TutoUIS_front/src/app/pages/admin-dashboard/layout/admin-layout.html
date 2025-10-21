@@ -1,0 +1,98 @@
+<!-- Admin Dashboard Layout con Sidebar -->
+<div class="dashboard-layout" [class.sidebar-open]="isSidebarOpen">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <img
+        src="/TutoUIS_Logo.png"
+        alt="Logo TutoUIS"
+        class="logo-sidebar"
+      />
+      <div class="admin-badge">
+        <i class="bi bi-shield-check"></i>
+        <span>ADMINISTRADOR</span>
+      </div>
+    </div>
+
+    <div class="user-profile">
+      <div class="avatar admin-avatar">{{ adminInitials }}</div>
+      <h6 class="user-name">{{ adminName }}</h6>
+      <small class="user-email">{{ adminEmail }}</small>
+    </div>
+
+    <nav class="nav-menu">
+      <a 
+        routerLink="/admin-dashboard" 
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{exact: true}"
+        class="nav-item"
+      >
+        <i class="bi bi-speedometer2"></i>
+        <span>Panel Principal</span>
+      </a>
+      <a 
+        routerLink="/admin-dashboard/users" 
+        routerLinkActive="active"
+        class="nav-item"
+      >
+        <i class="bi bi-people"></i>
+        <span>Gestión de Usuarios</span>
+      </a>
+      <a 
+        routerLink="/admin-dashboard/reservations" 
+        routerLinkActive="active"
+        class="nav-item"
+      >
+        <i class="bi bi-calendar-check"></i>
+        <span>Gestión de Reservas</span>
+      </a>
+      <a 
+        routerLink="/admin-dashboard/spaces" 
+        routerLinkActive="active"
+        class="nav-item"
+      >
+        <i class="bi bi-door-open"></i>
+        <span>Gestión de Espacios</span>
+      </a>
+      <a 
+        routerLink="/admin-dashboard/reports" 
+        routerLinkActive="active"
+        class="nav-item"
+      >
+        <i class="bi bi-graph-up"></i>
+        <span>Reportes y Estadísticas</span>
+      </a>
+      <a 
+        routerLink="/admin-dashboard/settings" 
+        routerLinkActive="active"
+        class="nav-item"
+      >
+        <i class="bi bi-gear"></i>
+        <span>Configuración</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="btn-logout" (click)="logout()">
+        <i class="bi bi-box-arrow-right"></i>
+        <span>Cerrar Sesión</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Toggle Sidebar Button (Mobile) -->
+    <button class="btn-toggle-sidebar" (click)="toggleSidebar()">
+      <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Router Outlet para las secciones -->
+    <router-outlet></router-outlet>
+  </main>
+
+  <!-- Overlay para cerrar sidebar en móvil -->
+  @if (isSidebarOpen) {
+    <div class="sidebar-overlay" (click)="toggleSidebar()"></div>
+  }
+</div>
