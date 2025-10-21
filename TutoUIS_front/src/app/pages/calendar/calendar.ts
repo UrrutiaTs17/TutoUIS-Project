@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Observable, of } from 'rxjs';
@@ -29,6 +29,9 @@ type MateriaCelda = {
   styleUrls: ['./calendar.css']
 })
 export class CalendarComponent implements OnInit {
+
+  /** Cuando es false, ocultamos el buscador y mostramos directamente el calendario */
+  @Input() showSearch: boolean = true;
 
   // ======== Cabeceras de tabla ========
   dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];

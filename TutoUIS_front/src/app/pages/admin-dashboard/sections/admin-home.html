@@ -6,80 +6,13 @@
   <p class="page-subtitle">Bienvenido al panel de administración de TutoUIS</p>
 </div>
 
-<!-- Tarjetas de Estadísticas -->
-<div class="row g-3 mb-4">
-  <!-- Usuarios -->
-  <div class="col-xl-3 col-md-6">
-    <div class="stat-card stat-card-admin">
-      <div class="stat-icon bg-primary">
-        <i class="bi bi-people"></i>
-      </div>
-      <div class="stat-info">
-        <h4>{{ userStats.totalUsers }}</h4>
-        <p>Total Usuarios</p>
-        <div class="stat-detail">
-          <span class="badge bg-success">{{ userStats.activeUsers }} activos</span>
-          <span class="badge bg-danger ms-2">{{ userStats.blockedUsers }} bloqueados</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Reservas -->
-  <div class="col-xl-3 col-md-6">
-    <div class="stat-card stat-card-admin">
-      <div class="stat-icon bg-success">
-        <i class="bi bi-calendar-check"></i>
-      </div>
-      <div class="stat-info">
-        <h4>{{ reservationStats.totalReservations }}</h4>
-        <p>Total Reservas</p>
-        <div class="stat-detail">
-          <span class="badge bg-primary">{{ reservationStats.activeReservations }} activas</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Espacios -->
-  <div class="col-xl-3 col-md-6">
-    <div class="stat-card stat-card-admin">
-      <div class="stat-icon bg-warning">
-        <i class="bi bi-door-open"></i>
-      </div>
-      <div class="stat-info">
-        <h4>{{ roomStats.totalRooms }}</h4>
-        <p>Espacios Totales</p>
-        <div class="stat-detail">
-          <span class="badge bg-success">{{ roomStats.availableRooms }} disponibles</span>
-          <span class="badge bg-warning ms-2">{{ roomStats.maintenanceRooms }} mantenimiento</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Nuevos Usuarios -->
-  <div class="col-xl-3 col-md-6">
-    <div class="stat-card stat-card-admin">
-      <div class="stat-icon bg-info">
-        <i class="bi bi-person-plus"></i>
-      </div>
-      <div class="stat-info">
-        <h4>{{ userStats.newUsersThisMonth }}</h4>
-        <p>Nuevos Este Mes</p>
-        <div class="stat-detail">
-          <span class="badge bg-info">+12% vs mes anterior</span>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+<!-- Estadísticas removidas según solicitud -->
 
 <!-- Contenido Principal -->
 <div class="row g-4">
   <!-- Actividad Reciente -->
-  <div class="col-lg-8">
-    <div class="card">
+  <div class="col-lg-8 mx-auto">
+    <div class="card activity-card">
       <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">
           <i class="bi bi-activity me-2"></i>Actividad Reciente del Sistema
@@ -113,83 +46,5 @@
     </div>
   </div>
 
-  <!-- Panel de Acciones Rápidas -->
-  <div class="col-lg-4">
-    <!-- Acciones Administrativas -->
-    <div class="card mb-3">
-      <div class="card-header">
-        <h5 class="mb-0">
-          <i class="bi bi-lightning me-2"></i>Acciones Rápidas
-        </h5>
-      </div>
-      <div class="card-body d-grid gap-2">
-        <a routerLink="/admin-dashboard/users" class="btn btn-primary">
-          <i class="bi bi-person-plus me-2"></i>Gestionar Usuarios
-        </a>
-        <a routerLink="/admin-dashboard/spaces" class="btn btn-success">
-          <i class="bi bi-plus-circle me-2"></i>Gestionar Espacios
-        </a>
-        <a routerLink="/admin-dashboard/reports" class="btn btn-info">
-          <i class="bi bi-file-earmark-text me-2"></i>Ver Reportes
-        </a>
-        <a routerLink="/admin-dashboard/reservations" class="btn btn-warning">
-          <i class="bi bi-calendar-event me-2"></i>Ver Reservas
-        </a>
-      </div>
-    </div>
-
-    <!-- Estado del Sistema -->
-    <div class="card">
-      <div class="card-header">
-        <h5 class="mb-0">
-          <i class="bi bi-hdd me-2"></i>Estado del Sistema
-        </h5>
-      </div>
-      <div class="card-body">
-        <div class="system-status-item">
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <span>Servidor</span>
-            <span class="badge bg-success">
-              <i class="bi bi-check-circle me-1"></i>Online
-            </span>
-          </div>
-          <div class="progress" style="height: 5px;">
-            <div class="progress-bar bg-success" style="width: 100%"></div>
-          </div>
-        </div>
-
-        <div class="system-status-item mt-3">
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <span>Base de Datos</span>
-            <span class="badge bg-success">
-              <i class="bi bi-check-circle me-1"></i>Conectada
-            </span>
-          </div>
-          <div class="progress" style="height: 5px;">
-            <div class="progress-bar bg-success" style="width: 100%"></div>
-          </div>
-        </div>
-
-        <div class="system-status-item mt-3">
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <span>Almacenamiento</span>
-            <span class="badge bg-info">65% usado</span>
-          </div>
-          <div class="progress" style="height: 5px;">
-            <div class="progress-bar bg-info" style="width: 65%"></div>
-          </div>
-        </div>
-
-        <div class="system-status-item mt-3">
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <span>Rendimiento</span>
-            <span class="badge bg-success">Óptimo</span>
-          </div>
-          <div class="progress" style="height: 5px;">
-            <div class="progress-bar bg-success" style="width: 90%"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <!-- Panel derecho removido según solicitud -->
 </div>

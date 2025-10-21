@@ -92,80 +92,13 @@
             </div>
           </div>
 
-          <!-- Estadísticas Generales -->
-          <div class="row g-3 mb-4">
-            <!-- Usuarios -->
-            <div class="col-xl-3 col-md-6">
-              <div class="stat-card stat-card-admin">
-                <div class="stat-icon bg-primary">
-                  <i class="bi bi-people"></i>
-                </div>
-                <div class="stat-info">
-                  <h4>{{ userStats.totalUsers }}</h4>
-                  <p>Total Usuarios</p>
-                  <div class="stat-detail">
-                    <span class="badge bg-success">{{ userStats.activeUsers }} activos</span>
-                    <span class="badge bg-danger ms-2">{{ userStats.blockedUsers }} bloqueados</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Reservas -->
-            <div class="col-xl-3 col-md-6">
-              <div class="stat-card stat-card-admin">
-                <div class="stat-icon bg-success">
-                  <i class="bi bi-calendar-check"></i>
-                </div>
-                <div class="stat-info">
-                  <h4>{{ reservationStats.totalReservations }}</h4>
-                  <p>Total Reservas</p>
-                  <div class="stat-detail">
-                    <span class="badge bg-primary">{{ reservationStats.activeReservations }} activas</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Espacios -->
-            <div class="col-xl-3 col-md-6">
-              <div class="stat-card stat-card-admin">
-                <div class="stat-icon bg-warning">
-                  <i class="bi bi-door-open"></i>
-                </div>
-                <div class="stat-info">
-                  <h4>{{ roomStats.totalRooms }}</h4>
-                  <p>Espacios Totales</p>
-                  <div class="stat-detail">
-                    <span class="badge bg-success">{{ roomStats.availableRooms }} disponibles</span>
-                    <span class="badge bg-warning ms-2">{{ roomStats.maintenanceRooms }} mantenimiento</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Nuevos Usuarios -->
-            <div class="col-xl-3 col-md-6">
-              <div class="stat-card stat-card-admin">
-                <div class="stat-icon bg-info">
-                  <i class="bi bi-person-plus"></i>
-                </div>
-                <div class="stat-info">
-                  <h4>{{ userStats.newUsersThisMonth }}</h4>
-                  <p>Nuevos Este Mes</p>
-                  <div class="stat-detail">
-                    <span class="badge bg-info">+12% vs mes anterior</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <!-- Estadísticas removidas según solicitud -->
 
           <!-- Contenido Principal -->
           <div class="row g-4">
             <!-- Actividad Reciente -->
-            <div class="col-lg-8">
-              <div class="card">
+            <div class="col-lg-8 mx-auto">
+              <div class="card activity-card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                   <h5 class="mb-0">
                     <i class="bi bi-activity me-2"></i>Actividad Reciente del Sistema
@@ -199,56 +132,7 @@
               </div>
             </div>
 
-            <!-- Panel de Acciones Rápidas -->
-            <div class="col-lg-4">
-              <!-- Acciones Administrativas -->
-              <div class="card mb-3">
-                <div class="card-header">
-                  <h5 class="mb-0">
-                    <i class="bi bi-lightning me-2"></i>Acciones Rápidas
-                  </h5>
-                </div>
-                <div class="card-body d-grid gap-2">
-                  <button class="btn btn-primary" (click)="openCreateUserModal()">
-                    <i class="bi bi-person-plus me-2"></i>Nuevo Usuario
-                  </button>
-                  <button class="btn btn-success" (click)="setActiveSection('espacios')">
-                    <i class="bi bi-plus-circle me-2"></i>Nuevo Espacio
-                  </button>
-                  <button class="btn btn-info" (click)="setActiveSection('reportes')">
-                    <i class="bi bi-file-earmark-text me-2"></i>Generar Reporte
-                  </button>
-                  <button class="btn btn-warning" (click)="setActiveSection('reservas')">
-                    <i class="bi bi-calendar-event me-2"></i>Ver Reservas
-                  </button>
-                </div>
-              </div>
-
-              <!-- Alertas del Sistema -->
-              <div class="card">
-                <div class="card-header bg-warning text-white">
-                  <h5 class="mb-0">
-                    <i class="bi bi-exclamation-triangle me-2"></i>Alertas
-                  </h5>
-                </div>
-                <div class="card-body">
-                  <div class="alert-item">
-                    <i class="bi bi-tools text-warning"></i>
-                    <div>
-                      <strong>4 espacios en mantenimiento</strong>
-                      <small class="d-block text-muted">Requieren atención</small>
-                    </div>
-                  </div>
-                  <div class="alert-item">
-                    <i class="bi bi-person-x text-danger"></i>
-                    <div>
-                      <strong>15 usuarios bloqueados</strong>
-                      <small class="d-block text-muted">Revisar casos</small>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <!-- Panel derecho removido según solicitud -->
           </div>
         </div>
       }
