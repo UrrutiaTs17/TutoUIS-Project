@@ -1,0 +1,18 @@
+/* Layout for agenda page: calendar + recent reservations sidebar */
+.agenda-container { max-width: 1200px; margin: 0 auto; }
+.agenda-inner { padding: 1rem; }
+
+.recent-card { box-shadow: 0 8px 24px rgba(0,0,0,0.04); border-radius: 12px; overflow: hidden; }
+.recent-card .card-header { background: linear-gradient(90deg, #eef8f0, #f7fbf7); border-bottom: 1px solid #e9f2ea; padding: 1rem 1.25rem; }
+.recent-card .card-body { max-height: 480px; overflow: auto; }
+.recent-card .list-group-item { padding: 0.9rem 1rem; }
+.reservation-title { font-size: 1rem; font-weight: 700; margin-bottom: 0.15rem; }
+
+/* Mobile: stack columns */
+@media (max-width: 991.98px) {
+	.agenda-inner { padding: 0.5rem; }
+	.recent-card .card-body { max-height: 300px; }
+}
+
+/* small improvements for badges */
+.badge.bg-success-subtle { background-color: rgba(25,135,84,0.06); color: #198754; border-radius: 999px; padding: 0.25rem 0.6rem; font-weight:600; }

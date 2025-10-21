@@ -64,4 +64,14 @@ export class Agenda implements OnInit {
       this.applyPaging();
     }
   }
+
+  // Template helpers
+  trackReservation = (_: number, r: any) => r?.id || `${r?.fecha}-${r?.hora}`;
+
+  formatDate(d: string) {
+    if (!d) return '';
+    try { const dt = new Date(d); return dt.toLocaleDateString(); } catch { return d; }
+  }
+
 }
+
