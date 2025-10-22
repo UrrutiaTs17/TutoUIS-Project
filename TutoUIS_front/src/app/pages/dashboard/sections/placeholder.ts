@@ -225,14 +225,13 @@ export class Profile implements OnInit {
   }
 
   getRoleName(rolId: number | undefined): string {
-    if (!rolId) return 'Sin asignar';
-    const roles: { [key: number]: string } = {
-      1: 'Administrador',
-      2: 'Estudiante',
-      3: 'Docente',
-      4: 'Personal'
-    };
-    return roles[rolId] || `Rol ${rolId}`;
+      if (!rolId) return 'Sin asignar';
+      const roles: { [key: number]: string } = {
+        1: 'Administrador',
+        2: 'Tutor',
+        3: 'Estudiante'
+      };
+      return roles[rolId] || `Rol ${rolId}`;
   }
 
   loadCarreras(): void {
