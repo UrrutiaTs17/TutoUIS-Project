@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AdminService, Usuario } from '../../../services/admin.service';
+import { AdminService, Usuario, Rol } from '../../../services/admin.service';
 import { CreateUserModal } from '../../../components/create-user-modal/create-user-modal';
 import { EditUserModal } from './edit-user-modal';
 
@@ -24,6 +24,10 @@ export class AdminUsers implements OnInit {
   filterRole: string = 'all';
   filterStatus: string = 'all';
 
+  // Gestión de roles
+  roles: Rol[] = [];
+  rolesMap: Map<number, string> = new Map(); // Mapa id_rol -> nombre
+
   constructor(
     private adminService: AdminService,
     private cdr: ChangeDetectorRef
@@ -31,6 +35,7 @@ export class AdminUsers implements OnInit {
 
   ngOnInit(): void {
     console.log('AdminUsers - ngOnInit');
+    this.loadRoles(); // Cargar roles primero
     this.loadUsers();
     
     // Timeout de seguridad: si después de 15 segundos sigue cargando, forzar detención
@@ -42,6 +47,35 @@ export class AdminUsers implements OnInit {
         alert('La carga de usuarios está tardando demasiado. Por favor, verifica que el backend esté corriendo en http://localhost:8080');
       }
     }, 15000);
+  }
+
+  /**
+   * Carga la lista de todos los roles
+   */
+  loadRoles(): void {
+    console.log('AdminUsers - Cargando roles...');
+    
+    this.adminService.getAllRoles().subscribe({
+      next: (roles) => {
+        console.log('AdminUsers - Roles recibidos:', roles);
+        this.roles = roles;
+        
+        // Crear el mapa de id_rol -> nombre
+        this.rolesMap.clear();
+        roles.forEach(rol => {
+          this.rolesMap.set(rol.idRol, rol.nombre);
+        });
+        
+        console.log('AdminUsers - Mapa de roles creado:', this.rolesMap);
+      },
+      error: (error) => {
+        console.error('AdminUsers - Error al cargar roles:', error);
+        // Si falla la carga de roles, usar valores por defecto
+        this.rolesMap.set(1, 'Administrador');
+        this.rolesMap.set(2, 'Tutor');
+        this.rolesMap.set(3, 'Estudiante');
+      }
+    });
   }
 
   /**
@@ -120,11 +154,8 @@ export class AdminUsers implements OnInit {
 
     // Filtro por rol
     if (this.filterRole !== 'all') {
-      if (this.filterRole === 'admin') {
-        filtered = filtered.filter(u => u.id_rol === 1);
-      } else if (this.filterRole === 'user') {
-        filtered = filtered.filter(u => u.id_rol !== 1);
-      }
+      const roleId = parseInt(this.filterRole);
+      filtered = filtered.filter(u => u.id_rol === roleId);
     }
 
     // Filtro por estado
@@ -149,17 +180,28 @@ export class AdminUsers implements OnInit {
   }
 
   /**
-   * Obtiene el nombre del rol
+   * Obtiene el nombre del rol desde el mapa de roles
    */
   getRoleName(idRol: number): string {
-    return idRol === 1 ? 'Administrador' : 'Usuario';
+    return this.rolesMap.get(idRol) || 'Desconocido';
   }
 
   /**
    * Obtiene la clase CSS para el badge del rol
    */
   getRoleBadgeClass(idRol: number): string {
-    return idRol === 1 ? 'bg-primary' : 'bg-secondary';
+    // Puedes personalizar los colores según el rol
+    const roleName = this.rolesMap.get(idRol)?.toLowerCase() || '';
+    
+    if (roleName.includes('admin')) {
+      return 'bg-primary'; // Azul para administrador
+    } else if (roleName.includes('tutor')) {
+      return 'bg-info'; // Cyan para tutor
+    } else if (roleName.includes('estudiante')) {
+      return 'bg-secondary'; // Gris para estudiante
+    }
+    
+    return 'bg-secondary'; // Por defecto
   }
 
   /**

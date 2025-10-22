@@ -35,8 +35,7 @@
           (change)="filterUsers()"
         >
           <option value="all">Todos los roles</option>
-          <option value="admin">Administradores</option>
-          <option value="user">Usuarios</option>
+          <option *ngFor="let rol of roles" [value]="rol.idRol">{{ rol.nombre }}</option>
         </select>
       </div>
       <div class="filter-dropdown">

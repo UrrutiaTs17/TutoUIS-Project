@@ -56,6 +56,7 @@ export class Login {
         this.authService.getUserProfile().subscribe({
           next: (profile) => {
             this.cargando = false;
+            this.cdr.detectChanges();
             // Perfil cacheado, redirigir según el rol
             if (profile.id_rol === 1) {
               // Usuario administrador
@@ -68,6 +69,7 @@ export class Login {
           error: (error) => {
             console.warn('⚠️ Advertencia: No se pudo cargar el perfil, pero continuando:', error);
             this.cargando = false;
+            this.cdr.detectChanges();
             // Continuamos con el dashboard regular si hay error
             this.router.navigate(['/dashboard']);
           }
@@ -78,7 +80,8 @@ export class Login {
         
         // DETENER CARGA INMEDIATAMENTE
         this.cargando = false;
-        console.log('� Carga detenida, cargando:', this.cargando);
+        this.cdr.detectChanges();
+        console.log('🛑 Carga detenida, cargando:', this.cargando);
         
         // Manejar diferentes tipos de error
         if (error.status === 401) {
@@ -90,14 +93,16 @@ export class Login {
         } else if (error.status === 500) {
           this.errorLogin = 'Error interno del servidor. Por favor, intente nuevamente en unos momentos.';
         } else {
-          this.errorLogin = `Error inesperado al iniciar sesión. Por favor, intente nuevamente o contacte a soporte.`;
+          this.errorLogin = `Error inesperado al iniciar sesión (${error.status || 'desconocido'}). Por favor, intente nuevamente o contacte a soporte.`;
         }
         
-        console.log('📢 Mensaje de error:', this.errorLogin);
+        console.log('Mensaje de error:', this.errorLogin);
         
-        // Forzar actualización de la vista
-        this.cdr.detectChanges();
-        console.log('🔄 Vista actualizada');
+        // Forzar actualización de la vista DESPUÉS de establecer el mensaje
+        setTimeout(() => {
+          this.cdr.detectChanges();
+          console.log('🔄 Vista actualizada');
+        }, 0);
       }
     });
   }
