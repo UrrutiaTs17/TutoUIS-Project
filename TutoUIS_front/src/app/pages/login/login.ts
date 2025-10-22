@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -21,7 +21,8 @@ export class Login {
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   togglePassword() {
@@ -39,6 +40,7 @@ export class Login {
     }
 
     this.cargando = true;
+    console.log('🚀 Iniciando login, cargando:', this.cargando);
 
     const loginRequest: LoginRequest = {
       codigo: this.usuario,
@@ -47,13 +49,13 @@ export class Login {
 
     this.authService.login(loginRequest).subscribe({
       next: (response) => {
-        this.cargando = false;
+        console.log('✅ Login exitoso:', response);
         this.errorLogin = null;
-        console.log('Login exitoso:', response);
         
         // Cargar y cachear el perfil del usuario después del login
         this.authService.getUserProfile().subscribe({
           next: (profile) => {
+            this.cargando = false;
             // Perfil cacheado, redirigir según el rol
             if (profile.id_rol === 1) {
               // Usuario administrador
@@ -64,29 +66,38 @@ export class Login {
             }
           },
           error: (error) => {
-            console.warn('Advertencia: No se pudo cargar el perfil, pero continuando:', error);
+            console.warn('⚠️ Advertencia: No se pudo cargar el perfil, pero continuando:', error);
+            this.cargando = false;
             // Continuamos con el dashboard regular si hay error
             this.router.navigate(['/dashboard']);
           }
         });
       },
       error: (error) => {
-        // IMPORTANTE: Detener el estado de carga inmediatamente
+        console.error('❌ Error en login:', error);
+        
+        // DETENER CARGA INMEDIATAMENTE
         this.cargando = false;
-        console.error('Error en login:', error);
+        console.log('� Carga detenida, cargando:', this.cargando);
         
         // Manejar diferentes tipos de error
         if (error.status === 401) {
-          this.errorLogin = '⚠️ Credenciales incorrectas. El código de estudiante o la contraseña no son válidos. Por favor, verifique sus datos e intente nuevamente.';
-          // Limpiar solo la contraseña para que el usuario pueda reintentarlo fácilmente
+          this.errorLogin = 'Las credenciales ingresadas son incorrectas. Por favor, verifique su código de estudiante y contraseña e intente nuevamente.';
           this.contrasena = '';
+          console.log('🔑 Contraseña limpiada');
         } else if (error.status === 0) {
-          this.errorLogin = '🔌 No se pudo conectar con el servidor. Verifique que el backend esté ejecutándose en http://localhost:8080';
+          this.errorLogin = 'No se pudo conectar con el servidor. Verifique que el backend esté ejecutándose en http://localhost:8080';
         } else if (error.status === 500) {
-          this.errorLogin = '⚙️ Error interno del servidor. Por favor, intente nuevamente en unos momentos.';
+          this.errorLogin = 'Error interno del servidor. Por favor, intente nuevamente en unos momentos.';
         } else {
-          this.errorLogin = `❌ Error inesperado (${error.status}). Por favor, intente nuevamente o contacte a soporte.`;
+          this.errorLogin = `Error inesperado al iniciar sesión. Por favor, intente nuevamente o contacte a soporte.`;
         }
+        
+        console.log('📢 Mensaje de error:', this.errorLogin);
+        
+        // Forzar actualización de la vista
+        this.cdr.detectChanges();
+        console.log('🔄 Vista actualizada');
       }
     });
   }

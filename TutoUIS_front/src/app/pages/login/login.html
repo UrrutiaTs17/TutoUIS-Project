@@ -16,13 +16,13 @@
         <!-- Mensaje de error -->
         <div *ngIf="errorLogin" class="alert alert-danger alert-dismissible fade show d-flex align-items-start mb-3" 
              role="alert" 
-             style="border-radius: 10px; border-left: 4px solid #dc3545; background-color: #ffe6e6; animation: slideDown 0.3s ease-out;">
+             style="border-radius: 10px; border-left: 4px solid #dc3545; background-color: #ffe6e6; box-shadow: 0 2px 8px rgba(220, 53, 69, 0.2); animation: slideDown 0.3s ease-out, shake 0.5s ease-out 0.3s;">
           <i class="bi bi-exclamation-triangle-fill me-3 text-danger" style="font-size: 1.5rem; flex-shrink: 0;"></i>
           <div style="font-size: 0.95rem; line-height: 1.5; color: #721c24; flex-grow: 1;">
-            <strong>Error de Autenticación</strong><br>
+            <strong style="display: block; margin-bottom: 4px;">⚠️ Error de Autenticación</strong>
             {{ errorLogin }}
           </div>
-          <button type="button" class="btn-close" (click)="errorLogin = null" aria-label="Close"></button>
+          <button type="button" class="btn-close" (click)="errorLogin = null" aria-label="Close" style="padding: 0.5rem;"></button>
         </div>
 
         <form (ngSubmit)="onLogin()">
