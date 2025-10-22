@@ -189,12 +189,22 @@
                     id="id_rol"
                     name="id_rol"
                     [(ngModel)]="formData.id_rol"
+                    [disabled]="loadingRoles"
                     required
                   >
-                    @for (rol of roles; track rol.id) {
-                      <option [value]="rol.id">{{ rol.nombre }}</option>
+                    @if (loadingRoles) {
+                      <option value="">Cargando roles...</option>
+                    } @else {
+                      @for (rol of roles; track rol.idRol) {
+                        <option [value]="rol.idRol">{{ rol.nombre }}</option>
+                      }
                     }
                   </select>
+                  @if (loadingRoles) {
+                    <small class="form-text text-muted">
+                      <i class="bi bi-hourglass-split"></i> Cargando roles...
+                    </small>
+                  }
                 </div>
               </div>
 

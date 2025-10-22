@@ -168,8 +168,9 @@
                     (change)="filterUsers()"
                   >
                     <option value="all">Todos los roles</option>
-                    <option value="admin">Administradores</option>
-                    <option value="student">Estudiantes</option>
+                    @for (rol of roles; track rol.idRol) {
+                      <option [value]="rol.idRol">{{ rol.nombre }}s</option>
+                    }
                   </select>
                 </div>
                 <div class="filter-dropdown">

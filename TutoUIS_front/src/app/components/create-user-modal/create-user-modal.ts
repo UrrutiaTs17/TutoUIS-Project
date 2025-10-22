@@ -1,7 +1,7 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Output, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AdminService, Usuario } from '../../services/admin.service';
+import { AdminService, Usuario, Rol } from '../../services/admin.service';
 
 interface CreateUserForm {
   nombre: string;
@@ -23,7 +23,7 @@ interface CreateUserForm {
   templateUrl: './create-user-modal.html',
   styleUrl: './create-user-modal.css'
 })
-export class CreateUserModal {
+export class CreateUserModal implements OnInit {
   @Output() userCreated = new EventEmitter<Usuario>();
   @Output() modalClosed = new EventEmitter<void>();
 
@@ -39,17 +39,14 @@ export class CreateUserModal {
     contrasena: '',
     confirmarContrasena: '',
     telefono: '',
-    id_rol: 2, // Por defecto: Estudiante
+    id_rol: 3, // Por defecto: Estudiante (id_rol = 3)
     id_carrera: null,
     activo: true
   };
 
-  roles = [
-    { id: 1, nombre: 'Administrador' },
-    { id: 2, nombre: 'Estudiante' },
-    { id: 3, nombre: 'Profesor' },
-    { id: 4, nombre: 'Personal' }
-  ];
+  // Roles cargados dinámicamente desde el backend
+  roles: Rol[] = [];
+  loadingRoles: boolean = false;
 
   // Lista de carreras (puedes modificar según tu base de datos)
   carreras = [
@@ -64,6 +61,42 @@ export class CreateUserModal {
   ];
 
   constructor(private adminService: AdminService) {}
+
+  ngOnInit(): void {
+    // Cargar roles al inicializar el componente
+    this.loadRoles();
+  }
+
+  /**
+   * Carga los roles desde el backend
+   */
+  loadRoles(): void {
+    this.loadingRoles = true;
+    this.adminService.getAllRoles().subscribe({
+      next: (roles) => {
+        this.roles = roles;
+        this.loadingRoles = false;
+        console.log('Roles cargados en modal:', roles);
+        
+        // Establecer el rol por defecto como Estudiante si existe
+        const estudianteRol = roles.find(r => r.nombre === 'Estudiante');
+        if (estudianteRol) {
+          this.formData.id_rol = estudianteRol.idRol;
+        }
+      },
+      error: (error) => {
+        console.error('Error al cargar roles en modal:', error);
+        this.loadingRoles = false;
+        // En caso de error, usar roles por defecto
+        this.roles = [
+          { idRol: 1, nombre: 'Administrador', descripcion: 'Administrador del sistema' },
+          { idRol: 2, nombre: 'Tutor', descripcion: 'Tutor académico' },
+          { idRol: 3, nombre: 'Estudiante', descripcion: 'Estudiante de la universidad' }
+        ];
+        this.formData.id_rol = 3; // Estudiante por defecto
+      }
+    });
+  }
 
   /**
    * Abre el modal

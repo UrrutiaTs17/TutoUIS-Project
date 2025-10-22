@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { AdminService, Usuario } from '../../services/admin.service';
+import { AdminService, Usuario, Rol } from '../../services/admin.service';
 import { CreateUserModal } from '../../components/create-user-modal/create-user-modal';
 
 // Interfaces para tipar los datos
@@ -89,6 +89,10 @@ export class AdminDashboard implements OnInit {
   filterRole: string = 'all';
   filterStatus: string = 'all';
 
+  // Roles disponibles
+  roles: Rol[] = [];
+  loadingRoles: boolean = false;
+
   constructor(
     private authService: AuthService,
     private adminService: AdminService,
@@ -128,7 +132,8 @@ export class AdminDashboard implements OnInit {
     this.loadStatistics();
     this.loadRecentActivities();
     
-    // Cargar usuarios automáticamente al iniciar
+    // Cargar roles y usuarios automáticamente al iniciar
+    this.loadRoles();
     this.loadUsers();
   }
 
@@ -283,6 +288,30 @@ export class AdminDashboard implements OnInit {
    */
 
   /**
+   * Carga la lista de roles desde el backend
+   */
+  loadRoles(): void {
+    this.loadingRoles = true;
+    this.adminService.getAllRoles().subscribe({
+      next: (roles) => {
+        this.roles = roles;
+        this.loadingRoles = false;
+        console.log('Roles cargados:', roles);
+      },
+      error: (error) => {
+        console.error('Error al cargar roles:', error);
+        this.loadingRoles = false;
+        // En caso de error, usar roles por defecto
+        this.roles = [
+          { idRol: 1, nombre: 'Administrador', descripcion: 'Administrador del sistema' },
+          { idRol: 2, nombre: 'Tutor', descripcion: 'Tutor académico' },
+          { idRol: 3, nombre: 'Estudiante', descripcion: 'Estudiante de la universidad' }
+        ];
+      }
+    });
+  }
+
+  /**
    * Carga la lista de usuarios desde el backend
    */
   loadUsers(): void {
@@ -315,10 +344,9 @@ export class AdminDashboard implements OnInit {
         usuario.codigo?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         usuario.correo?.toLowerCase().includes(this.searchTerm.toLowerCase());
 
-      // Filtro por rol
+      // Filtro por rol - ahora soporta filtrado dinámico por ID de rol
       const roleMatch = this.filterRole === 'all' || 
-        (this.filterRole === 'admin' && usuario.id_rol === 1) ||
-        (this.filterRole === 'student' && usuario.id_rol !== 1);
+        usuario.id_rol === parseInt(this.filterRole);
 
       // Filtro por estado
       const statusMatch = this.filterStatus === 'all' ||
@@ -356,20 +384,32 @@ export class AdminDashboard implements OnInit {
    * Obtiene el nombre del rol
    */
   getRoleName(idRol: number): string {
-    const roles: { [key: number]: string } = {
-      1: 'Administrador',
-      2: 'Estudiante',
-      3: 'Profesor',
-      4: 'Personal'
-    };
-    return roles[idRol] || 'Desconocido';
+    // Si los roles aún no se han cargado, mostrar el ID temporalmente
+    if (!this.roles || this.roles.length === 0) {
+      // Mapeo de respaldo mientras se cargan los roles
+      const rolesMap: { [key: number]: string } = {
+        1: 'Administrador',
+        2: 'Tutor',
+        3: 'Estudiante'
+      };
+      return rolesMap[idRol] || 'Usuario';
+    }
+    
+    const rol = this.roles.find(r => r.idRol === idRol);
+    return rol ? rol.nombre : 'Usuario';
   }
 
   /**
    * Obtiene la clase CSS del badge de rol
    */
   getRoleBadgeClass(idRol: number): string {
-    return idRol === 1 ? 'admin' : 'student';
+    // Administrador
+    if (idRol === 1) return 'admin';
+    // Tutor
+    if (idRol === 2) return 'tutor';
+    // Estudiante
+    if (idRol === 3) return 'student';
+    return 'other';
   }
 
   /**

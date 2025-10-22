@@ -1,7 +1,7 @@
-import { Component, Input, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AdminService, Usuario } from '../../../services/admin.service';
+import { AdminService, Usuario, Rol } from '../../../services/admin.service';
 
 @Component({
   selector: 'app-edit-user-modal',
@@ -10,13 +10,17 @@ import { AdminService, Usuario } from '../../../services/admin.service';
   templateUrl: './edit-user-modal.html',
   styleUrls: ['./edit-user-modal.css']
 })
-export class EditUserModal {
+export class EditUserModal implements OnInit {
   @ViewChild('editUserModal') modalElement!: ElementRef;
   @Output() userUpdated = new EventEmitter<Usuario>();
   
   isOpen = false;
   isSubmitting = false;
   errorMessage = '';
+  
+  // Roles disponibles
+  roles: Rol[] = [];
+  loadingRoles: boolean = false;
   
   // Datos del formulario
   formData = {
@@ -33,6 +37,35 @@ export class EditUserModal {
   };
 
   constructor(private adminService: AdminService) {}
+
+  ngOnInit(): void {
+    // Cargar roles al inicializar el componente
+    this.loadRoles();
+  }
+
+  /**
+   * Carga los roles desde el backend
+   */
+  loadRoles(): void {
+    this.loadingRoles = true;
+    this.adminService.getAllRoles().subscribe({
+      next: (roles) => {
+        this.roles = roles;
+        this.loadingRoles = false;
+        console.log('Roles cargados en modal de edición:', roles);
+      },
+      error: (error) => {
+        console.error('Error al cargar roles en modal de edición:', error);
+        this.loadingRoles = false;
+        // En caso de error, usar roles por defecto
+        this.roles = [
+          { idRol: 1, nombre: 'Administrador', descripcion: 'Administrador del sistema' },
+          { idRol: 2, nombre: 'Tutor', descripcion: 'Tutor académico' },
+          { idRol: 3, nombre: 'Estudiante', descripcion: 'Estudiante de la universidad' }
+        ];
+      }
+    });
+  }
 
   /**
    * Abre el modal con los datos del usuario a editar

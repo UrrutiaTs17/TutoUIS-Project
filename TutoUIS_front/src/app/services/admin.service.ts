@@ -19,11 +19,18 @@ export interface Usuario {
   fecha_ultima_modificacion: string;
 }
 
+export interface Rol {
+  idRol: number;
+  nombre: string;
+  descripcion: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class AdminService {
   private readonly API_URL = 'http://localhost:8080/api/usuarios';
+  private readonly ROLES_API_URL = 'http://localhost:8080/api/roles';
 
   constructor(
     private http: HttpClient,
@@ -129,5 +136,24 @@ export class AdminService {
   deactivateUser(id: number): Observable<Usuario> {
     const headers = this.getAuthHeaders();
     return this.http.patch<Usuario>(`${this.API_URL}/${id}/deactivate`, {}, { headers });
+  }
+
+  /**
+   * Obtiene todos los roles del sistema
+   */
+  getAllRoles(): Observable<Rol[]> {
+    console.log('AdminService - Solicitando lista de roles...');
+    const headers = this.getAuthHeaders();
+    
+    return this.http.get<Rol[]>(this.ROLES_API_URL, { headers })
+      .pipe(
+        tap((roles: Rol[]) => {
+          console.log('AdminService - Roles recibidos:', roles);
+        }),
+        catchError((error: any) => {
+          console.error('AdminService - Error al obtener roles:', error);
+          return throwError(() => error);
+        })
+      );
   }
 }

@@ -786,13 +786,24 @@
 }
 
 .role-badge.admin {
-  background: linear-gradient(135deg, #ffc107, #ff9800);
-  color: #155724;
+  background: linear-gradient(135deg, #dc3545, #c82333);
+  color: #fff;
+}
+
+.role-badge.tutor {
+  background: linear-gradient(135deg, #ffc107, #ffb300);
+  color: #000;
+  font-weight: 600;
 }
 
 .role-badge.student {
   background: #e7f3ff;
   color: #004085;
+}
+
+.role-badge.other {
+  background: #e0e0e0;
+  color: #333;
 }
 
 .action-buttons {
