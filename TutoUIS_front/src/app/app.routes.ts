@@ -12,7 +12,8 @@ import { Reservations, History, Profile, Settings } from './pages/dashboard/sect
 import { AdminLayout } from './pages/admin-dashboard/layout/admin-layout';
 import { AdminHome } from './pages/admin-dashboard/sections/admin-home';
 import { AdminUsers } from './pages/admin-dashboard/sections/admin-users';
-import { AdminReservations, AdminSpaces, AdminReports, AdminSettings } from './pages/admin-dashboard/sections/admin-placeholders';
+import { AdminTutorias } from './pages/admin-dashboard/sections/admin-tutorias';
+import { AdminReservations, AdminReports, AdminSettings } from './pages/admin-dashboard/sections/admin-placeholders';
 
 export const routes: Routes = [
     { path: '', component: Home },
@@ -39,8 +40,8 @@ export const routes: Routes = [
         children: [
             { path: '', component: AdminHome },
             { path: 'users', component: AdminUsers },
+            { path: 'tutorias', component: AdminTutorias },
             { path: 'reservations', component: AdminReservations },
-            { path: 'spaces', component: AdminSpaces },
             { path: 'reports', component: AdminReports },
             { path: 'settings', component: AdminSettings }
         ]

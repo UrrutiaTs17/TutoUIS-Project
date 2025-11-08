@@ -1,0 +1,70 @@
+package uis.edu.tutouis_project.servicio;
+
+import uis.edu.tutouis_project.modelo.Reserva;
+import uis.edu.tutouis_project.modelo.dto.CreateReservaDto;
+import uis.edu.tutouis_project.modelo.dto.UpdateReservaDto;
+import uis.edu.tutouis_project.modelo.dto.ReservaResponseDto;
+import java.util.List;
+
+public interface IReservaService {
+    
+    /**
+     * Obtiene todas las reservas del sistema
+     */
+    List<Reserva> obtenerTodasLasReservas();
+    
+    /**
+     * Obtiene una reserva por su ID
+     */
+    Reserva obtenerReservaPorId(Integer idReserva);
+    
+    /**
+     * Obtiene todas las reservas de un estudiante
+     */
+    List<Reserva> obtenerReservasPorEstudiante(Integer idEstudiante);
+    
+    /**
+     * Obtiene todas las reservas de una disponibilidad
+     */
+    List<Reserva> obtenerReservasPorDisponibilidad(Integer idDisponibilidad);
+    
+    /**
+     * Obtiene las reservas de un estudiante filtradas por estado
+     */
+    List<Reserva> obtenerReservasPorEstudianteYEstado(Integer idEstudiante, Integer idEstado);
+    
+    /**
+     * Obtiene las reservas activas de un estudiante
+     */
+    List<Reserva> obtenerReservasActivasDeEstudiante(Integer idEstudiante);
+    
+    /**
+     * Crea una nueva reserva con validaciones
+     */
+    ReservaResponseDto crearReserva(CreateReservaDto createDto);
+    
+    /**
+     * Actualiza una reserva existente
+     */
+    ReservaResponseDto actualizarReserva(Integer idReserva, UpdateReservaDto updateDto);
+    
+    /**
+     * Cancela una reserva
+     */
+    ReservaResponseDto cancelarReserva(Integer idReserva, String razonCancelacion);
+    
+    /**
+     * Marca una reserva como realizada
+     */
+    ReservaResponseDto marcarReservaRealizada(Integer idReserva);
+    
+    /**
+     * Marca una reserva como no asistida
+     */
+    ReservaResponseDto marcarReservaNoAsistida(Integer idReserva);
+    
+    /**
+     * Elimina una reserva
+     */
+    void eliminarReserva(Integer idReserva);
+}
