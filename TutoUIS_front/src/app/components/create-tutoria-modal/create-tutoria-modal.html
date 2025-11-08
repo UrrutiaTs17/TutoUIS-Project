@@ -62,10 +62,13 @@
                 class="form-select"
                 [(ngModel)]="form.idTutor"
                 name="idTutor"
-                [disabled]="submitting"
+                [disabled]="submitting || tutores.length === 0"
                 required>
                 <option value="">Selecciona un tutor</option>
-                <option *ngFor="let tutor of tutores" [value]="tutor.idUsuario">
+                <option *ngIf="tutores.length === 0" disabled>
+                  No hay tutores disponibles
+                </option>
+                <option *ngFor="let tutor of tutores" [value]="tutor.idUsuario || tutor.id_usuario">
                   {{ tutor.nombre }} {{ tutor.apellido }}
                 </option>
               </select>
@@ -84,10 +87,13 @@
                 class="form-select"
                 [(ngModel)]="form.idCarrera"
                 name="idCarrera"
-                [disabled]="submitting"
+                [disabled]="submitting || carreras.length === 0"
                 required>
                 <option value="">Selecciona una carrera</option>
-                <option *ngFor="let carrera of carreras" [value]="carrera.idCarrera">
+                <option *ngIf="carreras.length === 0" disabled>
+                  No hay carreras disponibles
+                </option>
+                <option *ngFor="let carrera of carreras" [value]="carrera.idCarrera || carrera.id_carrera">
                   {{ carrera.nombre }}
                 </option>
               </select>
