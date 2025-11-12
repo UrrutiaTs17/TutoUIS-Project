@@ -1,0 +1,212 @@
+<!-- Modal para crear tutoría -->
+<div 
+  #createTutoriaModal 
+  class="modal fade" 
+  id="createTutoriaModal" 
+  tabindex="-1" 
+  aria-labelledby="createTutoriaModalLabel" 
+  aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <!-- Header del Modal -->
+      <div class="modal-header bg-primary text-white">
+        <h1 class="modal-title fs-5" id="createTutoriaModalLabel">
+          <i class="bi bi-plus-circle me-2"></i> Crear Nueva Tutoría
+        </h1>
+        <button 
+          type="button" 
+          class="btn-close btn-close-white" 
+          (click)="close()" 
+          aria-label="Cerrar">
+        </button>
+      </div>
+
+      <!-- Body del Modal -->
+      <div class="modal-body">
+        <!-- Mensajes de estado -->
+        <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+          <i class="bi bi-exclamation-circle me-2"></i>
+          {{ errorMessage }}
+          <button 
+            type="button" 
+            class="btn-close" 
+            (click)="errorMessage = ''" 
+            aria-label="Cerrar">
+          </button>
+        </div>
+
+        <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+          <i class="bi bi-check-circle me-2"></i>
+          {{ successMessage }}
+        </div>
+
+        <!-- Spinner de carga -->
+        <div *ngIf="loading" class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+          <p class="mt-2 text-muted">Cargando datos...</p>
+        </div>
+
+        <!-- Formulario -->
+        <form *ngIf="!loading" (ngSubmit)="submitForm()" #tutoriaForm="ngForm">
+          <!-- Fila 1: Tutor y Carrera -->
+          <div class="row mb-3">
+            <!-- Seleccionar Tutor -->
+            <div class="col-md-6">
+              <label for="tutorSelect" class="form-label">
+                <span class="text-danger">*</span> Tutor
+              </label>
+              <select
+                id="tutorSelect"
+                class="form-select"
+                [(ngModel)]="form.idTutor"
+                name="idTutor"
+                [disabled]="submitting || tutores.length === 0"
+                required>
+                <option value="">Selecciona un tutor</option>
+                <option *ngIf="tutores.length === 0" disabled>
+                  No hay tutores disponibles
+                </option>
+                <option *ngFor="let tutor of tutores" [value]="tutor.idUsuario">
+                  {{ tutor.nombre }} {{ tutor.apellido }}
+                </option>
+              </select>
+              <small class="text-muted">
+                <i class="bi bi-info-circle"></i> Selecciona el tutor responsable
+              </small>
+            </div>
+
+            <!-- Seleccionar Carrera -->
+            <div class="col-md-6">
+              <label for="carreraSelect" class="form-label">
+                <span class="text-danger">*</span> Carrera
+              </label>
+              <select
+                id="carreraSelect"
+                class="form-select"
+                [(ngModel)]="form.idCarrera"
+                name="idCarrera"
+                [disabled]="submitting || carreras.length === 0"
+                required>
+                <option value="">Selecciona una carrera</option>
+                <option *ngIf="carreras.length === 0" disabled>
+                  No hay carreras disponibles
+                </option>
+                <option *ngFor="let carrera of carreras" [value]="carrera.idCarrera">
+                  {{ carrera.nombre }}
+                </option>
+              </select>
+              <small class="text-muted">
+                <i class="bi bi-info-circle"></i> Selecciona la carrera relacionada
+              </small>
+            </div>
+          </div>
+
+          <!-- Fila 2: Nombre de Tutoría -->
+          <div class="mb-3">
+            <label for="nombreInput" class="form-label">
+              <span class="text-danger">*</span> Nombre de la Tutoría
+            </label>
+            <input
+              type="text"
+              id="nombreInput"
+              class="form-control"
+              [(ngModel)]="form.nombre"
+              name="nombre"
+              placeholder="ej: Cálculo Diferencial"
+              [disabled]="submitting"
+              maxlength="100"
+              required>
+            <small class="text-muted">
+              <i class="bi bi-info-circle"></i> Máximo 100 caracteres
+            </small>
+          </div>
+
+          <!-- Fila 3: Descripción -->
+          <div class="mb-3">
+            <label for="descripcionInput" class="form-label">Descripción</label>
+            <textarea
+              id="descripcionInput"
+              class="form-control"
+              [(ngModel)]="form.descripcion"
+              name="descripcion"
+              placeholder="Descripción de la tutoría (opcional)"
+              rows="3"
+              [disabled]="submitting"
+              maxlength="500">
+            </textarea>
+            <small class="text-muted">
+              <i class="bi bi-info-circle"></i> Máximo 500 caracteres
+            </small>
+          </div>
+
+          <!-- Fila 4: Capacidad y Ubicación -->
+          <div class="row mb-3">
+            <!-- Capacidad Máxima -->
+            <div class="col-md-6">
+              <label for="capacidadInput" class="form-label">
+                <span class="text-danger">*</span> Capacidad Máxima
+              </label>
+              <input
+                type="number"
+                id="capacidadInput"
+                class="form-control"
+                [(ngModel)]="form.capacidadMaxima"
+                name="capacidadMaxima"
+                placeholder="30"
+                [disabled]="submitting"
+                min="1"
+                max="100"
+                required>
+              <small class="text-muted">
+                <i class="bi bi-info-circle"></i> Entre 1 y 100 estudiantes
+              </small>
+            </div>
+
+            <!-- Ubicación -->
+            <div class="col-md-6">
+              <label for="ubicacionInput" class="form-label">Ubicación</label>
+              <input
+                type="text"
+                id="ubicacionInput"
+                class="form-control"
+                [(ngModel)]="form.ubicacion"
+                name="ubicacion"
+                placeholder="ej: Sala 201"
+                [disabled]="submitting"
+                maxlength="100">
+              <small class="text-muted">
+                <i class="bi bi-info-circle"></i> Ubicación física (opcional)
+              </small>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Footer del Modal -->
+      <div class="modal-footer bg-light">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="close()"
+          [disabled]="submitting">
+          <i class="bi bi-x-circle me-2"></i> Cancelar
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="submitForm()"
+          [disabled]="submitting">
+          <span *ngIf="!submitting">
+            <i class="bi bi-check-circle me-2"></i> Crear Tutoría
+          </span>
+          <span *ngIf="submitting">
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            Creando...
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

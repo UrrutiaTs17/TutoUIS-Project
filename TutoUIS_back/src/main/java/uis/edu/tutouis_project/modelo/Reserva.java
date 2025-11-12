@@ -2,12 +2,16 @@ package uis.edu.tutouis_project.modelo;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.sql.Timestamp;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 @Table(name = "reserva")
@@ -24,13 +28,30 @@ public class Reserva {
     @Schema(description = "ID de la disponibilidad reservada", example = "1")
     private Integer idDisponibilidad;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_disponibilidad", insertable = false, updatable = false)
+    @JsonBackReference
+    @Schema(description = "Disponibilidad relacionada")
+    private Disponibilidad disponibilidad;
+
     @Column(name = "id_estudiante", nullable = false)
     @Schema(description = "ID del estudiante que hace la reserva", example = "4")
     private Integer idEstudiante;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_estudiante", insertable = false, updatable = false)
+    @JsonBackReference
+    @Schema(description = "Estudiante que realiza la reserva")
+    private Estudiante estudiante;
+
     @Column(name = "id_estado", nullable = false)
     @Schema(description = "ID del estado de la reserva", example = "1")
     private Integer idEstado;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "id_estado", insertable = false, updatable = false)
+    @Schema(description = "Estado de la reserva")
+    private EstadoReserva estadoReserva;
 
     @Column(name = "observaciones", length = 500)
     @Schema(description = "Observaciones sobre la reserva")
@@ -119,6 +140,30 @@ public class Reserva {
 
     public void setRazonCancelacion(String razonCancelacion) {
         this.razonCancelacion = razonCancelacion;
+    }
+
+    public Disponibilidad getDisponibilidad() {
+        return disponibilidad;
+    }
+
+    public void setDisponibilidad(Disponibilidad disponibilidad) {
+        this.disponibilidad = disponibilidad;
+    }
+
+    public Estudiante getEstudiante() {
+        return estudiante;
+    }
+
+    public void setEstudiante(Estudiante estudiante) {
+        this.estudiante = estudiante;
+    }
+
+    public EstadoReserva getEstadoReserva() {
+        return estadoReserva;
+    }
+
+    public void setEstadoReserva(EstadoReserva estadoReserva) {
+        this.estadoReserva = estadoReserva;
     }
 
     @Override
