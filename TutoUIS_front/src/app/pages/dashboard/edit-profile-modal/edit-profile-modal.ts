@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../services/auth.service';
@@ -162,7 +162,7 @@ export class EditProfileModalComponent implements OnInit {
   isSubmitting: boolean = false;
   errorMessage: string = '';
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private cd: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     this.loadProfileData();
@@ -201,10 +201,22 @@ export class EditProfileModalComponent implements OnInit {
 
     this.authService.updateUserProfile(dataToUpdate).subscribe({
       next: (response) => {
+        // stop spinner and emit update
         this.isSubmitting = false;
         this.profileUpdated.emit(response);
-        this.closeModal();
-        alert('Perfil actualizado correctamente');
+
+        // force change detection so the UI removes the spinner before the blocking alert
+        try {
+          this.cd.detectChanges();
+        } catch (e) {
+          console.debug('detectChanges failed or unnecessary', e);
+        }
+
+        // show alert after UI updated; close modal after user accepts
+        setTimeout(() => {
+          alert('Perfil actualizado correctamente');
+          this.closeModal();
+        }, 0);
       },
       error: (error) => {
         console.error('Error actualizando perfil:', error);
@@ -217,10 +229,32 @@ export class EditProfileModalComponent implements OnInit {
   closeModal(): void {
     const modalElement = document.getElementById('editProfileModal');
     if (modalElement) {
-      const bootstrapModal = (window as any).bootstrap.Modal.getInstance(modalElement);
-      if (bootstrapModal) {
-        bootstrapModal.hide();
+      const bs = (window as any).bootstrap;
+      try {
+        const bootstrapModal = bs?.Modal?.getInstance(modalElement);
+        if (bootstrapModal) {
+          bootstrapModal.hide();
+          return;
+        }
+
+        if (bs && bs.Modal) {
+          const temp = new bs.Modal(modalElement);
+          temp.hide();
+          return;
+        }
+      } catch (e) {
+        console.warn('Error closing bootstrap modal via API, falling back to DOM cleanup', e);
       }
+
+      // Fallback DOM cleanup
+      modalElement.classList.remove('show');
+      modalElement.style.display = 'none';
+      modalElement.setAttribute('aria-hidden', 'true');
+      modalElement.removeAttribute('aria-modal');
+      modalElement.removeAttribute('role');
+      document.body.classList.remove('modal-open');
+      const backdrops = Array.from(document.getElementsByClassName('modal-backdrop'));
+      backdrops.forEach((b) => b.parentNode?.removeChild(b));
     }
   }
 

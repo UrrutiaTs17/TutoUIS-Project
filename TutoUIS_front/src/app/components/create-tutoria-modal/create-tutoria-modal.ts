@@ -68,9 +68,14 @@ export class CreateTutoriaModal implements OnInit {
     this.loading = true;
     this.tutoriaService.getTutores().subscribe({
       next: (data) => {
+        console.log('Datos recibidos del backend:', data);
         // Filtrar solo los tutores (rol id = 2)
-        this.tutores = data.filter((user: any) => user.idRol === 2 || user.rol?.idRol === 2);
-        console.log('Tutores cargados:', this.tutores);
+        // Manejar ambas nomenclaturas: id_rol (snake_case) e idRol (camelCase)
+        this.tutores = data.filter((user: any) => {
+          const rolId = user.id_rol !== undefined ? user.id_rol : user.idRol;
+          return rolId === 2;
+        });
+        console.log('Tutores filtrados (id_rol=2):', this.tutores);
         this.loading = false;
       },
       error: (error) => {
@@ -102,6 +107,9 @@ export class CreateTutoriaModal implements OnInit {
    */
   open(): void {
     this.resetForm();
+    // Recargar datos cada vez que se abre para asegurar que estén actualizados
+    this.loadTutores();
+    this.loadCarreras();
     if (this.bootstrapModal) {
       this.bootstrapModal.show();
     }

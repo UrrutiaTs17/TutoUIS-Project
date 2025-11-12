@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -185,7 +185,8 @@ export class Profile implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private carreraService: CarreraService
+    private carreraService: CarreraService,
+    private cd: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -287,8 +288,23 @@ export class Profile implements OnInit {
         this.profileData = response;
         this.editData = { ...response };
         this.isEditing = false;
+        // stop the submitting state first so the UI can update (spinner removed)
         this.isSubmitting = false;
-        alert('Perfil actualizado correctamente');
+
+        // force change detection so the template reflects isSubmitting=false
+        // before we show the blocking alert
+        try {
+          this.cd.detectChanges();
+        } catch (e) {
+          // ignore - detectChanges may not be necessary in all environments
+          console.debug('detectChanges failed or unnecessary', e);
+        }
+
+        // show the blocking alert after the UI updates so the spinner isn't
+        // still visible while the native alert is open
+        setTimeout(() => {
+          alert('Perfil actualizado correctamente');
+        }, 0);
       },
       error: (error) => {
         console.error('Error actualizando perfil:', error);
