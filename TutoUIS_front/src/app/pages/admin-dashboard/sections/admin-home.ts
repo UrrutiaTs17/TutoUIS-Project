@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
 
 interface UserStats {
   totalUsers: number;
@@ -34,7 +33,7 @@ interface RecentActivity {
 @Component({
   selector: 'app-admin-home',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './admin-home.html',
   styleUrl: './admin-home.css'
 })

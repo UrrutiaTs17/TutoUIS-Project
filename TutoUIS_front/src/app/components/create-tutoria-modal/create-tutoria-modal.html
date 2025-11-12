@@ -68,7 +68,7 @@
                 <option *ngIf="tutores.length === 0" disabled>
                   No hay tutores disponibles
                 </option>
-                <option *ngFor="let tutor of tutores" [value]="tutor.idUsuario || tutor.id_usuario">
+                <option *ngFor="let tutor of tutores" [value]="tutor.idUsuario">
                   {{ tutor.nombre }} {{ tutor.apellido }}
                 </option>
               </select>
@@ -93,7 +93,7 @@
                 <option *ngIf="carreras.length === 0" disabled>
                   No hay carreras disponibles
                 </option>
-                <option *ngFor="let carrera of carreras" [value]="carrera.idCarrera || carrera.id_carrera">
+                <option *ngFor="let carrera of carreras" [value]="carrera.idCarrera">
                   {{ carrera.nombre }}
                 </option>
               </select>
