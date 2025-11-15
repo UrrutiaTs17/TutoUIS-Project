@@ -216,3 +216,24 @@ i.bi {
     opacity: 1;
   }
 }
+
+/* Estilos para alertas de advertencia */
+.alert-warning ul {
+  padding-left: 1.2rem;
+  margin-bottom: 0;
+}
+
+.alert-warning ul li {
+  margin-bottom: 0.3rem;
+}
+
+/* Botón deshabilitado con tooltip */
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.btn-primary:disabled {
+  background-color: #6c757d;
+  border-color: #6c757d;
+}

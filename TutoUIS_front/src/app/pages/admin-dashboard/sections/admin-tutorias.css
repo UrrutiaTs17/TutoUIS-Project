@@ -174,48 +174,6 @@
   height: 3rem;
 }
 
-/* Estado vacío */
-.empty-state {
-  background-color: white;
-  border-radius: 8px;
-  padding: 60px 40px;
-  text-align: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  margin: 40px 0;
-}
-
-.empty-state-icon {
-  font-size: 5rem;
-  color: #dee2e6;
-  margin-bottom: 20px;
-}
-
-.empty-state-icon i {
-  display: inline-block;
-}
-
-.empty-state-title {
-  color: #495057;
-  font-weight: 600;
-  font-size: 1.5rem;
-  margin-bottom: 15px;
-}
-
-.empty-state-text {
-  color: #6c757d;
-  font-size: 1rem;
-  margin-bottom: 10px;
-  max-width: 500px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.empty-state .btn-lg {
-  padding: 12px 30px;
-  font-size: 1.1rem;
-  font-weight: 600;
-}
-
 /* Información de página */
 .mt-3.text-muted.small {
   padding: 10px 15px;
@@ -260,22 +218,6 @@
 
   .action-buttons .btn {
     width: 100%;
-  }
-
-  .empty-state {
-    padding: 40px 20px;
-  }
-
-  .empty-state-icon {
-    font-size: 4rem;
-  }
-
-  .empty-state-title {
-    font-size: 1.2rem;
-  }
-
-  .empty-state-text {
-    font-size: 0.95rem;
   }
 
   .table {
