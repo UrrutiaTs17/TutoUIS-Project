@@ -76,24 +76,8 @@
     <p class="mt-2 text-muted">Cargando tutorías...</p>
   </div>
 
-  <!-- Mensaje cuando no hay tutorías -->
-  <div *ngIf="!loading && tutorias.length === 0" class="empty-state">
-    <div class="empty-state-icon">
-      <i class="bi bi-book"></i>
-    </div>
-    <h4 class="empty-state-title">Aún no se han creado tutorías</h4>
-    <p class="empty-state-text">
-      Comienza creando tu primera tutoría haciendo clic en el botón "Crear Nueva Tutoría"
-    </p>
-    <button 
-      class="btn btn-primary btn-lg mt-3"
-      (click)="abrirModalCrear()">
-      <i class="bi bi-plus-circle me-2"></i> Crear Primera Tutoría
-    </button>
-  </div>
-
   <!-- Tabla de Tutorías -->
-  <div *ngIf="!loading && tutorias.length > 0" class="table-responsive">
+  <div *ngIf="!loading" class="table-responsive">
     <table class="table table-hover table-striped">
       <thead class="table-dark">
         <tr>
