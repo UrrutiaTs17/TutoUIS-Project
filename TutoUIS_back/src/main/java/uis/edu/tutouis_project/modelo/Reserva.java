@@ -41,8 +41,8 @@ public class Reserva {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_estudiante", insertable = false, updatable = false)
     @JsonBackReference
-    @Schema(description = "Estudiante que realiza la reserva")
-    private Estudiante estudiante;
+    @Schema(description = "Usuario que realiza la reserva")
+    private Usuario usuario;
 
     @Column(name = "id_estado", nullable = false)
     @Schema(description = "ID del estado de la reserva", example = "1")
@@ -150,12 +150,12 @@ public class Reserva {
         this.disponibilidad = disponibilidad;
     }
 
-    public Estudiante getEstudiante() {
-        return estudiante;
+    public Usuario getUsuario() {
+        return usuario;
     }
 
-    public void setEstudiante(Estudiante estudiante) {
-        this.estudiante = estudiante;
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
     }
 
     public EstadoReserva getEstadoReserva() {

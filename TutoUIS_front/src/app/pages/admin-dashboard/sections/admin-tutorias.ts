@@ -39,26 +39,36 @@ export class AdminTutorias implements OnInit {
    * Carga todas las tutorías desde el backend
    */
   cargarTutorias(): void {
+    console.log('🔄 Cargando tutorías desde el backend...');
     this.loading = true;
     this.errorMessage = '';
     
     this.tutoriaService.getAllTutorias().subscribe({
       next: (data) => {
-        this.tutorias = data || [];
+        console.log('✅ Tutorías recibidas:', data);
+        console.log('📊 Cantidad de tutorías:', data.length);
+        this.tutorias = data;
         this.aplicarFiltros();
         this.loading = false;
+        console.log('✅ Loading terminado, loading =', this.loading);
       },
       error: (error) => {
-        console.error('Error cargando tutorías:', error);
-        // Si hay error de conexión, mostrar lista vacía en lugar de error
-        this.tutorias = [];
-        this.tutoriasFiltradas = [];
-        this.loading = false;
+        console.error('❌ Error cargando tutorías:', error);
+        console.error('❌ Status:', error.status);
+        console.error('❌ Message:', error.message);
         
-        // Solo mostrar mensaje de error si no es un error de red
-        if (error.status !== 0 && error.status !== 404) {
-          this.errorMessage = 'Error al cargar las tutorías';
+        if (error.status === 0) {
+          this.errorMessage = '❌ No se puede conectar con el servidor. Verifica que el backend esté ejecutándose.';
+        } else if (error.status === 404) {
+          this.errorMessage = '❌ Endpoint no encontrado. Verifica la URL del API.';
+        } else if (error.status === 401 || error.status === 403) {
+          this.errorMessage = '❌ No tienes permisos para ver las tutorías.';
+        } else {
+          this.errorMessage = `❌ Error al cargar las tutorías: ${error.message || 'Error desconocido'}`;
         }
+        
+        this.loading = false;
+        console.log('✅ Error manejado, loading =', this.loading);
       }
     });
   }

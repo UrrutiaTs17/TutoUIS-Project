@@ -33,11 +33,41 @@
             (click)="errorMessage = ''" 
             aria-label="Cerrar">
           </button>
+          <div class="mt-2">
+            <button 
+              type="button" 
+              class="btn btn-sm btn-outline-danger"
+              (click)="recargarDatos()">
+              <i class="bi bi-arrow-clockwise me-1"></i> Reintentar
+            </button>
+          </div>
         </div>
 
         <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
           <i class="bi bi-check-circle me-2"></i>
           {{ successMessage }}
+        </div>
+
+        <!-- Información de carga -->
+        <div *ngIf="!loading && !errorMessage && tutores.length > 0 && carreras.length > 0" class="alert alert-info mb-3">
+          <i class="bi bi-info-circle me-2"></i>
+          <strong>✓ Datos cargados exitosamente:</strong> {{ tutores.length }} {{ tutores.length === 1 ? 'tutor' : 'tutores' }} y {{ carreras.length }} {{ carreras.length === 1 ? 'carrera' : 'carreras' }} disponibles
+        </div>
+        
+        <!-- Advertencia de datos faltantes -->
+        <div *ngIf="!loading && !errorMessage && (tutores.length === 0 || carreras.length === 0)" class="alert alert-warning mb-3">
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          <strong>Datos incompletos:</strong>
+          <ul class="mb-0 mt-2">
+            <li *ngIf="tutores.length === 0">No hay tutores disponibles (usuarios con rol_id = 2)</li>
+            <li *ngIf="carreras.length === 0">No hay carreras registradas en el sistema</li>
+          </ul>
+          <div class="mt-2">
+            <small class="text-muted">
+              <i class="bi bi-lightbulb me-1"></i>
+              Por favor, asegúrate de tener al menos un tutor y una carrera registrados antes de crear una tutoría.
+            </small>
+          </div>
         </div>
 
         <!-- Spinner de carga -->
@@ -46,6 +76,7 @@
             <span class="visually-hidden">Cargando...</span>
           </div>
           <p class="mt-2 text-muted">Cargando datos...</p>
+          <small class="text-muted">Conectando con el servidor...</small>
         </div>
 
         <!-- Formulario -->
@@ -68,7 +99,7 @@
                 <option *ngIf="tutores.length === 0" disabled>
                   No hay tutores disponibles
                 </option>
-                <option *ngFor="let tutor of tutores" [value]="tutor.idUsuario || tutor.id_usuario">
+                <option *ngFor="let tutor of tutores" [value]="tutor.idUsuario">
                   {{ tutor.nombre }} {{ tutor.apellido }}
                 </option>
               </select>
@@ -93,7 +124,7 @@
                 <option *ngIf="carreras.length === 0" disabled>
                   No hay carreras disponibles
                 </option>
-                <option *ngFor="let carrera of carreras" [value]="carrera.idCarrera || carrera.id_carrera">
+                <option *ngFor="let carrera of carreras" [value]="carrera.idCarrera">
                   {{ carrera.nombre }}
                 </option>
               </select>
@@ -197,7 +228,8 @@
           type="button"
           class="btn btn-primary"
           (click)="submitForm()"
-          [disabled]="submitting">
+          [disabled]="submitting || loading || tutores.length === 0 || carreras.length === 0"
+          [title]="getBotonCrearTooltip()">
           <span *ngIf="!submitting">
             <i class="bi bi-check-circle me-2"></i> Crear Tutoría
           </span>

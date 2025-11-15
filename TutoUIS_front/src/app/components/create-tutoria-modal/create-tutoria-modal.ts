@@ -37,6 +37,9 @@ export class CreateTutoriaModal implements OnInit {
   submitting: boolean = false;
   errorMessage: string = '';
   successMessage: string = '';
+  
+  // Contador de peticiones pendientes
+  private pendingRequests: number = 0;
 
   constructor(
     private tutoriaService: TutoriaService,
@@ -44,8 +47,8 @@ export class CreateTutoriaModal implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadTutores();
-    this.loadCarreras();
+    console.log('🚀 Inicializando CreateTutoriaModal...');
+    // No cargar datos en el init, solo cuando se abra el modal
   }
 
   ngAfterViewInit(): void {
@@ -65,23 +68,68 @@ export class CreateTutoriaModal implements OnInit {
    * Carga la lista de tutores disponibles
    */
   loadTutores(): void {
-    this.loading = true;
+    console.log('🔍 Cargando tutores...');
+    
     this.tutoriaService.getTutores().subscribe({
       next: (data) => {
-        console.log('Datos recibidos del backend:', data);
-        // Filtrar solo los tutores (rol id = 2)
-        // Manejar ambas nomenclaturas: id_rol (snake_case) e idRol (camelCase)
-        this.tutores = data.filter((user: any) => {
-          const rolId = user.id_rol !== undefined ? user.id_rol : user.idRol;
-          return rolId === 2;
-        });
-        console.log('Tutores filtrados (id_rol=2):', this.tutores);
-        this.loading = false;
+        console.log('📥 Datos recibidos del backend (tutores):', data);
+        console.log('📊 Cantidad de registros:', data.length);
+        
+        if (data && data.length > 0) {
+          console.log('📋 Estructura del primer registro:', data[0]);
+          
+          // Normalizar los datos para que funcionen con ambas nomenclaturas
+          this.tutores = data.map((user: any) => ({
+            ...user,
+            idUsuario: user.id_usuario || user.idUsuario,
+            idRol: user.id_rol || user.idRol
+          }));
+          
+          // Filtrar solo los tutores (rol id = 2)
+          this.tutores = this.tutores.filter((user: any) => {
+            const rolId = user.idRol || user.id_rol;
+            console.log(`👤 Usuario ${user.nombre} ${user.apellido}: rol_id = ${rolId}`);
+            return rolId === 2;
+          });
+          
+          console.log('✅ Tutores filtrados (rol_id=2):', this.tutores.length);
+          
+          if (this.tutores.length === 0) {
+            console.warn('⚠️ No hay tutores disponibles');
+            if (!this.errorMessage) {
+              this.errorMessage = '⚠️ No hay tutores disponibles. No se encontraron usuarios con rol de tutor (rol_id = 2).';
+            }
+          } else {
+            console.log('👥 Lista de tutores:', this.tutores);
+          }
+        } else {
+          console.warn('⚠️ No se recibieron datos del backend');
+          if (!this.errorMessage) {
+            this.errorMessage = '⚠️ No se encontraron usuarios en el sistema.';
+          }
+        }
+        
+        this.markRequestComplete();
       },
       error: (error) => {
-        console.error('Error cargando tutores:', error);
-        this.errorMessage = 'Error al cargar la lista de tutores';
-        this.loading = false;
+        console.error('❌ Error cargando tutores:', error);
+        console.error('❌ Detalles del error:', {
+          status: error.status,
+          message: error.message,
+          url: error.url
+        });
+        
+        if (error.status === 0) {
+          this.errorMessage = '❌ No se puede conectar con el servidor. Verifica que el backend esté ejecutándose en http://localhost:8080';
+        } else if (error.status === 404) {
+          this.errorMessage = '❌ Endpoint de usuarios no encontrado. Verifica la URL del API.';
+        } else if (error.status === 401 || error.status === 403) {
+          this.errorMessage = '❌ No tienes permisos para cargar la lista de tutores.';
+        } else {
+          this.errorMessage = `❌ Error al cargar tutores: ${error.message || 'Error desconocido'}`;
+        }
+        
+        this.markRequestComplete();
       }
     });
   }
@@ -90,14 +138,49 @@ export class CreateTutoriaModal implements OnInit {
    * Carga la lista de carreras disponibles
    */
   loadCarreras(): void {
+    console.log('🔍 Cargando carreras...');
+    
     this.tutoriaService.getAllCarreras().subscribe({
       next: (data) => {
-        this.carreras = data;
-        console.log('Carreras cargadas:', this.carreras);
+        console.log('📥 Carreras recibidas del backend:', data);
+        console.log('📊 Cantidad de carreras:', data.length);
+        
+        // Normalizar los datos para que funcionen con ambas nomenclaturas
+        this.carreras = data.map((carrera: any) => ({
+          ...carrera,
+          idCarrera: carrera.id_carrera || carrera.idCarrera
+        }));
+        
+        if (this.carreras.length === 0) {
+          console.warn('⚠️ No hay carreras registradas');
+          if (!this.errorMessage) {
+            this.errorMessage = '⚠️ No hay carreras disponibles en el sistema. Por favor, registra al menos una carrera.';
+          }
+        } else {
+          console.log('✅ Carreras cargadas correctamente:', this.carreras);
+        }
+        
+        this.markRequestComplete();
       },
       error: (error) => {
-        console.error('Error cargando carreras:', error);
-        this.errorMessage = 'Error al cargar la lista de carreras';
+        console.error('❌ Error cargando carreras:', error);
+        console.error('❌ Detalles del error:', {
+          status: error.status,
+          message: error.message,
+          url: error.url
+        });
+        
+        if (error.status === 0) {
+          this.errorMessage = '❌ No se puede conectar con el servidor. Verifica que el backend esté ejecutándose en http://localhost:8080';
+        } else if (error.status === 404) {
+          this.errorMessage = '❌ Endpoint de carreras no encontrado. Verifica la URL del API.';
+        } else if (error.status === 401 || error.status === 403) {
+          this.errorMessage = '❌ No tienes permisos para cargar la lista de carreras.';
+        } else {
+          this.errorMessage = `❌ Error al cargar carreras: ${error.message || 'Error desconocido'}`;
+        }
+        
+        this.markRequestComplete();
       }
     });
   }
@@ -107,11 +190,38 @@ export class CreateTutoriaModal implements OnInit {
    */
   open(): void {
     this.resetForm();
-    // Recargar datos cada vez que se abre para asegurar que estén actualizados
-    this.loadTutores();
-    this.loadCarreras();
+    
+    // Solo recargar si no hay datos o si queremos forzar la recarga
+    if (this.tutores.length === 0 || this.carreras.length === 0) {
+      this.recargarDatos();
+    }
+    
     if (this.bootstrapModal) {
       this.bootstrapModal.show();
+    }
+  }
+
+  /**
+   * Recarga los datos de tutores y carreras
+   */
+  recargarDatos(): void {
+    console.log('🔄 Recargando datos de tutores y carreras...');
+    this.loading = true;
+    this.pendingRequests = 2; // Dos peticiones: tutores y carreras
+    this.errorMessage = '';
+    
+    this.loadTutores();
+    this.loadCarreras();
+  }
+  
+  /**
+   * Marca una petición como completada y actualiza el estado de loading
+   */
+  private markRequestComplete(): void {
+    this.pendingRequests--;
+    if (this.pendingRequests <= 0) {
+      this.loading = false;
+      console.log('✅ Todas las peticiones completadas');
     }
   }
 
@@ -200,7 +310,10 @@ export class CreateTutoriaModal implements OnInit {
    * Obtiene el nombre del tutor por ID
    */
   getNombreTutor(idTutor: string): string {
-    const tutor = this.tutores.find(t => t.idUsuario.toString() === idTutor);
+    const tutor = this.tutores.find(t => {
+      const id = t.idUsuario || t.id_usuario;
+      return id && id.toString() === idTutor;
+    });
     return tutor ? `${tutor.nombre} ${tutor.apellido}` : '';
   }
 
@@ -208,7 +321,32 @@ export class CreateTutoriaModal implements OnInit {
    * Obtiene el nombre de la carrera por ID
    */
   getNombreCarrera(idCarrera: string): string {
-    const carrera = this.carreras.find(c => c.idCarrera.toString() === idCarrera);
+    const carrera = this.carreras.find(c => {
+      const id = c.idCarrera || (c as any).id_carrera;
+      return id && id.toString() === idCarrera;
+    });
     return carrera ? carrera.nombre : '';
+  }
+
+  /**
+   * Obtiene el tooltip del botón Crear según el estado
+   */
+  getBotonCrearTooltip(): string {
+    if (this.loading) {
+      return 'Cargando datos...';
+    }
+    if (this.tutores.length === 0 && this.carreras.length === 0) {
+      return 'No hay tutores ni carreras disponibles';
+    }
+    if (this.tutores.length === 0) {
+      return 'No hay tutores disponibles';
+    }
+    if (this.carreras.length === 0) {
+      return 'No hay carreras disponibles';
+    }
+    if (this.submitting) {
+      return 'Creando tutoría...';
+    }
+    return 'Crear nueva tutoría';
   }
 }

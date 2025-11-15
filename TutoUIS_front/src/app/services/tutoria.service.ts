@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
-import { Observable, timeout, catchError, of } from 'rxjs';
-import { AuthService } from './auth.service';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 // Interfaces para tutorías
 export interface Tutoria {
@@ -35,7 +34,8 @@ export interface UpdateTutoriaDto {
 }
 
 export interface Carrera {
-  idCarrera: number;
+  idCarrera?: number;      // Para compatibilidad con frontend
+  id_carrera?: number;     // Como viene del backend
   nombre: string;
   codigo?: string;
   facultad?: string;
@@ -44,37 +44,34 @@ export interface Carrera {
 }
 
 export interface TutorInfo {
-  idUsuario: number;
+  idUsuario?: number;      // Para compatibilidad con frontend
+  id_usuario?: number;     // Como viene del backend
   nombre: string;
   apellido: string;
   codigo: string;
   especialidad?: string;
+  id_rol?: number;         // Como viene del backend
+  idRol?: number;          // Para compatibilidad con frontend
+  correo?: string;
+  telefono?: string;
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class TutoriaService {
-  private apiUrl = 'http://localhost:8080/api/tutorías';
+  private apiUrl = 'http://localhost:8080/api/tutorias';  // Sin tilde
   private carreraUrl = 'http://localhost:8080/api/carreras';
   private tutorUrl = 'http://localhost:8080/api/usuarios';
 
-  constructor(private http: HttpClient, private authService: AuthService) {}
-
-  /**
-   * Obtiene los headers de autenticación desde AuthService
-   */
-  private getAuthHeaders(): HttpHeaders {
-    return this.authService.getAuthHeaders();
-  }
+  constructor(private http: HttpClient) {}
 
   /**
    * Obtiene todas las tutorías
    */
   getAllTutorias(): Observable<Tutoria[]> {
-    return this.http.get<Tutoria[]>(`${this.apiUrl}/list`).pipe(
-      timeout(3000) // Timeout de 3 segundos
-    );
+    console.log('🌐 TutoriaService: Llamando a GET', `${this.apiUrl}/list`);
+    return this.http.get<Tutoria[]>(`${this.apiUrl}/list`);
   }
 
   /**
@@ -123,28 +120,15 @@ export class TutoriaService {
    * Obtiene todas las carreras (para el dropdown)
    */
   getAllCarreras(): Observable<Carrera[]> {
-    const headers = this.getAuthHeaders();
-    return this.http.get<Carrera[]>(`${this.carreraUrl}/list`, { headers }).pipe(
-      timeout(3000),
-      catchError((error) => {
-        console.error('Error al cargar carreras:', error);
-        return of([] as Carrera[]);
-      })
-    );
+    return this.http.get<Carrera[]>(`${this.carreraUrl}/list`);
   }
 
   /**
-   * Obtiene tutores disponibles (usuarios con rol Tutor = 2)
+   * Obtiene tutores disponibles (usuarios con rol Tutor)
    */
   getTutores(): Observable<TutorInfo[]> {
-    const headers = this.getAuthHeaders();
-    return this.http.get<TutorInfo[]>(`${this.tutorUrl}/list`, { headers }).pipe(
-      timeout(3000),
-      catchError((error) => {
-        console.error('Error al cargar tutores:', error);
-        return of([] as TutorInfo[]);
-      })
-    );
+    // Buscar usuarios con rol 2 (Tutor)
+    return this.http.get<TutorInfo[]>(`${this.tutorUrl}/list`);
   }
 
   /**
