@@ -10,6 +10,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -39,6 +40,10 @@ public class Disponibilidad {
     @Schema(description = "Día de la semana", example = "Lunes")
     private String diaSemana;
 
+    @Column(name = "fecha", nullable = false)
+    @Schema(description = "Fecha de la disponibilidad", example = "2025-11-18")
+    private java.sql.Date fecha;
+
     @Column(name = "hora_inicio", nullable = false)
     @Schema(description = "Hora de inicio", example = "09:00:00")
     private Time horaInicio;
@@ -46,6 +51,10 @@ public class Disponibilidad {
     @Column(name = "hora_fin", nullable = false)
     @Schema(description = "Hora de fin", example = "10:00:00")
     private Time horaFin;
+
+    @Column(name = "aforo", nullable = false)
+    @Schema(description = "Aforo actual de la sesión", example = "25")
+    private Integer aforo;
 
     @Column(name = "aforo_maximo", nullable = false)
     @Schema(description = "Capacidad máxima de la sesión", example = "30")
@@ -75,11 +84,13 @@ public class Disponibilidad {
     public Disponibilidad() {
     }
 
-    public Disponibilidad(Integer idTutoria, String diaSemana, Time horaInicio, Time horaFin, Integer aforoMaximo) {
+    public Disponibilidad(Integer idTutoria, java.sql.Date fecha, String diaSemana, Time horaInicio, Time horaFin, Integer aforoMaximo) {
         this.idTutoria = idTutoria;
+        this.fecha = fecha;
         this.diaSemana = diaSemana;
         this.horaInicio = horaInicio;
         this.horaFin = horaFin;
+        this.aforo = aforoMaximo;
         this.aforoMaximo = aforoMaximo;
         this.aforoDisponible = aforoMaximo;
         this.idEstado = 1;
@@ -117,6 +128,14 @@ public class Disponibilidad {
         this.diaSemana = diaSemana;
     }
 
+    public java.sql.Date getFecha() {
+        return fecha;
+    }
+
+    public void setFecha(java.sql.Date fecha) {
+        this.fecha = fecha;
+    }
+
     public Time getHoraInicio() {
         return horaInicio;
     }
@@ -131,6 +150,14 @@ public class Disponibilidad {
 
     public void setHoraFin(Time horaFin) {
         this.horaFin = horaFin;
+    }
+
+    public Integer getAforo() {
+        return aforo;
+    }
+
+    public void setAforo(Integer aforo) {
+        this.aforo = aforo;
     }
 
     public Integer getAforoMaximo() {
@@ -186,9 +213,11 @@ public class Disponibilidad {
         return "Disponibilidad{" +
                 "idDisponibilidad=" + idDisponibilidad +
                 ", idTutoria=" + idTutoria +
+                ", fecha=" + fecha +
                 ", diaSemana='" + diaSemana + '\'' +
                 ", horaInicio=" + horaInicio +
                 ", horaFin=" + horaFin +
+                ", aforo=" + aforo +
                 ", aforoMaximo=" + aforoMaximo +
                 ", aforoDisponible=" + aforoDisponible +
                 ", idEstado=" + idEstado +

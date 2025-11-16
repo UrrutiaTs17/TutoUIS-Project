@@ -13,7 +13,7 @@ public class ReservaResponseDto {
     private Integer idDisponibilidad;
 
     @Schema(description = "ID del estudiante", example = "4")
-    private Integer idUsuario;
+    private Integer idEstudiante;
 
     @Schema(description = "ID del estado", example = "1")
     private Integer idEstado;
@@ -36,12 +36,12 @@ public class ReservaResponseDto {
     public ReservaResponseDto() {
     }
 
-    public ReservaResponseDto(Integer idReserva, Integer idDisponibilidad, Integer idUsuario, 
+    public ReservaResponseDto(Integer idReserva, Integer idDisponibilidad, Integer idEstudiante, 
                               Integer idEstado, String nombreEstado, String observaciones, 
                               Timestamp fechaCreacion) {
         this.idReserva = idReserva;
         this.idDisponibilidad = idDisponibilidad;
-        this.idUsuario = idUsuario;
+        this.idEstudiante = idEstudiante;
         this.idEstado = idEstado;
         this.nombreEstado = nombreEstado;
         this.observaciones = observaciones;
@@ -65,12 +65,12 @@ public class ReservaResponseDto {
         this.idDisponibilidad = idDisponibilidad;
     }
 
-    public Integer getIdUsuario() {
-        return idUsuario;
+    public Integer getIdEstudiante() {
+        return idEstudiante;
     }
 
-    public void setIdUsuario(Integer idUsuario) {
-        this.idUsuario = idUsuario;
+    public void setIdEstudiante(Integer idEstudiante) {
+        this.idEstudiante = idEstudiante;
     }
 
     public Integer getIdEstado() {
