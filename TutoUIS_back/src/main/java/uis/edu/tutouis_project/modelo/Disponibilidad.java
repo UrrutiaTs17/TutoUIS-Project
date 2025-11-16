@@ -2,13 +2,17 @@ package uis.edu.tutouis_project.modelo;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.sql.Date;
 import java.sql.Time;
+import java.sql.Timestamp;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 @Table(name = "disponibilidad")
@@ -25,9 +29,15 @@ public class Disponibilidad {
     @Schema(description = "ID de la tutoría", example = "1")
     private Integer idTutoria;
 
-    @Column(name = "fecha", nullable = false)
-    @Schema(description = "Fecha de la disponibilidad", example = "2025-11-15")
-    private Date fecha;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_tutoria", insertable = false, updatable = false)
+    @JsonBackReference
+    @Schema(description = "Tutoría relacionada")
+    private Tutoria tutoria;
+
+    @Column(name = "dia_semana", nullable = false, length = 10)
+    @Schema(description = "Día de la semana", example = "Lunes")
+    private String diaSemana;
 
     @Column(name = "hora_inicio", nullable = false)
     @Schema(description = "Hora de inicio", example = "09:00:00")
@@ -37,33 +47,42 @@ public class Disponibilidad {
     @Schema(description = "Hora de fin", example = "10:00:00")
     private Time horaFin;
 
-    @Column(name = "aforo", nullable = false)
-    @Schema(description = "Capacidad total de la sesión", example = "30")
-    private Integer aforo;
+    @Column(name = "aforo_maximo", nullable = false)
+    @Schema(description = "Capacidad máxima de la sesión", example = "30")
+    private Integer aforoMaximo;
 
     @Column(name = "aforo_disponible", nullable = false)
     @Schema(description = "Lugares disponibles en la sesión", example = "25")
     private Integer aforoDisponible;
 
-    @Column(name = "estado", nullable = false)
+    @Column(name = "id_estado", nullable = false)
     @Schema(description = "ID del estado (1=Activa, 2=Inactiva, 3=Cancelada)", example = "1")
-    private Integer estado;
+    private Integer idEstado;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "id_estado", insertable = false, updatable = false)
+    @Schema(description = "Estado de la disponibilidad")
+    private EstadoDisponibilidad estadoDisponibilidad;
 
     @Column(name = "razon_cancelacion", length = 500)
     @Schema(description = "Motivo de cancelación si aplica", example = "Enfermedad del tutor")
     private String razonCancelacion;
 
+    @Column(name = "fecha_creacion", insertable = false, updatable = false)
+    @Schema(description = "Fecha de creación")
+    private Timestamp fechaCreacion;
+
     public Disponibilidad() {
     }
 
-    public Disponibilidad(Integer idTutoria, Date fecha, Time horaInicio, Time horaFin, Integer aforo) {
+    public Disponibilidad(Integer idTutoria, String diaSemana, Time horaInicio, Time horaFin, Integer aforoMaximo) {
         this.idTutoria = idTutoria;
-        this.fecha = fecha;
+        this.diaSemana = diaSemana;
         this.horaInicio = horaInicio;
         this.horaFin = horaFin;
-        this.aforo = aforo;
-        this.aforoDisponible = aforo;
-        this.estado = 1;
+        this.aforoMaximo = aforoMaximo;
+        this.aforoDisponible = aforoMaximo;
+        this.idEstado = 1;
     }
 
     public Integer getIdDisponibilidad() {
@@ -82,12 +101,20 @@ public class Disponibilidad {
         this.idTutoria = idTutoria;
     }
 
-    public Date getFecha() {
-        return fecha;
+    public Tutoria getTutoria() {
+        return tutoria;
     }
 
-    public void setFecha(Date fecha) {
-        this.fecha = fecha;
+    public void setTutoria(Tutoria tutoria) {
+        this.tutoria = tutoria;
+    }
+
+    public String getDiaSemana() {
+        return diaSemana;
+    }
+
+    public void setDiaSemana(String diaSemana) {
+        this.diaSemana = diaSemana;
     }
 
     public Time getHoraInicio() {
@@ -106,12 +133,12 @@ public class Disponibilidad {
         this.horaFin = horaFin;
     }
 
-    public Integer getAforo() {
-        return aforo;
+    public Integer getAforoMaximo() {
+        return aforoMaximo;
     }
 
-    public void setAforo(Integer aforo) {
-        this.aforo = aforo;
+    public void setAforoMaximo(Integer aforoMaximo) {
+        this.aforoMaximo = aforoMaximo;
     }
 
     public Integer getAforoDisponible() {
@@ -122,12 +149,20 @@ public class Disponibilidad {
         this.aforoDisponible = aforoDisponible;
     }
 
-    public Integer getEstado() {
-        return estado;
+    public Integer getIdEstado() {
+        return idEstado;
     }
 
-    public void setEstado(Integer estado) {
-        this.estado = estado;
+    public void setIdEstado(Integer idEstado) {
+        this.idEstado = idEstado;
+    }
+
+    public EstadoDisponibilidad getEstadoDisponibilidad() {
+        return estadoDisponibilidad;
+    }
+
+    public void setEstadoDisponibilidad(EstadoDisponibilidad estadoDisponibilidad) {
+        this.estadoDisponibilidad = estadoDisponibilidad;
     }
 
     public String getRazonCancelacion() {
@@ -138,14 +173,25 @@ public class Disponibilidad {
         this.razonCancelacion = razonCancelacion;
     }
 
+    public Timestamp getFechaCreacion() {
+        return fechaCreacion;
+    }
+
+    public void setFechaCreacion(Timestamp fechaCreacion) {
+        this.fechaCreacion = fechaCreacion;
+    }
+
     @Override
     public String toString() {
         return "Disponibilidad{" +
                 "idDisponibilidad=" + idDisponibilidad +
                 ", idTutoria=" + idTutoria +
-                ", fecha=" + fecha +
+                ", diaSemana='" + diaSemana + '\'' +
                 ", horaInicio=" + horaInicio +
                 ", horaFin=" + horaFin +
+                ", aforoMaximo=" + aforoMaximo +
+                ", aforoDisponible=" + aforoDisponible +
+                ", idEstado=" + idEstado +
                 '}';
     }
 }
