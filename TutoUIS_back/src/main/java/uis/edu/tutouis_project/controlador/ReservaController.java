@@ -75,10 +75,10 @@ public class ReservaController {
         @ApiResponse(responseCode = "400", description = "Parámetros inválidos"),
         @ApiResponse(responseCode = "401", description = "No autorizado")
     })
-    @GetMapping("/estudiante/{idEstudiante}")
-    public ResponseEntity<?> misReservas(@PathVariable Integer idEstudiante) {
+    @GetMapping("/estudiante/{idUsuario}")
+    public ResponseEntity<?> misReservas(@PathVariable Integer idUsuario) {
         try {
-            List<Reserva> reservas = reservaService.obtenerReservasPorEstudiante(idEstudiante);
+            List<Reserva> reservas = reservaService.obtenerReservasPorUsuario(idUsuario);
             return ResponseEntity.ok(reservas);
         } catch (IllegalArgumentException e) {
             Map<String, String> error = new HashMap<>();
@@ -98,10 +98,10 @@ public class ReservaController {
         @ApiResponse(responseCode = "400", description = "Parámetros inválidos"),
         @ApiResponse(responseCode = "401", description = "No autorizado")
     })
-    @GetMapping("/estudiante/{idEstudiante}/activas")
-    public ResponseEntity<?> reservasActivas(@PathVariable Integer idEstudiante) {
+    @GetMapping("/estudiante/{idUsuario}/activas")
+    public ResponseEntity<?> reservasActivas(@PathVariable Integer idUsuario) {
         try {
-            List<Reserva> reservas = reservaService.obtenerReservasActivasDeEstudiante(idEstudiante);
+            List<Reserva> reservas = reservaService.obtenerReservasActivasDeUsuario(idUsuario);
             return ResponseEntity.ok(reservas);
         } catch (IllegalArgumentException e) {
             Map<String, String> error = new HashMap<>();

@@ -1,13 +1,19 @@
 package uis.edu.tutouis_project.modelo;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.sql.Timestamp;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 @Table(name = "tutoria")
@@ -23,6 +29,12 @@ public class Tutoria {
     @Column(name = "id_tutor", nullable = false)
     @Schema(description = "ID del tutor que ofrece la tutoría", example = "5")
     private Integer idTutor;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_tutor", insertable = false, updatable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    @JsonBackReference
+    @Schema(description = "Usuario tutor que ofrece la tutoría")
+    private Usuario tutor;
 
     @Column(name = "id_carrera", nullable = false)
     @Schema(description = "ID de la carrera relacionada", example = "1")
@@ -145,6 +157,14 @@ public class Tutoria {
 
     public void setFechaUltimaModificacion(Timestamp fechaUltimaModificacion) {
         this.fechaUltimaModificacion = fechaUltimaModificacion;
+    }
+
+    public Usuario getTutor() {
+        return tutor;
+    }
+
+    public void setTutor(Usuario tutor) {
+        this.tutor = tutor;
     }
 
     @Override
