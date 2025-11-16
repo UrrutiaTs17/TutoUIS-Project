@@ -12,9 +12,9 @@ import java.util.Optional;
 public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
     
     /**
-     * Encuentra todas las reservas de un estudiante
+     * Encuentra todas las reservas de un usuario
      */
-    List<Reserva> findByIdEstudiante(Integer idEstudiante);
+    List<Reserva> findByIdUsuario(Integer idUsuario);
     
     /**
      * Encuentra todas las reservas de una disponibilidad
@@ -27,17 +27,17 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
     List<Reserva> findByIdEstado(Integer idEstado);
     
     /**
-     * Encuentra las reservas de un estudiante con un estado específico
+     * Encuentra las reservas de un usuario con un estado específico
      */
-    List<Reserva> findByIdEstudianteAndIdEstado(Integer idEstudiante, Integer idEstado);
+    List<Reserva> findByIdUsuarioAndIdEstado(Integer idUsuario, Integer idEstado);
     
     /**
-     * Busca si existe una reserva activa de un estudiante en una disponibilidad
+     * Busca si existe una reserva activa de un usuario en una disponibilidad
      */
-    @Query("SELECT r FROM Reserva r WHERE r.idEstudiante = :idEstudiante " +
+    @Query("SELECT r FROM Reserva r WHERE r.idUsuario = :idUsuario " +
            "AND r.idDisponibilidad = :idDisponibilidad AND r.idEstado = 1")
-    Optional<Reserva> findReservaActivaDeEstudianteEnDisponibilidad(
-            @Param("idEstudiante") Integer idEstudiante,
+    Optional<Reserva> findReservaActivaDeUsuarioEnDisponibilidad(
+            @Param("idUsuario") Integer idUsuario,
             @Param("idDisponibilidad") Integer idDisponibilidad);
     
     /**
@@ -47,14 +47,14 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
     long countReservasActivasPorDisponibilidad(@Param("idDisponibilidad") Integer idDisponibilidad);
     
     /**
-     * Obtiene las reservas realizadas de un estudiante
+     * Obtiene las reservas realizadas de un usuario
      */
-    @Query("SELECT r FROM Reserva r WHERE r.idEstudiante = :idEstudiante AND r.idEstado = 3")
-    List<Reserva> findReservasRealizadasDeEstudiante(@Param("idEstudiante") Integer idEstudiante);
+    @Query("SELECT r FROM Reserva r WHERE r.idUsuario = :idUsuario AND r.idEstado = 3")
+    List<Reserva> findReservasRealizadasDeUsuario(@Param("idUsuario") Integer idUsuario);
     
     /**
-     * Obtiene las reservas no asistidas de un estudiante
+     * Obtiene las reservas no asistidas de un usuario
      */
-    @Query("SELECT r FROM Reserva r WHERE r.idEstudiante = :idEstudiante AND r.idEstado = 4")
-    List<Reserva> findReservasNoAsistidasDeEstudiante(@Param("idEstudiante") Integer idEstudiante);
+    @Query("SELECT r FROM Reserva r WHERE r.idUsuario = :idUsuario AND r.idEstado = 4")
+    List<Reserva> findReservasNoAsistidasDeUsuario(@Param("idUsuario") Integer idUsuario);
 }
