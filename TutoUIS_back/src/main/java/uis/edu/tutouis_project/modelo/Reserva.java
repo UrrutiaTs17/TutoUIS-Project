@@ -34,12 +34,12 @@ public class Reserva {
     @Schema(description = "Disponibilidad relacionada")
     private Disponibilidad disponibilidad;
 
-    @Column(name = "id_estudiante", nullable = false)
-    @Schema(description = "ID del estudiante que hace la reserva", example = "4")
-    private Integer idEstudiante;
+    @Column(name = "id_usuario", nullable = false)
+    @Schema(description = "ID del usuario que hace la reserva", example = "4")
+    private Integer idUsuario;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_estudiante", insertable = false, updatable = false)
+    @JoinColumn(name = "id_usuario", insertable = false, updatable = false)
     @JsonBackReference
     @Schema(description = "Usuario que realiza la reserva")
     private Usuario usuario;
@@ -72,9 +72,9 @@ public class Reserva {
     public Reserva() {
     }
 
-    public Reserva(Integer idDisponibilidad, Integer idEstudiante) {
+    public Reserva(Integer idDisponibilidad, Integer idUsuario) {
         this.idDisponibilidad = idDisponibilidad;
-        this.idEstudiante = idEstudiante;
+        this.idUsuario = idUsuario;
         this.idEstado = 1;
     }
 
@@ -94,12 +94,12 @@ public class Reserva {
         this.idDisponibilidad = idDisponibilidad;
     }
 
-    public Integer getIdEstudiante() {
-        return idEstudiante;
+    public Integer getIdUsuario() {
+        return idUsuario;
     }
 
-    public void setIdEstudiante(Integer idEstudiante) {
-        this.idEstudiante = idEstudiante;
+    public void setIdUsuario(Integer idUsuario) {
+        this.idUsuario = idUsuario;
     }
 
     public Integer getIdEstado() {
@@ -171,7 +171,7 @@ public class Reserva {
         return "Reserva{" +
                 "idReserva=" + idReserva +
                 ", idDisponibilidad=" + idDisponibilidad +
-                ", idEstudiante=" + idEstudiante +
+                ", idUsuario=" + idUsuario +
                 ", idEstado=" + idEstado +
                 '}';
     }
