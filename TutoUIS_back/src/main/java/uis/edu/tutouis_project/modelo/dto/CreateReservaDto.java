@@ -12,10 +12,10 @@ public class CreateReservaDto {
     @Schema(description = "ID de la disponibilidad", example = "1", required = true)
     private Integer idDisponibilidad;
 
-    @NotNull(message = "El ID del estudiante no puede ser nulo")
-    @Positive(message = "El ID del estudiante debe ser positivo")
-    @Schema(description = "ID del estudiante", example = "4", required = true)
-    private Integer idEstudiante;
+    @NotNull(message = "El ID del usuario no puede ser nulo")
+    @Positive(message = "El ID del usuario debe ser positivo")
+    @Schema(description = "ID del usuario", example = "4", required = true)
+    private Integer idUsuario;
 
     @Schema(description = "Observaciones adicionales sobre la reserva", example = "Necesito reforzar en Java")
     private String observaciones;
@@ -23,9 +23,9 @@ public class CreateReservaDto {
     public CreateReservaDto() {
     }
 
-    public CreateReservaDto(Integer idDisponibilidad, Integer idEstudiante) {
+    public CreateReservaDto(Integer idDisponibilidad, Integer idUsuario) {
         this.idDisponibilidad = idDisponibilidad;
-        this.idEstudiante = idEstudiante;
+        this.idUsuario = idUsuario;
     }
 
     public Integer getIdDisponibilidad() {
@@ -36,12 +36,12 @@ public class CreateReservaDto {
         this.idDisponibilidad = idDisponibilidad;
     }
 
-    public Integer getIdEstudiante() {
-        return idEstudiante;
+    public Integer getIdUsuario() {
+        return idUsuario;
     }
 
-    public void setIdEstudiante(Integer idEstudiante) {
-        this.idEstudiante = idEstudiante;
+    public void setIdUsuario(Integer idUsuario) {
+        this.idUsuario = idUsuario;
     }
 
     public String getObservaciones() {

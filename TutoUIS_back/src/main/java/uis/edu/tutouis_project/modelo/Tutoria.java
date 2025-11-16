@@ -1,8 +1,10 @@
 package uis.edu.tutouis_project.modelo;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -29,7 +31,7 @@ public class Tutoria {
     private Integer idTutor;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_tutor", insertable = false, updatable = false)
+    @JoinColumn(name = "id_tutor", insertable = false, updatable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     @JsonBackReference
     @Schema(description = "Usuario tutor que ofrece la tutoría")
     private Usuario tutor;
