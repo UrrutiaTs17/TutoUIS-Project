@@ -34,15 +34,15 @@ public class Reserva {
     @Schema(description = "Disponibilidad relacionada")
     private Disponibilidad disponibilidad;
 
-    @Column(name = "id_usuario", nullable = false)
-    @Schema(description = "ID del usuario que hace la reserva", example = "4")
-    private Integer idUsuario;
+    @Column(name = "id_estudiante", nullable = false)
+    @Schema(description = "ID del estudiante que hace la reserva", example = "4")
+    private Integer idEstudiante;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_usuario", insertable = false, updatable = false)
+    @JoinColumn(name = "id_estudiante", insertable = false, updatable = false)
     @JsonBackReference
-    @Schema(description = "Usuario que realiza la reserva")
-    private Usuario usuario;
+    @Schema(description = "Estudiante que realiza la reserva")
+    private Usuario estudiante;
 
     @Column(name = "id_estado", nullable = false)
     @Schema(description = "ID del estado de la reserva", example = "1")
@@ -72,9 +72,9 @@ public class Reserva {
     public Reserva() {
     }
 
-    public Reserva(Integer idDisponibilidad, Integer idUsuario) {
+    public Reserva(Integer idDisponibilidad, Integer idEstudiante) {
         this.idDisponibilidad = idDisponibilidad;
-        this.idUsuario = idUsuario;
+        this.idEstudiante = idEstudiante;
         this.idEstado = 1;
     }
 
@@ -94,12 +94,12 @@ public class Reserva {
         this.idDisponibilidad = idDisponibilidad;
     }
 
-    public Integer getIdUsuario() {
-        return idUsuario;
+    public Integer getIdEstudiante() {
+        return idEstudiante;
     }
 
-    public void setIdUsuario(Integer idUsuario) {
-        this.idUsuario = idUsuario;
+    public void setIdEstudiante(Integer idEstudiante) {
+        this.idEstudiante = idEstudiante;
     }
 
     public Integer getIdEstado() {
@@ -150,12 +150,12 @@ public class Reserva {
         this.disponibilidad = disponibilidad;
     }
 
-    public Usuario getUsuario() {
-        return usuario;
+    public Usuario getEstudiante() {
+        return estudiante;
     }
 
-    public void setUsuario(Usuario usuario) {
-        this.usuario = usuario;
+    public void setEstudiante(Usuario estudiante) {
+        this.estudiante = estudiante;
     }
 
     public EstadoReserva getEstadoReserva() {
@@ -171,7 +171,7 @@ public class Reserva {
         return "Reserva{" +
                 "idReserva=" + idReserva +
                 ", idDisponibilidad=" + idDisponibilidad +
-                ", idUsuario=" + idUsuario +
+                ", idEstudiante=" + idEstudiante +
                 ", idEstado=" + idEstado +
                 '}';
     }

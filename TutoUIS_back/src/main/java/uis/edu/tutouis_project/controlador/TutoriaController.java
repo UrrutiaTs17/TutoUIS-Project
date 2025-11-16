@@ -43,11 +43,11 @@ public class TutoriaController {
         return tutoriaRepository.findByIdTutor(idTutor);
     }
 
-    @Operation(summary = "Listar tutorías por carrera", description = "Requiere autenticación")
+    @Operation(summary = "Listar tutorías por asignatura", description = "Requiere autenticación")
     @SecurityRequirement(name = "bearer-jwt")
-    @GetMapping("/carrera/{idCarrera}")
-    public List<Tutoria> listarPorCarrera(@PathVariable Integer idCarrera) {
-        return tutoriaRepository.findByIdCarrera(idCarrera);
+    @GetMapping("/asignatura/{idAsignatura}")
+    public List<Tutoria> listarPorAsignatura(@PathVariable Integer idAsignatura) {
+        return tutoriaRepository.findByIdAsignatura(idAsignatura);
     }
 
     @Operation(summary = "Listar tutorías activas", description = "Requiere autenticación")
@@ -75,10 +75,11 @@ public class TutoriaController {
     public ResponseEntity<Tutoria> actualizarTutoria(@PathVariable Integer id, @RequestBody Tutoria tutoriaActualizada) {
         return tutoriaRepository.findById(id)
                 .map(tutoria -> {
-                    tutoria.setNombre(tutoriaActualizada.getNombre());
+                    tutoria.setIdAsignatura(tutoriaActualizada.getIdAsignatura());
+                    tutoria.setModalidad(tutoriaActualizada.getModalidad());
+                    tutoria.setLugar(tutoriaActualizada.getLugar());
                     tutoria.setDescripcion(tutoriaActualizada.getDescripcion());
                     tutoria.setCapacidadMaxima(tutoriaActualizada.getCapacidadMaxima());
-                    tutoria.setUbicacion(tutoriaActualizada.getUbicacion());
                     tutoria.setEstado(tutoriaActualizada.getEstado());
                     Tutoria actualizada = tutoriaRepository.save(tutoria);
                     return ResponseEntity.ok(actualizada);

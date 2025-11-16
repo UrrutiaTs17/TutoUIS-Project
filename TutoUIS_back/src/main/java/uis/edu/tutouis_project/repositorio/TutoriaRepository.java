@@ -8,6 +8,6 @@ import java.util.List;
 @Repository
 public interface TutoriaRepository extends JpaRepository<Tutoria, Integer> {
     List<Tutoria> findByIdTutor(Integer idTutor);
-    List<Tutoria> findByIdCarrera(Integer idCarrera);
+    List<Tutoria> findByIdAsignatura(Integer idAsignatura);
     List<Tutoria> findByEstado(Integer estado);
 }

@@ -21,7 +21,7 @@ public interface IReservaService {
     /**
      * Obtiene todas las reservas de un estudiante
      */
-    List<Reserva> obtenerReservasPorUsuario(Integer idUsuario);
+    List<Reserva> obtenerReservasPorUsuario(Integer idEstudiante);
     
     /**
      * Obtiene todas las reservas de una disponibilidad
@@ -31,12 +31,12 @@ public interface IReservaService {
     /**
      * Obtiene las reservas de un estudiante filtradas por estado
      */
-    List<Reserva> obtenerReservasPorUsuarioYEstado(Integer idUsuario, Integer idEstado);
+    List<Reserva> obtenerReservasPorUsuarioYEstado(Integer idEstudiante, Integer idEstado);
     
     /**
      * Obtiene las reservas activas de un estudiante
      */
-    List<Reserva> obtenerReservasActivasDeUsuario(Integer idUsuario);
+    List<Reserva> obtenerReservasActivasDeUsuario(Integer idEstudiante);
     
     /**
      * Crea una nueva reserva con validaciones
