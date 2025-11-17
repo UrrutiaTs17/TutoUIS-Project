@@ -10,7 +10,7 @@ import uis.edu.tutouis_project.modelo.dto.UpdateReservaDto;
 import uis.edu.tutouis_project.modelo.dto.ReservaResponseDto;
 import uis.edu.tutouis_project.repositorio.ReservaRepository;
 import uis.edu.tutouis_project.repositorio.DisponibilidadRepository;
-import uis.edu.tutouis_project.repositorio.EstudianteRepository;
+import uis.edu.tutouis_project.repositorio.UsuarioRepository;
 import uis.edu.tutouis_project.repositorio.EstadoReservaRepository;
 
 import java.util.List;
@@ -25,7 +25,7 @@ public class ReservaService implements IReservaService {
     private DisponibilidadRepository disponibilidadRepository;
 
     @Autowired
-    private EstudianteRepository estudianteRepository;
+    private UsuarioRepository usuarioRepository;
 
     @Autowired
     private EstadoReservaRepository estadoReservaRepository;
@@ -45,7 +45,7 @@ public class ReservaService implements IReservaService {
     }
 
     @Override
-    public List<Reserva> obtenerReservasPorEstudiante(Integer idEstudiante) {
+    public List<Reserva> obtenerReservasPorUsuario(Integer idEstudiante) {
         if (idEstudiante == null || idEstudiante <= 0) {
             throw new IllegalArgumentException("El ID del estudiante debe ser un número positivo");
         }
@@ -61,7 +61,7 @@ public class ReservaService implements IReservaService {
     }
 
     @Override
-    public List<Reserva> obtenerReservasPorEstudianteYEstado(Integer idEstudiante, Integer idEstado) {
+    public List<Reserva> obtenerReservasPorUsuarioYEstado(Integer idEstudiante, Integer idEstado) {
         if (idEstudiante == null || idEstudiante <= 0) {
             throw new IllegalArgumentException("El ID del estudiante debe ser un número positivo");
         }
@@ -72,7 +72,7 @@ public class ReservaService implements IReservaService {
     }
 
     @Override
-    public List<Reserva> obtenerReservasActivasDeEstudiante(Integer idEstudiante) {
+    public List<Reserva> obtenerReservasActivasDeUsuario(Integer idEstudiante) {
         if (idEstudiante == null || idEstudiante <= 0) {
             throw new IllegalArgumentException("El ID del estudiante debe ser un número positivo");
         }
@@ -103,9 +103,9 @@ public class ReservaService implements IReservaService {
             throw new RuntimeException("No hay cupos disponibles en esta tutoría");
         }
 
-        // Verificar que el estudiante existe
-        estudianteRepository.findById(createDto.getIdEstudiante())
-                .orElseThrow(() -> new RuntimeException("Estudiante no encontrado con ID: " + createDto.getIdEstudiante()));
+        // Verificar que el usuario (estudiante) existe
+        usuarioRepository.findById(createDto.getIdEstudiante())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con ID: " + createDto.getIdEstudiante()));
 
         // Verificar que el estudiante no tenga una reserva activa en la misma disponibilidad
         List<Reserva> reservasExistentes = reservaRepository.findByIdEstudianteAndIdEstado(createDto.getIdEstudiante(), 1);

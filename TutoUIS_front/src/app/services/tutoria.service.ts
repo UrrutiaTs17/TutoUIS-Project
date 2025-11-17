@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
-import { Observable, timeout, catchError, of } from 'rxjs';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable, tap, catchError, throwError } from 'rxjs';
 import { AuthService } from './auth.service';
 
 // Interfaces para tutorías
@@ -35,7 +35,8 @@ export interface UpdateTutoriaDto {
 }
 
 export interface Carrera {
-  idCarrera: number;
+  idCarrera?: number;      // Para compatibilidad con frontend
+  id_carrera?: number;     // Como viene del backend
   nombre: string;
   codigo?: string;
   facultad?: string;
@@ -44,36 +45,43 @@ export interface Carrera {
 }
 
 export interface TutorInfo {
-  idUsuario: number;
+  idUsuario?: number;      // Para compatibilidad con frontend
+  id_usuario?: number;     // Como viene del backend
   nombre: string;
   apellido: string;
   codigo: string;
   especialidad?: string;
+  id_rol?: number;         // Como viene del backend
+  idRol?: number;          // Para compatibilidad con frontend
+  correo?: string;
+  telefono?: string;
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class TutoriaService {
-  private apiUrl = 'http://localhost:8080/api/tutorías';
-  private carreraUrl = 'http://localhost:8080/api/carreras';
-  private tutorUrl = 'http://localhost:8080/api/usuarios';
+  private readonly apiUrl = 'http://localhost:8080/api/tutorias';  // Sin tilde
+  private readonly carreraUrl = 'http://localhost:8080/api/carreras';
+  private readonly tutorUrl = 'http://localhost:8080/api/usuarios';
 
-  constructor(private http: HttpClient, private authService: AuthService) {}
-
-  /**
-   * Obtiene los headers de autenticación desde AuthService
-   */
-  private getAuthHeaders(): HttpHeaders {
-    return this.authService.getAuthHeaders();
-  }
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService
+  ) {}
 
   /**
    * Obtiene todas las tutorías
    */
   getAllTutorias(): Observable<Tutoria[]> {
-    return this.http.get<Tutoria[]>(`${this.apiUrl}/list`).pipe(
-      timeout(3000) // Timeout de 3 segundos
+    console.log('🌐 TutoriaService: Llamando a GET', `${this.apiUrl}/list`);
+    const headers = this.authService.getAuthHeaders();
+    return this.http.get<Tutoria[]>(`${this.apiUrl}/list`, { headers }).pipe(
+      tap(tutorias => console.log('✅ TutoriaService: Respuesta recibida:', tutorias.length, 'tutorías')),
+      catchError(error => {
+        console.error('❌ TutoriaService: Error al obtener tutorías:', error);
+        return throwError(() => error);
+      })
     );
   }
 
@@ -81,76 +89,72 @@ export class TutoriaService {
    * Obtiene una tutoría por ID
    */
   getTutoriaById(id: number): Observable<Tutoria> {
-    return this.http.get<Tutoria>(`${this.apiUrl}/${id}`);
+    const headers = this.authService.getAuthHeaders();
+    return this.http.get<Tutoria>(`${this.apiUrl}/${id}`, { headers });
   }
 
   /**
    * Obtiene tutorías de un tutor específico
    */
   getTutoriasByTutor(idTutor: number): Observable<Tutoria[]> {
-    return this.http.get<Tutoria[]>(`${this.apiUrl}/tutor/${idTutor}`);
+    const headers = this.authService.getAuthHeaders();
+    return this.http.get<Tutoria[]>(`${this.apiUrl}/tutor/${idTutor}`, { headers });
   }
 
   /**
    * Obtiene tutorías de una carrera específica
    */
   getTutoriasByCarrera(idCarrera: number): Observable<Tutoria[]> {
-    return this.http.get<Tutoria[]>(`${this.apiUrl}/carrera/${idCarrera}`);
+    const headers = this.authService.getAuthHeaders();
+    return this.http.get<Tutoria[]>(`${this.apiUrl}/carrera/${idCarrera}`, { headers });
   }
 
   /**
    * Crea una nueva tutoría
    */
   createTutoria(tutoria: CreateTutoriaDto): Observable<Tutoria> {
-    return this.http.post<Tutoria>(`${this.apiUrl}/`, tutoria);
+    const headers = this.authService.getAuthHeaders();
+    return this.http.post<Tutoria>(`${this.apiUrl}/`, tutoria, { headers });
   }
 
   /**
    * Actualiza una tutoría existente
    */
   updateTutoria(id: number, tutoria: UpdateTutoriaDto): Observable<Tutoria> {
-    return this.http.put<Tutoria>(`${this.apiUrl}/${id}`, tutoria);
+    const headers = this.authService.getAuthHeaders();
+    return this.http.put<Tutoria>(`${this.apiUrl}/${id}`, tutoria, { headers });
   }
 
   /**
    * Elimina una tutoría
    */
   deleteTutoria(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`);
+    const headers = this.authService.getAuthHeaders();
+    return this.http.delete(`${this.apiUrl}/${id}`, { headers });
   }
 
   /**
    * Obtiene todas las carreras (para el dropdown)
    */
   getAllCarreras(): Observable<Carrera[]> {
-    const headers = this.getAuthHeaders();
-    return this.http.get<Carrera[]>(`${this.carreraUrl}/list`, { headers }).pipe(
-      timeout(3000),
-      catchError((error) => {
-        console.error('Error al cargar carreras:', error);
-        return of([] as Carrera[]);
-      })
-    );
+    const headers = this.authService.getAuthHeaders();
+    return this.http.get<Carrera[]>(`${this.carreraUrl}/list`, { headers });
   }
 
   /**
-   * Obtiene tutores disponibles (usuarios con rol Tutor = 2)
+   * Obtiene tutores disponibles (usuarios con rol Tutor)
    */
   getTutores(): Observable<TutorInfo[]> {
-    const headers = this.getAuthHeaders();
-    return this.http.get<TutorInfo[]>(`${this.tutorUrl}/list`, { headers }).pipe(
-      timeout(3000),
-      catchError((error) => {
-        console.error('Error al cargar tutores:', error);
-        return of([] as TutorInfo[]);
-      })
-    );
+    // Buscar usuarios con rol 2 (Tutor)
+    const headers = this.authService.getAuthHeaders();
+    return this.http.get<TutorInfo[]>(`${this.tutorUrl}/list`, { headers });
   }
 
   /**
    * Obtiene un tutor por ID
    */
   getTutorById(id: number): Observable<TutorInfo> {
-    return this.http.get<TutorInfo>(`${this.tutorUrl}/${id}`);
+    const headers = this.authService.getAuthHeaders();
+    return this.http.get<TutorInfo>(`${this.tutorUrl}/${id}`, { headers });
   }
 }

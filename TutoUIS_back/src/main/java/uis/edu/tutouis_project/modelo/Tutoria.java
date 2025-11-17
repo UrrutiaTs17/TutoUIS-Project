@@ -1,13 +1,19 @@
 package uis.edu.tutouis_project.modelo;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.sql.Timestamp;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 @Table(name = "tutoria")
@@ -24,13 +30,29 @@ public class Tutoria {
     @Schema(description = "ID del tutor que ofrece la tutoría", example = "5")
     private Integer idTutor;
 
-    @Column(name = "id_carrera", nullable = false)
-    @Schema(description = "ID de la carrera relacionada", example = "1")
-    private Integer idCarrera;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_tutor", insertable = false, updatable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    @JsonBackReference
+    @Schema(description = "Usuario tutor que ofrece la tutoría")
+    private Usuario tutor;
 
-    @Column(name = "nombre", length = 100, nullable = false)
-    @Schema(description = "Nombre o tema de la tutoría", example = "Java Avanzado")
-    private String nombre;
+    @Column(name = "id_asignatura")
+    @Schema(description = "ID de la asignatura relacionada", example = "1")
+    private Integer idAsignatura;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_asignatura", insertable = false, updatable = false)
+    @JsonBackReference
+    @Schema(description = "Asignatura relacionada con la tutoría")
+    private Asignatura asignatura;
+
+    @Column(name = "modalidad", length = 50)
+    @Schema(description = "Modalidad de la tutoría", example = "Presencial")
+    private String modalidad;
+
+    @Column(name = "lugar", length = 200)
+    @Schema(description = "Lugar donde se realiza la tutoría", example = "Aula 101")
+    private String lugar;
 
     @Column(name = "descripcion", length = 500)
     @Schema(description = "Descripción de la tutoría", example = "Tutoría sobre programación en Java")
@@ -39,10 +61,6 @@ public class Tutoria {
     @Column(name = "capacidad_maxima", nullable = false)
     @Schema(description = "Capacidad máxima de estudiantes", example = "30")
     private Integer capacidadMaxima;
-
-    @Column(name = "ubicacion", length = 100)
-    @Schema(description = "Ubicación de la tutoría", example = "Aula 101")
-    private String ubicacion;
 
     @Column(name = "estado", nullable = false)
     @Schema(description = "Estado de la tutoría (1=Activa, 0=Inactiva)", example = "1")
@@ -59,10 +77,12 @@ public class Tutoria {
     public Tutoria() {
     }
 
-    public Tutoria(Integer idTutor, Integer idCarrera, String nombre, Integer capacidadMaxima) {
+    public Tutoria(Integer idTutor, Integer idAsignatura, String modalidad, String lugar, String descripcion, Integer capacidadMaxima) {
         this.idTutor = idTutor;
-        this.idCarrera = idCarrera;
-        this.nombre = nombre;
+        this.idAsignatura = idAsignatura;
+        this.modalidad = modalidad;
+        this.lugar = lugar;
+        this.descripcion = descripcion;
         this.capacidadMaxima = capacidadMaxima;
         this.estado = 1;
     }
@@ -83,20 +103,36 @@ public class Tutoria {
         this.idTutor = idTutor;
     }
 
-    public Integer getIdCarrera() {
-        return idCarrera;
+    public Integer getIdAsignatura() {
+        return idAsignatura;
     }
 
-    public void setIdCarrera(Integer idCarrera) {
-        this.idCarrera = idCarrera;
+    public void setIdAsignatura(Integer idAsignatura) {
+        this.idAsignatura = idAsignatura;
     }
 
-    public String getNombre() {
-        return nombre;
+    public Asignatura getAsignatura() {
+        return asignatura;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setAsignatura(Asignatura asignatura) {
+        this.asignatura = asignatura;
+    }
+
+    public String getModalidad() {
+        return modalidad;
+    }
+
+    public void setModalidad(String modalidad) {
+        this.modalidad = modalidad;
+    }
+
+    public String getLugar() {
+        return lugar;
+    }
+
+    public void setLugar(String lugar) {
+        this.lugar = lugar;
     }
 
     public String getDescripcion() {
@@ -113,14 +149,6 @@ public class Tutoria {
 
     public void setCapacidadMaxima(Integer capacidadMaxima) {
         this.capacidadMaxima = capacidadMaxima;
-    }
-
-    public String getUbicacion() {
-        return ubicacion;
-    }
-
-    public void setUbicacion(String ubicacion) {
-        this.ubicacion = ubicacion;
     }
 
     public Integer getEstado() {
@@ -147,14 +175,28 @@ public class Tutoria {
         this.fechaUltimaModificacion = fechaUltimaModificacion;
     }
 
+    public Usuario getTutor() {
+        return tutor;
+    }
+
+    public void setTutor(Usuario tutor) {
+        this.tutor = tutor;
+    }
+
     @Override
     public String toString() {
         return "Tutoria{" +
                 "idTutoria=" + idTutoria +
                 ", idTutor=" + idTutor +
-                ", idCarrera=" + idCarrera +
-                ", nombre='" + nombre + '\'' +
+                ", idAsignatura=" + idAsignatura +
+                ", modalidad='" + modalidad + '\'' +
+                ", lugar='" + lugar + '\'' +
+                ", descripcion='" + descripcion + '\'' +
                 ", capacidadMaxima=" + capacidadMaxima +
+                ", estado=" + estado +
+                ", fechaCreacion=" + fechaCreacion +
+                ", fechaCreacion=" + fechaCreacion +
+                ", fechaUltimaModificacion=" + fechaUltimaModificacion +
                 '}';
     }
 }
