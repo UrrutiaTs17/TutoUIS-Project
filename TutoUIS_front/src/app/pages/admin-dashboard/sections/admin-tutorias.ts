@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CreateTutoriaModal } from '../../../components/create-tutoria-modal/create-tutoria-modal';
@@ -20,8 +20,8 @@ export class AdminTutorias implements OnInit {
   tutoriasFiltradas: Tutoria[] = [];
   
   // Estados
-  loading: boolean = false;
-  errorMessage: string = '';
+  loading: boolean = true;
+  error: string = '';
   successMessage: string = '';
   
   // Filtros
@@ -29,46 +29,77 @@ export class AdminTutorias implements OnInit {
   filterTutor: string = '';
   filterCarrera: string = '';
   
-  constructor(private tutoriaService: TutoriaService) {}
+  constructor(
+    private tutoriaService: TutoriaService,
+    private cdr: ChangeDetectorRef
+  ) {}
   
   ngOnInit(): void {
+    console.log('🎬 AdminTutorias ngOnInit - Iniciando carga de tutorías');
+    console.log('⏳ Estado inicial loading:', this.loading);
+    
     this.cargarTutorias();
+    
+    // Timeout de seguridad - si después de 15 segundos aún está cargando, forzar a mostrar algo
+    setTimeout(() => {
+      if (this.loading) {
+        console.warn('⚠️ TIMEOUT: Han pasado 15 segundos y aún está loading=true');
+        console.warn('⚠️ Forzando loading=false para evitar spinner infinito');
+        this.loading = false;
+        this.error = 'Timeout: La carga de tutorías está tardando demasiado. Verifica que el backend esté respondiendo.';
+        this.cdr.detectChanges();
+        console.log('🔄 Change detection forzada después del timeout');
+      }
+    }, 15000);
   }
   
   /**
    * Carga todas las tutorías desde el backend
    */
   cargarTutorias(): void {
-    console.log('🔄 Cargando tutorías desde el backend...');
+    console.log('🔄 AdminTutorias: Cargando tutorías desde el backend...');
     this.loading = true;
-    this.errorMessage = '';
+    this.error = '';
+    console.log('⏳ AdminTutorias: loading=true antes de llamar al servicio');
     
     this.tutoriaService.getAllTutorias().subscribe({
       next: (data) => {
-        console.log('✅ Tutorías recibidas:', data);
-        console.log('📊 Cantidad de tutorías:', data.length);
+        console.log('✅ AdminTutorias: Tutorías recibidas desde el servicio');
+        console.log('📊 AdminTutorias: Cantidad de tutorías:', data.length);
+        console.log('📦 AdminTutorias: Primera tutoría (si existe):', data[0]);
+        
         this.tutorias = data;
         this.aplicarFiltros();
         this.loading = false;
-        console.log('✅ Loading terminado, loading =', this.loading);
+        
+        console.log('✅ AdminTutorias: loading=false después de recibir datos');
+        console.log('✅ AdminTutorias: tutoriasFiltradas.length =', this.tutoriasFiltradas.length);
+        
+        // Forzar detección de cambios
+        this.cdr.detectChanges();
+        console.log('🔄 AdminTutorias: Change detection forzada');
       },
       error: (error) => {
-        console.error('❌ Error cargando tutorías:', error);
-        console.error('❌ Status:', error.status);
-        console.error('❌ Message:', error.message);
+        console.error('❌ AdminTutorias: Error cargando tutorías:', error);
+        console.error('❌ AdminTutorias: Status:', error.status);
+        console.error('❌ AdminTutorias: Message:', error.message);
         
         if (error.status === 0) {
-          this.errorMessage = '❌ No se puede conectar con el servidor. Verifica que el backend esté ejecutándose.';
+          this.error = '❌ No se puede conectar con el servidor. Verifica que el backend esté ejecutándose en http://localhost:8080';
         } else if (error.status === 404) {
-          this.errorMessage = '❌ Endpoint no encontrado. Verifica la URL del API.';
+          this.error = '❌ Endpoint no encontrado. Verifica la URL del API (/api/tutorias/list).';
         } else if (error.status === 401 || error.status === 403) {
-          this.errorMessage = '❌ No tienes permisos para ver las tutorías.';
+          this.error = '❌ No tienes permisos para ver las tutorías. Verifica tu token de autenticación.';
         } else {
-          this.errorMessage = `❌ Error al cargar las tutorías: ${error.message || 'Error desconocido'}`;
+          this.error = `❌ Error al cargar las tutorías: ${error.message || 'Error desconocido'}`;
         }
         
         this.loading = false;
-        console.log('✅ Error manejado, loading =', this.loading);
+        console.log('✅ AdminTutorias: Error manejado, loading=false');
+        
+        // Forzar detección de cambios
+        this.cdr.detectChanges();
+        console.log('🔄 AdminTutorias: Change detection forzada después del error');
       }
     });
   }
@@ -78,9 +109,11 @@ export class AdminTutorias implements OnInit {
    */
   aplicarFiltros(): void {
     this.tutoriasFiltradas = this.tutorias.filter(tutoria => {
-      const coincideNombre = tutoria.nombre.toLowerCase().includes(this.searchTerm.toLowerCase());
+      const nombre = tutoria.nombre || '';
       const nombreTutor = tutoria.nombreTutor || '';
       const nombreCarrera = tutoria.nombreCarrera || '';
+      
+      const coincideNombre = nombre.toLowerCase().includes(this.searchTerm.toLowerCase());
       const coincideTutor = this.filterTutor === '' || nombreTutor.toLowerCase().includes(this.filterTutor.toLowerCase());
       const coincideCarrera = this.filterCarrera === '' || nombreCarrera.toLowerCase().includes(this.filterCarrera.toLowerCase());
       
@@ -130,9 +163,9 @@ export class AdminTutorias implements OnInit {
         },
         error: (error) => {
           console.error('Error eliminando tutoría:', error);
-          this.errorMessage = error?.error?.mensaje || 'Error al eliminar la tutoría';
+          this.error = error?.error?.mensaje || 'Error al eliminar la tutoría';
           setTimeout(() => {
-            this.errorMessage = '';
+            this.error = '';
           }, 3000);
         }
       });
