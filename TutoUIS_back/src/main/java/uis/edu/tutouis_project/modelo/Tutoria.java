@@ -32,7 +32,7 @@ public class Tutoria {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_tutor", insertable = false, updatable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    @JsonBackReference
+    @JsonBackReference("tutor-tutoria")
     @Schema(description = "Usuario tutor que ofrece la tutoría")
     private Usuario tutor;
 
@@ -42,7 +42,7 @@ public class Tutoria {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_asignatura", insertable = false, updatable = false)
-    @JsonBackReference
+    @JsonBackReference("asignatura-tutoria")
     @Schema(description = "Asignatura relacionada con la tutoría")
     private Asignatura asignatura;
 

@@ -83,9 +83,21 @@ public class TutoriaController {
     @PostMapping("/")
     public ResponseEntity<Tutoria> crearTutoria(@RequestBody Tutoria tutoria) {
         try {
+            System.out.println("🔵 TutoriaController.crearTutoria - Datos recibidos:");
+            System.out.println("   idTutor: " + tutoria.getIdTutor());
+            System.out.println("   idAsignatura: " + tutoria.getIdAsignatura());
+            System.out.println("   modalidad: " + tutoria.getModalidad());
+            System.out.println("   lugar: " + tutoria.getLugar());
+            System.out.println("   descripcion: " + tutoria.getDescripcion());
+            System.out.println("   capacidadMaxima: " + tutoria.getCapacidadMaxima());
+            System.out.println("   estado: " + tutoria.getEstado());
+            
             Tutoria nueva = tutoriaRepository.save(tutoria);
+            System.out.println("✅ Tutoría guardada exitosamente con ID: " + nueva.getIdTutoria());
             return ResponseEntity.ok(nueva);
         } catch (Exception e) {
+            System.err.println("❌ Error guardando tutoría: " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.badRequest().body(null);
         }
     }

@@ -100,7 +100,7 @@
                 <option *ngIf="tutores.length === 0" disabled>
                   No hay tutores disponibles
                 </option>
-                <option *ngFor="let tutor of tutores" [value]="tutor.idUsuario">
+                <option *ngFor="let tutor of tutores" [value]="tutor.id_usuario">
                   {{ tutor.nombre }} {{ tutor.apellido }}
                 </option>
               </select>
