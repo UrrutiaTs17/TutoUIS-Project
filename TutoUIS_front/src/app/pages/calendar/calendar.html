@@ -15,8 +15,8 @@
     <button type="button" class="btn-close" (click)="error = ''; cargarDatos()" aria-label="Reintentar"></button>
   </div>
 
-  <!-- Buscador -->
-  <div *ngIf="!loading && !error" class="card search-card mb-4" style="max-width: 98%; margin-left: auto; margin-right: auto; box-shadow: 0 8px 32px rgba(102,187,45,0.08); border-radius: 24px; background: #f8fafc; border: 1.5px solid #e0e7ef; padding: 2.5rem 2rem;">
+  <!-- Buscador y Calendario -->
+  <div *ngIf="!loading && !error" class="card search-card mb-4" style="max-width: 100%; margin-left: auto; margin-right: auto; box-shadow: 0 8px 32px rgba(102,187,45,0.08); border-radius: 24px; background: #f8fafc; border: 1.5px solid #e0e7ef; padding: 2.5rem 2rem;">
   <div class="card-body position-relative" style="padding:0;">
       <h2 class="h4 mb-4 text-success" style="font-weight:1200; letter-spacing:1px;">
         Buscar Materia
@@ -128,72 +128,4 @@
       </div>
     </div>
   </div>
-
-  <!-- Contenido principal -->
-  <div class="row g-4">
-    <!-- Se elimina el bloque de calendario dentro de la sección principal para evitar duplicados -->
-  </div>
-
-  <!-- Información del Equipo de Desarrollo -->
-  <div *ngIf="!loading && !error" class="mt-5 pt-4 border-top" style="border-color: #e0e7ef !important;">
-    <div class="card" style="border-radius: 16px; border: 1.5px solid #e0e7ef; box-shadow: 0 4px 16px rgba(0,0,0,0.06);">
-      <div class="card-body p-4">
-        <div class="row align-items-center">
-          <div class="col-md-4 text-center text-md-start mb-3 mb-md-0">
-            <h5 class="text-success mb-2" style="font-weight: 700; font-size: 1.1rem;">
-              <i class="bi bi-people-fill me-2"></i>Equipo de Desarrollo
-            </h5>
-            <p class="text-muted mb-0" style="font-size: 0.9rem;">TutoUIS - Sistema de Gestión de Tutorías</p>
-          </div>
-          <div class="col-md-8">
-            <div class="row g-3">
-              <div class="col-lg-4 col-md-6">
-                <div class="d-flex align-items-center">
-                  <div class="flex-shrink-0 me-3">
-                    <div class="rounded-circle bg-success bg-opacity-10 d-flex align-items-center justify-content-center" 
-                         style="width: 45px; height: 45px;">
-                      <i class="bi bi-person-fill text-success" style="font-size: 1.3rem;"></i>
-                    </div>
-                  </div>
-                  <div class="flex-grow-1">
-                    <p class="mb-0 fw-semibold" style="font-size: 0.95rem;">Hammer Ronaldo Muñoz</p>
-                    <small class="text-muted">Cód. 2211918</small>
-                  </div>
-                </div>
-              </div>
-              <div class="col-lg-4 col-md-6">
-                <div class="d-flex align-items-center">
-                  <div class="flex-shrink-0 me-3">
-                    <div class="rounded-circle bg-success bg-opacity-10 d-flex align-items-center justify-content-center" 
-                         style="width: 45px; height: 45px;">
-                      <i class="bi bi-person-fill text-success" style="font-size: 1.3rem;"></i>
-                    </div>
-                  </div>
-                  <div class="flex-grow-1">
-                    <p class="mb-0 fw-semibold" style="font-size: 0.95rem;">Karen Dayana Mateus</p>
-                    <small class="text-muted">Cód. 2212765</small>
-                  </div>
-                </div>
-              </div>
-              <div class="col-lg-4 col-md-6">
-                <div class="d-flex align-items-center">
-                  <div class="flex-shrink-0 me-3">
-                    <div class="rounded-circle bg-success bg-opacity-10 d-flex align-items-center justify-content-center" 
-                         style="width: 45px; height: 45px;">
-                      <i class="bi bi-person-fill text-success" style="font-size: 1.3rem;"></i>
-                    </div>
-                  </div>
-                  <div class="flex-grow-1">
-                    <p class="mb-0 fw-semibold" style="font-size: 0.95rem;">William Andrés Urrutia</p>
-                    <small class="text-muted">Cód. 2220058</small>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
-
