@@ -42,7 +42,7 @@ public class Reserva {
     @JoinColumn(name = "id_estudiante", insertable = false, updatable = false)
     @JsonBackReference
     @Schema(description = "Estudiante que realiza la reserva")
-    private Estudiante estudiante;
+    private Usuario estudiante;
 
     @Column(name = "id_estado", nullable = false)
     @Schema(description = "ID del estado de la reserva", example = "1")
@@ -150,11 +150,11 @@ public class Reserva {
         this.disponibilidad = disponibilidad;
     }
 
-    public Estudiante getEstudiante() {
+    public Usuario getEstudiante() {
         return estudiante;
     }
 
-    public void setEstudiante(Estudiante estudiante) {
+    public void setEstudiante(Usuario estudiante) {
         this.estudiante = estudiante;
     }
 

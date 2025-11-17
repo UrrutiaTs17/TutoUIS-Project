@@ -1,51 +1,127 @@
-<div class="agenda-container py-4">
-	<div class="agenda-inner container">
-		<div class="row g-4">
-			<div class="col-lg-8">
-				<!-- Reuse existing calendar component -->
-				<app-calendar></app-calendar>
-			</div>
+<div class="agenda-container">
+  <!-- Header -->
+  <div class="agenda-header">
+    <div class="header-content">
+      <div class="header-icon">
+        <i class="bi bi-calendar-week"></i>
+      </div>
+      <div>
+        <h1 class="page-title">Mi Agenda</h1>
+        <p class="page-subtitle">Gestiona tus tutorías y horarios</p>
+      </div>
+    </div>
+    <div class="header-stats">
+      <div class="stat-badge">
+        <i class="bi bi-calendar-check"></i>
+        <span>{{ reservations.length }} Reservas</span>
+      </div>
+    </div>
+  </div>
 
-			<aside class="col-lg-4">
-				<div class="card recent-card">
-					<div class="card-header d-flex justify-content-between align-items-center">
-						<h3 class="mb-0">Reservas recientes</h3>
-						<small class="text-muted">Últimas {{ reservations.length || 0 }}</small>
-					</div>
-					<div class="card-body p-0">
-						<ul class="list-group list-group-flush">
-							<li *ngIf="loading" class="list-group-item text-center py-4">
-								Cargando reservas...
-							</li>
-							<li *ngIf="error" class="list-group-item text-danger">
-								{{ error }}
-							</li>
-							  <li *ngFor="let r of pagedReservations; trackBy: trackReservation" class="list-group-item">
-								<div class="d-flex w-100 justify-content-between align-items-start">
-									<div>
-										<h5 class="mb-1 reservation-title">{{ r.materia || r.asignatura || r.nombre }}</h5>
-										<p class="mb-0 small text-muted">{{ r.detalle || (r.docente ? r.docente : '') }}</p>
-															<p class="mb-0 small text-secondary">{{ r.fecha ? (r.fecha) : (r.dia || '') }} · {{ r.hora || r.horario }}</p>
-									</div>
-									<div class="ms-3 text-end">
-										<span class="badge bg-success-subtle text-success">Cupos: {{ r.cupos || r.cuposDisponibles || r.cupos_actuales || '-' }}</span>
-									</div>
-								</div>
-							</li>
-							<li *ngIf="!loading && reservations.length === 0" class="list-group-item text-muted">
-								No hay reservas recientes.
-							</li>
-						</ul>
-					</div>
-					<div class="card-footer d-flex justify-content-between align-items-center">
-						<div>
-							<button class="btn btn-sm btn-outline-secondary me-2" (click)="prevPage()" [disabled]="currentPage === 0">Anterior</button>
-							<button class="btn btn-sm btn-outline-secondary" (click)="nextPage()" [disabled]="(currentPage+1)*pageSize >= reservations.length">Siguiente</button>
-						</div>
-						<small class="text-muted">Página {{ currentPage + 1 }} / {{ Math.max(1, Math.ceil(reservations.length / pageSize)) }}</small>
-					</div>
-				</div>
-			</aside>
-		</div>
-	</div>
+  <!-- Main Content Grid -->
+  <div class="agenda-grid">
+    <!-- Calendar Section -->
+    <div class="calendar-section">
+      <div class="section-card">
+        <div class="card-header-custom">
+          <i class="bi bi-calendar3"></i>
+          <h3>Calendario</h3>
+        </div>
+        <div class="card-content">
+          <app-calendar></app-calendar>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reservations Sidebar -->
+    <div class="reservations-sidebar">
+      <div class="section-card">
+        <div class="card-header-custom">
+          <div class="header-info">
+            <i class="bi bi-clock-history"></i>
+            <h3>Reservas Recientes</h3>
+          </div>
+          <span class="badge-count">{{ reservations.length }}</span>
+        </div>
+        
+        <div class="card-content">
+          @if (loading) {
+            <div class="loading-state">
+              <div class="spinner"></div>
+              <p>Cargando reservas...</p>
+            </div>
+          } @else if (error) {
+            <div class="error-state">
+              <i class="bi bi-exclamation-circle"></i>
+              <p>{{ error }}</p>
+            </div>
+          } @else if (reservations.length === 0) {
+            <div class="empty-state">
+              <i class="bi bi-calendar-x"></i>
+              <p>No hay reservas disponibles</p>
+            </div>
+          } @else {
+            <div class="reservations-list">
+              @for (r of pagedReservations; track trackReservation($index, r)) {
+                <div class="reservation-item">
+                  <div class="reservation-header">
+                    <h4>{{ r.materia || r.asignatura || r.nombre }}</h4>
+                    <span class="badge-cupos">
+                      <i class="bi bi-people"></i>
+                      {{ r.cupos || r.cuposDisponibles || r.cupos_actuales || '0' }}
+                    </span>
+                  </div>
+                  <div class="reservation-details">
+                    @if (r.detalle || r.docente) {
+                      <div class="detail-row">
+                        <i class="bi bi-person"></i>
+                        <span>{{ r.detalle || r.docente }}</span>
+                      </div>
+                    }
+                    <div class="detail-row">
+                      <i class="bi bi-calendar3"></i>
+                      <span>{{ r.fecha ? formatDate(r.fecha) : (r.dia || '-') }}</span>
+                    </div>
+                    <div class="detail-row">
+                      <i class="bi bi-clock"></i>
+                      <span>{{ r.hora || r.horario || '-' }}</span>
+                    </div>
+                  </div>
+                  <div class="reservation-actions">
+                    <button class="btn-action primary">
+                      <i class="bi bi-eye"></i>
+                      Ver detalles
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination">
+              <button 
+                class="btn-page" 
+                (click)="prevPage()" 
+                [disabled]="currentPage === 0"
+              >
+                <i class="bi bi-chevron-left"></i>
+                Anterior
+              </button>
+              <span class="page-info">
+                Página {{ currentPage + 1 }} de {{ Math.max(1, Math.ceil(reservations.length / pageSize)) }}
+              </span>
+              <button 
+                class="btn-page" 
+                (click)="nextPage()" 
+                [disabled]="(currentPage+1)*pageSize >= reservations.length"
+              >
+                Siguiente
+                <i class="bi bi-chevron-right"></i>
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

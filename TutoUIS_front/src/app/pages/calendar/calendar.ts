@@ -26,7 +26,7 @@ type MateriaCelda = {
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './calendar.html',
-  styleUrls: ['./calendar.css']
+  styleUrl: './calendar.css'
 })
 export class CalendarComponent implements OnInit {
 
