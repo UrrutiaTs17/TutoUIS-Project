@@ -340,10 +340,6 @@ export class CreateTutoriaModal implements OnInit {
       this.errorMessage = 'Por favor selecciona una modalidad';
       return;
     }
-    if (!this.form.nombre.trim()) {
-      this.errorMessage = 'Por favor ingresa un nombre para la tutoría';
-      return;
-    }
     if (this.form.capacidadMaxima < 1) {
       this.errorMessage = 'La capacidad máxima debe ser mayor a 0';
       return;
@@ -358,7 +354,6 @@ export class CreateTutoriaModal implements OnInit {
       idCarrera: parseInt(this.form.idCarrera),
       idAsignatura: parseInt(this.form.idAsignatura),
       modalidad: this.form.modalidad,
-      nombre: this.form.nombre.trim(),
       descripcion: this.form.descripcion.trim() || undefined,
       capacidadMaxima: this.form.capacidadMaxima,
       ubicacion: this.form.ubicacion.trim() || undefined

@@ -22,7 +22,6 @@ export interface CreateTutoriaDto {
   idCarrera: number; // Se envía para compatibilidad actual frontend (backend puede ignorarlo)
   idAsignatura: number; // Nueva relación con asignatura
   modalidad: string; // Presencial | Virtual | Híbrida
-  nombre: string; // Nombre lógico interno (si backend no lo usa, puede ignorarse)
   descripcion?: string;
   capacidadMaxima: number;
   ubicacion?: string; // Mapeado a "lugar" en backend si existe

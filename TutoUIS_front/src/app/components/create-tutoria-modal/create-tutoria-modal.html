@@ -169,27 +169,7 @@
             </div>
           </div>
 
-          <!-- Fila 3: Nombre de Tutoría -->
-          <div class="mb-3">
-            <label for="nombreInput" class="form-label">
-              <span class="text-danger">*</span> Nombre de la Tutoría
-            </label>
-            <input
-              type="text"
-              id="nombreInput"
-              class="form-control"
-              [(ngModel)]="form.nombre"
-              name="nombre"
-              placeholder="ej: Cálculo Diferencial"
-              [disabled]="submitting"
-              maxlength="100"
-              required>
-            <small class="text-muted">
-              <i class="bi bi-info-circle"></i> Máximo 100 caracteres
-            </small>
-          </div>
-
-          <!-- Fila 4: Descripción -->
+          <!-- Fila 3: Descripción -->
           <div class="mb-3">
             <label for="descripcionInput" class="form-label">Descripción</label>
             <textarea
@@ -207,7 +187,7 @@
             </small>
           </div>
 
-          <!-- Fila 5: Capacidad y Ubicación -->
+          <!-- Fila 4: Capacidad y Ubicación -->
           <div class="row mb-3">
             <!-- Capacidad Máxima -->
             <div class="col-md-6">
