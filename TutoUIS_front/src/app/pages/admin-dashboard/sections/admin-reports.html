@@ -1,0 +1,449 @@
+<!-- Header moderno con gradiente -->
+<div class="reports-header">
+  <div class="header-content">
+    <div class="header-title-section">
+      <div class="icon-wrapper">
+        <i class="bi bi-graph-up-arrow"></i>
+      </div>
+      <div>
+        <h2 class="page-title">Reportes y Estadísticas</h2>
+        <p class="page-subtitle">Analiza el rendimiento y métricas del sistema de tutorías</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn-export">
+        <i class="bi bi-download"></i>
+        <span>Exportar PDF</span>
+      </button>
+      <a routerLink="/admin-dashboard" class="btn-back">
+        <i class="bi bi-arrow-left"></i>
+        <span>Volver</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Selector de período -->
+<div class="period-selector">
+  <div class="period-tabs">
+    <button 
+      class="period-tab" 
+      [class.active]="selectedPeriod === 'hoy'"
+      (click)="selectPeriod('hoy')">
+      <i class="bi bi-calendar-day"></i>
+      <span>Hoy</span>
+    </button>
+    <button 
+      class="period-tab" 
+      [class.active]="selectedPeriod === 'semana'"
+      (click)="selectPeriod('semana')">
+      <i class="bi bi-calendar-week"></i>
+      <span>Esta Semana</span>
+    </button>
+    <button 
+      class="period-tab" 
+      [class.active]="selectedPeriod === 'mes'"
+      (click)="selectPeriod('mes')">
+      <i class="bi bi-calendar-month"></i>
+      <span>Este Mes</span>
+    </button>
+    <button 
+      class="period-tab" 
+      [class.active]="selectedPeriod === 'año'"
+      (click)="selectPeriod('año')">
+      <i class="bi bi-calendar"></i>
+      <span>Este Año</span>
+    </button>
+    <button 
+      class="period-tab custom" 
+      [class.active]="selectedPeriod === 'custom'">
+      <i class="bi bi-calendar-range"></i>
+      <span>Personalizado</span>
+    </button>
+  </div>
+  <div class="last-update">
+    <i class="bi bi-arrow-clockwise"></i>
+    <span>Actualizado: {{ lastUpdate | date:'dd/MM/yyyy HH:mm' }}</span>
+  </div>
+</div>
+
+<!-- KPIs principales -->
+<div class="kpi-grid">
+  <div class="kpi-card kpi-primary">
+    <div class="kpi-icon">
+      <i class="bi bi-calendar-check"></i>
+    </div>
+    <div class="kpi-content">
+      <h3 class="kpi-value">{{ stats.totalReservas }}</h3>
+      <p class="kpi-label">Total Reservas</p>
+      <div class="kpi-trend" [class.positive]="stats.reservasTrend > 0" [class.negative]="stats.reservasTrend < 0">
+        <i class="bi" [ngClass]="stats.reservasTrend > 0 ? 'bi-arrow-up' : 'bi-arrow-down'"></i>
+        <span>{{ stats.reservasTrend > 0 ? '+' : '' }}{{ stats.reservasTrend }}%</span>
+        <small>vs período anterior</small>
+      </div>
+    </div>
+  </div>
+
+  <div class="kpi-card kpi-success">
+    <div class="kpi-icon">
+      <i class="bi bi-check-circle"></i>
+    </div>
+    <div class="kpi-content">
+      <h3 class="kpi-value">{{ stats.reservasCompletadas }}</h3>
+      <p class="kpi-label">Completadas</p>
+      <div class="kpi-percentage">
+        <div class="percentage-bar">
+          <div class="percentage-fill" [style.width.%]="stats.tasaCompletadas"></div>
+        </div>
+        <span>{{ stats.tasaCompletadas }}% del total</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="kpi-card kpi-warning">
+    <div class="kpi-icon">
+      <i class="bi bi-hourglass-split"></i>
+    </div>
+    <div class="kpi-content">
+      <h3 class="kpi-value">{{ stats.reservasPendientes }}</h3>
+      <p class="kpi-label">Pendientes</p>
+      <div class="kpi-percentage">
+        <div class="percentage-bar">
+          <div class="percentage-fill warning" [style.width.%]="stats.tasaPendientes"></div>
+        </div>
+        <span>{{ stats.tasaPendientes }}% del total</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="kpi-card kpi-info">
+    <div class="kpi-icon">
+      <i class="bi bi-people"></i>
+    </div>
+    <div class="kpi-content">
+      <h3 class="kpi-value">{{ stats.estudiantesActivos }}</h3>
+      <p class="kpi-label">Estudiantes Activos</p>
+      <div class="kpi-trend positive">
+        <i class="bi bi-arrow-up"></i>
+        <span>+{{ stats.estudiantesTrend }}%</span>
+        <small>vs período anterior</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Gráficos principales -->
+<div class="charts-grid">
+  <!-- Gráfico de reservas por día -->
+  <div class="chart-card large">
+    <div class="chart-header">
+      <div>
+        <h3 class="chart-title">
+          <i class="bi bi-bar-chart-line"></i>
+          Reservas por Día
+        </h3>
+        <p class="chart-subtitle">Distribución de reservas en el período seleccionado</p>
+      </div>
+      <div class="chart-actions">
+        <button class="btn-chart-action">
+          <i class="bi bi-three-dots-vertical"></i>
+        </button>
+      </div>
+    </div>
+    <div class="chart-body">
+      <div class="chart-placeholder">
+        <div class="bar-chart">
+          <div class="bar-chart-item" *ngFor="let day of reservasPorDia" [style.animation-delay]="day.index * 0.1 + 's'">
+            <div class="bar-value">{{ day.count }}</div>
+            <div class="bar" [style.height.%]="(day.count / maxReservasDay) * 100">
+              <div class="bar-fill"></div>
+            </div>
+            <div class="bar-label">{{ day.label }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Distribución por estado -->
+  <div class="chart-card">
+    <div class="chart-header">
+      <div>
+        <h3 class="chart-title">
+          <i class="bi bi-pie-chart"></i>
+          Estado de Reservas
+        </h3>
+        <p class="chart-subtitle">Distribución por estado</p>
+      </div>
+    </div>
+    <div class="chart-body">
+      <div class="donut-chart">
+        <svg viewBox="0 0 200 200" class="donut-svg">
+          <circle cx="100" cy="100" r="80" fill="none" stroke="#e9ecef" stroke-width="40"/>
+          <circle 
+            cx="100" 
+            cy="100" 
+            r="80" 
+            fill="none" 
+            stroke="#10b981" 
+            stroke-width="40"
+            [attr.stroke-dasharray]="getStrokeDasharray(stats.tasaCompletadas)"
+            transform="rotate(-90 100 100)"/>
+        </svg>
+        <div class="donut-center">
+          <div class="donut-percentage">{{ stats.tasaCompletadas }}%</div>
+          <div class="donut-label">Completadas</div>
+        </div>
+      </div>
+      <div class="chart-legend">
+        <div class="legend-item">
+          <span class="legend-dot" style="background: #10b981;"></span>
+          <span class="legend-label">Completadas</span>
+          <span class="legend-value">{{ stats.reservasCompletadas }}</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-dot" style="background: #3b82f6;"></span>
+          <span class="legend-label">Reservadas</span>
+          <span class="legend-value">{{ stats.reservasActivas }}</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-dot" style="background: #f59e0b;"></span>
+          <span class="legend-label">Pendientes</span>
+          <span class="legend-value">{{ stats.reservasPendientes }}</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-dot" style="background: #ef4444;"></span>
+          <span class="legend-label">Canceladas</span>
+          <span class="legend-value">{{ stats.reservasCanceladas }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Rankings y Top -->
+<div class="rankings-grid">
+  <!-- Materias más solicitadas -->
+  <div class="ranking-card">
+    <div class="ranking-header">
+      <h3 class="ranking-title">
+        <i class="bi bi-trophy"></i>
+        Materias Más Solicitadas
+      </h3>
+      <span class="ranking-badge">Top 5</span>
+    </div>
+    <div class="ranking-list">
+      <div class="ranking-item" *ngFor="let materia of topMaterias; let i = index" [style.animation-delay]="i * 0.1 + 's'">
+        <div class="ranking-position" [class.gold]="i === 0" [class.silver]="i === 1" [class.bronze]="i === 2">
+          {{ i + 1 }}
+        </div>
+        <div class="ranking-info">
+          <h4 class="ranking-name">{{ materia.nombre }}</h4>
+          <p class="ranking-details">{{ materia.codigo }} • {{ materia.carrera }}</p>
+        </div>
+        <div class="ranking-stats">
+          <span class="ranking-count">{{ materia.reservas }}</span>
+          <div class="ranking-bar">
+            <div class="ranking-bar-fill" [style.width.%]="(materia.reservas / topMaterias[0].reservas) * 100"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tutores destacados -->
+  <div class="ranking-card">
+    <div class="ranking-header">
+      <h3 class="ranking-title">
+        <i class="bi bi-star"></i>
+        Tutores Destacados
+      </h3>
+      <span class="ranking-badge">Top 5</span>
+    </div>
+    <div class="ranking-list">
+      <div class="ranking-item" *ngFor="let tutor of topTutores; let i = index" [style.animation-delay]="i * 0.1 + 's'">
+        <div class="ranking-position" [class.gold]="i === 0" [class.silver]="i === 1" [class.bronze]="i === 2">
+          {{ i + 1 }}
+        </div>
+        <div class="ranking-info">
+          <h4 class="ranking-name">{{ tutor.nombre }}</h4>
+          <div class="tutor-rating">
+            <i class="bi bi-star-fill" *ngFor="let star of [1,2,3,4,5]" [class.active]="star <= tutor.rating"></i>
+            <span class="rating-value">{{ tutor.rating }}/5</span>
+          </div>
+        </div>
+        <div class="ranking-stats">
+          <span class="ranking-count">{{ tutor.tutorias }}</span>
+          <small class="text-muted">tutorías</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Horarios pico -->
+  <div class="ranking-card">
+    <div class="ranking-header">
+      <h3 class="ranking-title">
+        <i class="bi bi-clock-history"></i>
+        Horarios Más Concurridos
+      </h3>
+      <span class="ranking-badge">Horarios Pico</span>
+    </div>
+    <div class="ranking-list">
+      <div class="ranking-item" *ngFor="let horario of horariosPico; let i = index" [style.animation-delay]="i * 0.1 + 's'">
+        <div class="ranking-icon">
+          <i class="bi bi-clock"></i>
+        </div>
+        <div class="ranking-info">
+          <h4 class="ranking-name">{{ horario.periodo }}</h4>
+          <p class="ranking-details">{{ horario.descripcion }}</p>
+        </div>
+        <div class="ranking-stats">
+          <span class="ranking-count">{{ horario.reservas }}</span>
+          <div class="ranking-bar">
+            <div class="ranking-bar-fill" [style.width.%]="(horario.reservas / horariosPico[0].reservas) * 100"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Métricas adicionales -->
+<div class="metrics-grid">
+  <div class="metric-card">
+    <div class="metric-icon blue">
+      <i class="bi bi-clock"></i>
+    </div>
+    <div class="metric-content">
+      <h4 class="metric-value">{{ metrics.tiempoPromedio }} min</h4>
+      <p class="metric-label">Duración Promedio</p>
+      <small class="metric-detail">Por sesión de tutoría</small>
+    </div>
+  </div>
+
+  <div class="metric-card">
+    <div class="metric-icon green">
+      <i class="bi bi-calendar-check"></i>
+    </div>
+    <div class="metric-content">
+      <h4 class="metric-value">{{ metrics.asistencia }}%</h4>
+      <p class="metric-label">Tasa de Asistencia</p>
+      <small class="metric-detail">Reservas confirmadas</small>
+    </div>
+  </div>
+
+  <div class="metric-card">
+    <div class="metric-icon purple">
+      <i class="bi bi-arrow-repeat"></i>
+    </div>
+    <div class="metric-content">
+      <h4 class="metric-value">{{ metrics.reincidencia }}%</h4>
+      <p class="metric-label">Tasa de Reincidencia</p>
+      <small class="metric-detail">Estudiantes recurrentes</small>
+    </div>
+  </div>
+
+  <div class="metric-card">
+    <div class="metric-icon orange">
+      <i class="bi bi-star"></i>
+    </div>
+    <div class="metric-content">
+      <h4 class="metric-value">{{ metrics.satisfaccion }}/5</h4>
+      <p class="metric-label">Satisfacción</p>
+      <small class="metric-detail">Calificación promedio</small>
+    </div>
+  </div>
+
+  <div class="metric-card">
+    <div class="metric-icon red">
+      <i class="bi bi-x-circle"></i>
+    </div>
+    <div class="metric-content">
+      <h4 class="metric-value">{{ metrics.cancelaciones }}%</h4>
+      <p class="metric-label">Tasa de Cancelación</p>
+      <small class="metric-detail">Reservas canceladas</small>
+    </div>
+  </div>
+
+  <div class="metric-card">
+    <div class="metric-icon teal">
+      <i class="bi bi-graph-up"></i>
+    </div>
+    <div class="metric-content">
+      <h4 class="metric-value">{{ metrics.crecimiento }}%</h4>
+      <p class="metric-label">Crecimiento</p>
+      <small class="metric-detail">Respecto al mes anterior</small>
+    </div>
+  </div>
+</div>
+
+<!-- Tabla de análisis detallado -->
+<div class="detail-section">
+  <div class="section-header">
+    <h3 class="section-title">
+      <i class="bi bi-list-check"></i>
+      Análisis Detallado por Materia
+    </h3>
+    <div class="section-actions">
+      <div class="search-box-small">
+        <i class="bi bi-search"></i>
+        <input type="text" placeholder="Buscar materia..." [(ngModel)]="searchMateria">
+      </div>
+      <button class="btn-export-small">
+        <i class="bi bi-file-earmark-excel"></i>
+        Excel
+      </button>
+    </div>
+  </div>
+
+  <div class="detail-table-wrapper">
+    <table class="detail-table">
+      <thead>
+        <tr>
+          <th>Materia</th>
+          <th>Código</th>
+          <th class="text-center">Total Reservas</th>
+          <th class="text-center">Completadas</th>
+          <th class="text-center">Pendientes</th>
+          <th class="text-center">Canceladas</th>
+          <th class="text-center">Tasa Éxito</th>
+          <th class="text-center">Calificación</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let materia of materiasDetalle; let i = index" [style.animation-delay]="i * 0.05 + 's'">
+          <td>
+            <div class="materia-cell">
+              <div class="materia-icon">{{ materia.inicial }}</div>
+              <span class="materia-name">{{ materia.nombre }}</span>
+            </div>
+          </td>
+          <td><span class="code-badge">{{ materia.codigo }}</span></td>
+          <td class="text-center"><strong>{{ materia.total }}</strong></td>
+          <td class="text-center">
+            <span class="badge-status success">{{ materia.completadas }}</span>
+          </td>
+          <td class="text-center">
+            <span class="badge-status warning">{{ materia.pendientes }}</span>
+          </td>
+          <td class="text-center">
+            <span class="badge-status danger">{{ materia.canceladas }}</span>
+          </td>
+          <td class="text-center">
+            <div class="progress-mini">
+              <div class="progress-bar-mini" [style.width.%]="materia.tasaExito"></div>
+            </div>
+            <span class="progress-label">{{ materia.tasaExito }}%</span>
+          </td>
+          <td class="text-center">
+            <div class="rating-stars">
+              <i class="bi bi-star-fill" *ngFor="let star of [1,2,3,4,5]" [class.active]="star <= materia.rating"></i>
+            </div>
+            <span class="rating-number">{{ materia.rating }}</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

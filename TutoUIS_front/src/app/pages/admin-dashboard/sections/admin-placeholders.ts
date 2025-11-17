@@ -8,253 +8,8 @@ import { ReservationService, Reserva } from '../../../services/reservation.servi
   selector: 'app-admin-reservations',
   standalone: true,
   imports: [CommonModule, RouterLink, FormsModule],
-  template: `
-    <div class="page-header">
-      <h2 class="page-title">
-        <i class="bi bi-calendar-check me-2"></i>Gestión de Reservas
-      </h2>
-    </div>
-
-    <div class="card">
-      <div class="card-body">
-        <div *ngIf="error" class="alert alert-danger" role="alert">
-          <i class="bi bi-exclamation-triangle-fill me-2"></i>
-          <strong>Error:</strong> {{ error }}
-          <button type="button" class="btn btn-sm btn-outline-danger ms-3" (click)="loadReservations()">
-            <i class="bi bi-arrow-clockwise me-1"></i>Reintentar
-          </button>
-        </div>
-
-        <div *ngIf="loading" class="text-center py-5">
-          <div class="spinner-border text-success" role="status">
-            <span class="visually-hidden">Cargando...</span>
-          </div>
-          <p class="mt-3 text-muted">Cargando reservas...</p>
-        </div>
-
-        <div *ngIf="!loading && !error && reservas.length === 0" class="empty-state">
-          <i class="bi bi-calendar-event"></i>
-          <h5>No hay reservas</h5>
-          <p class="text-muted">Aún no se han creado reservas en el sistema</p>
-          <a routerLink="/admin-dashboard" class="btn btn-outline-secondary mt-3">
-            <i class="bi bi-arrow-left me-2"></i>Volver al panel
-          </a>
-        </div>
-
-        <div *ngIf="!loading && !error && reservas.length > 0">
-          <!-- Filtros y búsqueda -->
-          <div class="filters-section mb-4">
-            <div class="row g-3">
-              <div class="col-md-4">
-                <div class="input-group">
-                  <span class="input-group-text bg-white">
-                    <i class="bi bi-search"></i>
-                  </span>
-                  <input 
-                    type="text" 
-                    class="form-control" 
-                    placeholder="Buscar por ID estudiante o disponibilidad..."
-                    [(ngModel)]="searchTerm"
-                    (ngModelChange)="applyFilters()">
-                </div>
-              </div>
-              <div class="col-md-3">
-                <select class="form-select" [(ngModel)]="filterEstado" (ngModelChange)="applyFilters()">
-                  <option value="">Todos los estados</option>
-                  <option value="Reservada">Reservada</option>
-                  <option value="Pendiente">Pendiente</option>
-                  <option value="Completada">Completada</option>
-                  <option value="Cancelada">Cancelada</option>
-                </select>
-              </div>
-              <div class="col-md-3">
-                <select class="form-select" [(ngModel)]="filterFecha" (ngModelChange)="applyFilters()">
-                  <option value="">Todas las fechas</option>
-                  <option value="hoy">Hoy</option>
-                  <option value="semana">Esta semana</option>
-                  <option value="mes">Este mes</option>
-                </select>
-              </div>
-              <div class="col-md-2">
-                <button class="btn btn-outline-secondary w-100" (click)="clearFilters()">
-                  <i class="bi bi-x-circle me-1"></i>Limpiar
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Header con estadísticas -->
-          <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-              <h5 class="mb-1">Total de Reservas</h5>
-              <p class="text-muted mb-0">
-                Mostrando {{ reservasFiltradas.length }} de {{ reservas.length }} reservas
-              </p>
-            </div>
-            <a routerLink="/admin-dashboard" class="btn btn-outline-secondary">
-              <i class="bi bi-arrow-left me-2"></i>Volver al panel
-            </a>
-          </div>
-
-          <div class="table-responsive">
-            <table class="table table-hover">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Estudiante ID</th>
-                  <th>Disponibilidad ID</th>
-                  <th>Estado</th>
-                  <th>Observaciones</th>
-                  <th>Fecha Creación</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let reserva of reservasFiltradas">
-                  <td><strong>#{{ reserva.idReserva }}</strong></td>
-                  <td>
-                    <span class="badge bg-info">
-                      <i class="bi bi-person me-1"></i>{{ reserva.idEstudiante }}
-                    </span>
-                  </td>
-                  <td>
-                    <span class="badge bg-secondary">
-                      <i class="bi bi-calendar3 me-1"></i>{{ reserva.idDisponibilidad }}
-                    </span>
-                  </td>
-                  <td>
-                    <span class="badge" [ngClass]="{
-                      'bg-success': reserva.estadoReserva.nombre === 'Reservada',
-                      'bg-warning': reserva.estadoReserva.nombre === 'Pendiente',
-                      'bg-danger': reserva.estadoReserva.nombre === 'Cancelada',
-                      'bg-primary': reserva.estadoReserva.nombre === 'Completada'
-                    }">
-                      {{ reserva.estadoReserva.nombre || 'Sin estado' }}
-                    </span>
-                  </td>
-                  <td>
-                    <span class="text-muted small" [title]="reserva.observaciones || 'Sin observaciones'">
-                      {{ (reserva.observaciones && reserva.observaciones.length > 50) 
-                         ? (reserva.observaciones | slice:0:50) + '...' 
-                         : (reserva.observaciones || 'Sin observaciones') }}
-                    </span>
-                  </td>
-                  <td>
-                    <span *ngIf="reserva.fechaCreacion" class="text-muted small">
-                      {{ reserva.fechaCreacion | date:'dd/MM/yyyy HH:mm' }}
-                    </span>
-                    <span *ngIf="!reserva.fechaCreacion" class="text-muted small">
-                      No registrada
-                    </span>
-                  </td>
-                  <td>
-                    <button class="btn btn-sm btn-outline-primary me-1" title="Ver detalles">
-                      <i class="bi bi-eye"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-danger" title="Cancelar">
-                      <i class="bi bi-x-circle"></i>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div *ngIf="reservasFiltradas.length === 0 && reservas.length > 0" class="text-center py-4">
-            <i class="bi bi-filter-circle text-muted" style="font-size: 3rem;"></i>
-            <p class="text-muted mt-3">No se encontraron reservas con los filtros aplicados</p>
-            <button class="btn btn-outline-secondary" (click)="clearFilters()">
-              <i class="bi bi-x-circle me-1"></i>Limpiar filtros
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  `,
-  styles: [`
-    .page-header {
-      margin-bottom: 30px;
-    }
-    .page-title {
-      color: #155724;
-      font-weight: 700;
-      margin: 0;
-      display: flex;
-      align-items: center;
-    }
-    .page-title i {
-      font-size: 1.8rem;
-    }
-    .card {
-      border: none;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    }
-    .card-body {
-      padding: 25px;
-    }
-    .filters-section {
-      background-color: #f8f9fa;
-      padding: 20px;
-      border-radius: 8px;
-      border: 1px solid #dee2e6;
-    }
-    .input-group-text {
-      border-right: none;
-    }
-    .input-group .form-control {
-      border-left: none;
-    }
-    .input-group .form-control:focus {
-      border-color: #ced4da;
-      box-shadow: none;
-    }
-    .empty-state {
-      text-align: center;
-      padding: 60px 20px;
-    }
-    .empty-state i {
-      font-size: 4rem;
-      color: #dee2e6;
-      margin-bottom: 20px;
-    }
-    .empty-state h5 {
-      color: #495057;
-      font-weight: 600;
-      margin-bottom: 10px;
-    }
-    .table {
-      margin-bottom: 0;
-    }
-    .table thead th {
-      background-color: #f8f9fa;
-      border-bottom: 2px solid #dee2e6;
-      color: #495057;
-      font-weight: 600;
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      padding: 12px;
-    }
-    .table tbody td {
-      vertical-align: middle;
-      padding: 12px;
-    }
-    .table tbody tr:hover {
-      background-color: #f8f9fa;
-    }
-    .badge {
-      padding: 6px 12px;
-      font-weight: 500;
-      font-size: 0.75rem;
-    }
-    .btn-sm {
-      padding: 4px 8px;
-      font-size: 0.875rem;
-    }
-    .alert {
-      border-radius: 8px;
-    }
-  `]
+  templateUrl: './admin-reservations.html',
+  styleUrl: './admin-reservations.css'
 })
 export class AdminReservations implements OnInit {
   reservas: Reserva[] = [];
@@ -355,6 +110,10 @@ export class AdminReservations implements OnInit {
     this.filterFecha = '';
     this.reservasFiltradas = this.reservas;
   }
+
+  getReservasPorEstado(estado: string): number {
+    return this.reservas.filter(r => r.estadoReserva.nombre === estado).length;
+  }
 }
 
 @Component({
@@ -424,66 +183,191 @@ export class AdminSpaces {}
 @Component({
   selector: 'app-admin-reports',
   standalone: true,
-  imports: [CommonModule, RouterLink],
-  template: `
-    <div class="page-header">
-      <h2 class="page-title">
-        <i class="bi bi-graph-up me-2"></i>Reportes y Estadísticas
-      </h2>
-    </div>
-
-    <div class="card">
-      <div class="card-body">
-        <div class="empty-state">
-          <i class="bi bi-file-earmark-text"></i>
-          <h5>Reportes y Estadísticas</h5>
-          <p class="text-muted">Aquí se mostrarán los reportes y análisis del sistema</p>
-          <a routerLink="/admin-dashboard" class="btn btn-outline-secondary mt-3">
-            <i class="bi bi-arrow-left me-2"></i>Volver al panel
-          </a>
-        </div>
-      </div>
-    </div>
-  `,
-  styles: [`
-    .page-header {
-      margin-bottom: 30px;
-    }
-    .page-title {
-      color: #155724;
-      font-weight: 700;
-      margin: 0;
-      display: flex;
-      align-items: center;
-    }
-    .page-title i {
-      font-size: 1.8rem;
-    }
-    .card {
-      border: none;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    }
-    .card-body {
-      padding: 25px;
-    }
-    .empty-state {
-      text-align: center;
-      padding: 60px 20px;
-    }
-    .empty-state i {
-      font-size: 4rem;
-      color: #dee2e6;
-      margin-bottom: 20px;
-    }
-    .empty-state h5 {
-      color: #495057;
-      font-weight: 600;
-      margin-bottom: 10px;
-    }
-  `]
+  imports: [CommonModule, RouterLink, FormsModule],
+  templateUrl: './admin-reports.html',
+  styleUrl: './admin-reports.css'
 })
-export class AdminReports {}
+export class AdminReports implements OnInit {
+  selectedPeriod: string = 'mes';
+  lastUpdate: Date = new Date();
+  searchMateria: string = '';
+  
+  // Estadísticas principales
+  stats = {
+    totalReservas: 248,
+    reservasTrend: 12.5,
+    reservasCompletadas: 186,
+    tasaCompletadas: 75,
+    reservasPendientes: 35,
+    tasaPendientes: 14,
+    reservasActivas: 27,
+    reservasCanceladas: 0,
+    estudiantesActivos: 142,
+    estudiantesTrend: 8.3
+  };
+
+  // Métricas adicionales
+  metrics = {
+    tiempoPromedio: 45,
+    asistencia: 92,
+    reincidencia: 68,
+    satisfaccion: 4.7,
+    cancelaciones: 8,
+    crecimiento: 15.3
+  };
+
+  // Reservas por día (últimos 7 días)
+  reservasPorDia = [
+    { label: 'Lun', count: 32, index: 0 },
+    { label: 'Mar', count: 45, index: 1 },
+    { label: 'Mié', count: 38, index: 2 },
+    { label: 'Jue', count: 52, index: 3 },
+    { label: 'Vie', count: 41, index: 4 },
+    { label: 'Sáb', count: 28, index: 5 },
+    { label: 'Dom', count: 12, index: 6 }
+  ];
+
+  maxReservasDay = 52;
+
+  // Top materias
+  topMaterias = [
+    { nombre: 'Cálculo Diferencial', codigo: 'MAT-101', carrera: 'Ingeniería', reservas: 45 },
+    { nombre: 'Programación I', codigo: 'SIS-201', carrera: 'Sistemas', reservas: 38 },
+    { nombre: 'Física Mecánica', codigo: 'FIS-301', carrera: 'Ingeniería', reservas: 32 },
+    { nombre: 'Química General', codigo: 'QUI-101', carrera: 'Química', reservas: 28 },
+    { nombre: 'Álgebra Lineal', codigo: 'MAT-102', carrera: 'Matemáticas', reservas: 25 }
+  ];
+
+  // Top tutores
+  topTutores = [
+    { nombre: 'Carlos Rodríguez', rating: 5, tutorias: 42 },
+    { nombre: 'Ana María López', rating: 5, tutorias: 38 },
+    { nombre: 'Juan Pérez Silva', rating: 4, tutorias: 35 },
+    { nombre: 'Laura Martínez', rating: 5, tutorias: 31 },
+    { nombre: 'Diego Gómez', rating: 4, tutorias: 28 }
+  ];
+
+  // Horarios pico
+  horariosPico = [
+    { periodo: '10:00 - 12:00', descripcion: 'Mañana', reservas: 68 },
+    { periodo: '14:00 - 16:00', descripcion: 'Tarde', reservas: 52 },
+    { periodo: '16:00 - 18:00', descripcion: 'Tarde', reservas: 45 },
+    { periodo: '08:00 - 10:00', descripcion: 'Mañana', reservas: 38 },
+    { periodo: '18:00 - 20:00', descripcion: 'Noche', reservas: 25 }
+  ];
+
+  // Análisis detallado por materia
+  materiasDetalle = [
+    {
+      inicial: 'C',
+      nombre: 'Cálculo Diferencial',
+      codigo: 'MAT-101',
+      total: 45,
+      completadas: 35,
+      pendientes: 8,
+      canceladas: 2,
+      tasaExito: 78,
+      rating: 5
+    },
+    {
+      inicial: 'P',
+      nombre: 'Programación I',
+      codigo: 'SIS-201',
+      total: 38,
+      completadas: 30,
+      pendientes: 6,
+      canceladas: 2,
+      tasaExito: 79,
+      rating: 5
+    },
+    {
+      inicial: 'F',
+      nombre: 'Física Mecánica',
+      codigo: 'FIS-301',
+      total: 32,
+      completadas: 24,
+      pendientes: 5,
+      canceladas: 3,
+      tasaExito: 75,
+      rating: 4
+    },
+    {
+      inicial: 'Q',
+      nombre: 'Química General',
+      codigo: 'QUI-101',
+      total: 28,
+      completadas: 22,
+      pendientes: 4,
+      canceladas: 2,
+      tasaExito: 79,
+      rating: 4
+    },
+    {
+      inicial: 'A',
+      nombre: 'Álgebra Lineal',
+      codigo: 'MAT-102',
+      total: 25,
+      completadas: 19,
+      pendientes: 4,
+      canceladas: 2,
+      tasaExito: 76,
+      rating: 5
+    },
+    {
+      inicial: 'B',
+      nombre: 'Base de Datos',
+      codigo: 'SIS-301',
+      total: 22,
+      completadas: 17,
+      pendientes: 3,
+      canceladas: 2,
+      tasaExito: 77,
+      rating: 4
+    },
+    {
+      inicial: 'E',
+      nombre: 'Estructuras de Datos',
+      codigo: 'SIS-202',
+      total: 20,
+      completadas: 15,
+      pendientes: 3,
+      canceladas: 2,
+      tasaExito: 75,
+      rating: 5
+    },
+    {
+      inicial: 'I',
+      nombre: 'Ingeniería de Software',
+      codigo: 'SIS-401',
+      total: 18,
+      completadas: 14,
+      pendientes: 3,
+      canceladas: 1,
+      tasaExito: 78,
+      rating: 4
+    }
+  ];
+
+  ngOnInit(): void {
+    this.calculateStats();
+  }
+
+  selectPeriod(period: string): void {
+    this.selectedPeriod = period;
+    this.calculateStats();
+  }
+
+  calculateStats(): void {
+    // Aquí se calcularían las estadísticas según el período seleccionado
+    this.lastUpdate = new Date();
+  }
+
+  getStrokeDasharray(percentage: number): string {
+    const circumference = 2 * Math.PI * 80; // radio = 80
+    const dash = (percentage / 100) * circumference;
+    return `${dash} ${circumference}`;
+  }
+}
 
 @Component({
   selector: 'app-admin-settings',
