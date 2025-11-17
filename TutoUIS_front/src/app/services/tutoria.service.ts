@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, tap, catchError, throwError } from 'rxjs';
+import { AuthService } from './auth.service';
 
 // Interfaces para tutorías
 export interface Tutoria {
@@ -60,67 +61,84 @@ export interface TutorInfo {
   providedIn: 'root'
 })
 export class TutoriaService {
-  private apiUrl = 'http://localhost:8080/api/tutorias';  // Sin tilde
-  private carreraUrl = 'http://localhost:8080/api/carreras';
-  private tutorUrl = 'http://localhost:8080/api/usuarios';
+  private readonly apiUrl = 'http://localhost:8080/api/tutorias';  // Sin tilde
+  private readonly carreraUrl = 'http://localhost:8080/api/carreras';
+  private readonly tutorUrl = 'http://localhost:8080/api/usuarios';
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService
+  ) {}
 
   /**
    * Obtiene todas las tutorías
    */
   getAllTutorias(): Observable<Tutoria[]> {
     console.log('🌐 TutoriaService: Llamando a GET', `${this.apiUrl}/list`);
-    return this.http.get<Tutoria[]>(`${this.apiUrl}/list`);
+    const headers = this.authService.getAuthHeaders();
+    return this.http.get<Tutoria[]>(`${this.apiUrl}/list`, { headers }).pipe(
+      tap(tutorias => console.log('✅ TutoriaService: Respuesta recibida:', tutorias.length, 'tutorías')),
+      catchError(error => {
+        console.error('❌ TutoriaService: Error al obtener tutorías:', error);
+        return throwError(() => error);
+      })
+    );
   }
 
   /**
    * Obtiene una tutoría por ID
    */
   getTutoriaById(id: number): Observable<Tutoria> {
-    return this.http.get<Tutoria>(`${this.apiUrl}/${id}`);
+    const headers = this.authService.getAuthHeaders();
+    return this.http.get<Tutoria>(`${this.apiUrl}/${id}`, { headers });
   }
 
   /**
    * Obtiene tutorías de un tutor específico
    */
   getTutoriasByTutor(idTutor: number): Observable<Tutoria[]> {
-    return this.http.get<Tutoria[]>(`${this.apiUrl}/tutor/${idTutor}`);
+    const headers = this.authService.getAuthHeaders();
+    return this.http.get<Tutoria[]>(`${this.apiUrl}/tutor/${idTutor}`, { headers });
   }
 
   /**
    * Obtiene tutorías de una carrera específica
    */
   getTutoriasByCarrera(idCarrera: number): Observable<Tutoria[]> {
-    return this.http.get<Tutoria[]>(`${this.apiUrl}/carrera/${idCarrera}`);
+    const headers = this.authService.getAuthHeaders();
+    return this.http.get<Tutoria[]>(`${this.apiUrl}/carrera/${idCarrera}`, { headers });
   }
 
   /**
    * Crea una nueva tutoría
    */
   createTutoria(tutoria: CreateTutoriaDto): Observable<Tutoria> {
-    return this.http.post<Tutoria>(`${this.apiUrl}/`, tutoria);
+    const headers = this.authService.getAuthHeaders();
+    return this.http.post<Tutoria>(`${this.apiUrl}/`, tutoria, { headers });
   }
 
   /**
    * Actualiza una tutoría existente
    */
   updateTutoria(id: number, tutoria: UpdateTutoriaDto): Observable<Tutoria> {
-    return this.http.put<Tutoria>(`${this.apiUrl}/${id}`, tutoria);
+    const headers = this.authService.getAuthHeaders();
+    return this.http.put<Tutoria>(`${this.apiUrl}/${id}`, tutoria, { headers });
   }
 
   /**
    * Elimina una tutoría
    */
   deleteTutoria(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`);
+    const headers = this.authService.getAuthHeaders();
+    return this.http.delete(`${this.apiUrl}/${id}`, { headers });
   }
 
   /**
    * Obtiene todas las carreras (para el dropdown)
    */
   getAllCarreras(): Observable<Carrera[]> {
-    return this.http.get<Carrera[]>(`${this.carreraUrl}/list`);
+    const headers = this.authService.getAuthHeaders();
+    return this.http.get<Carrera[]>(`${this.carreraUrl}/list`, { headers });
   }
 
   /**
@@ -128,13 +146,15 @@ export class TutoriaService {
    */
   getTutores(): Observable<TutorInfo[]> {
     // Buscar usuarios con rol 2 (Tutor)
-    return this.http.get<TutorInfo[]>(`${this.tutorUrl}/list`);
+    const headers = this.authService.getAuthHeaders();
+    return this.http.get<TutorInfo[]>(`${this.tutorUrl}/list`, { headers });
   }
 
   /**
    * Obtiene un tutor por ID
    */
   getTutorById(id: number): Observable<TutorInfo> {
-    return this.http.get<TutorInfo>(`${this.tutorUrl}/${id}`);
+    const headers = this.authService.getAuthHeaders();
+    return this.http.get<TutorInfo>(`${this.tutorUrl}/${id}`, { headers });
   }
 }

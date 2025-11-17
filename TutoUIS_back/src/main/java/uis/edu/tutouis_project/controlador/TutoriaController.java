@@ -6,8 +6,10 @@ import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import uis.edu.tutouis_project.dto.TutoriaResponseDto;
 import uis.edu.tutouis_project.modelo.Tutoria;
 import uis.edu.tutouis_project.repositorio.TutoriaRepository;
+import uis.edu.tutouis_project.servicio.TutoriaService;
 
 import java.util.List;
 
@@ -19,12 +21,31 @@ public class TutoriaController {
 
     @Autowired
     private TutoriaRepository tutoriaRepository;
+    
+    @Autowired
+    private TutoriaService tutoriaService;
 
     @Operation(summary = "Listar todas las tutorías", description = "Requiere autenticación")
     @SecurityRequirement(name = "bearer-jwt")
     @GetMapping("/list")
-    public List<Tutoria> listarTutorias() {
-        return tutoriaRepository.findAll();
+    public List<TutoriaResponseDto> listarTutorias() {
+        System.out.println("🔵 TutoriaController: Iniciando listarTutorias()");
+        try {
+            List<TutoriaResponseDto> tutorias = tutoriaService.obtenerTodasLasTutorias();
+            System.out.println("✅ TutoriaController: Se obtuvieron " + tutorias.size() + " tutorías");
+            if (!tutorias.isEmpty()) {
+                TutoriaResponseDto primera = tutorias.get(0);
+                System.out.println("📊 TutoriaController: Primera tutoría: ID=" + primera.getIdTutoria() + 
+                                 ", Nombre=" + primera.getNombre() + 
+                                 ", Tutor=" + primera.getNombreTutor() + 
+                                 ", Carrera=" + primera.getNombreCarrera());
+            }
+            return tutorias;
+        } catch (Exception e) {
+            System.err.println("❌ TutoriaController: Error al listar tutorías: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     @Operation(summary = "Obtener tutoría por ID", description = "Requiere autenticación")
