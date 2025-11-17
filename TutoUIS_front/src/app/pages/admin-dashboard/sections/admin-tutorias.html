@@ -116,7 +116,7 @@
             <button 
               class="btn btn-sm btn-danger"
               title="Eliminar"
-              (click)="eliminarTutoria(tutoria.idTutoria, tutoria.nombre)">
+              (click)="eliminarTutoria(tutoria.idTutoria, tutoria.nombreAsignatura || tutoria.descripcion || 'Tutoría')">
               <i class="bi bi-trash"></i>
             </button>
           </td>
