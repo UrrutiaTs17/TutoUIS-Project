@@ -7,17 +7,26 @@ import { AuthService } from './auth.service';
 export interface Reserva {
   idReserva: number;
   idDisponibilidad: number;
+  disponibilidadHoraInicio?: string; // Horario de inicio de la disponibilidad
+  disponibilidadHoraFin?: string;    // Horario de fin de la disponibilidad
   idEstudiante: number;
+  nombreEstudiante?: string; // Nombre completo del estudiante
   idEstado: number;
-  estadoReserva: {
-    idEstado: number;
-    nombre: string;
-    descripcion: string;
-  };
+  nombreEstado?: string; // Nombre del estado de la reserva
   observaciones: string | null;
   fechaCreacion: string | null;
   fechaCancelacion: string | null;
   razonCancelacion: string | null;
+  horaInicio: string; // Format: "HH:mm:ss"
+  horaFin: string;    // Format: "HH:mm:ss"
+}
+
+export interface CreateReservaDto {
+  idDisponibilidad: number;
+  idEstudiante: number;
+  observaciones?: string;
+  horaInicio: string; // Format: "HH:mm:ss"
+  horaFin: string;    // Format: "HH:mm:ss"
 }
 
 @Injectable({ providedIn: 'root' })
@@ -67,5 +76,27 @@ export class ReservationService {
 
   rejectReservation(id: number) {
     return of({ success: true });
+  }
+
+  /**
+   * Crea una nueva reserva de tutoría
+   * @param reservaData Datos de la reserva (horaInicio y horaFin deben ser formato "HH:mm:ss")
+   * @returns Observable con la reserva creada
+   */
+  createReservation(reservaData: CreateReservaDto): Observable<Reserva> {
+    console.log('ReservationService - Creando reserva:', reservaData);
+    const headers = this.authService.getAuthHeaders();
+    
+    return this.http.post<Reserva>(`${this.API_URL}/`, reservaData, { headers }).pipe(
+      tap((reserva: Reserva) => {
+        console.log('ReservationService - Reserva creada exitosamente:', reserva);
+      }),
+      catchError((error: any) => {
+        console.error('ReservationService - Error al crear reserva:', error);
+        // Extraer mensaje de error más amigable
+        const errorMessage = error.error?.message || error.message || 'Error al crear la reserva';
+        return throwError(() => new Error(errorMessage));
+      })
+    );
   }
 }
