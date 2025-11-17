@@ -8,22 +8,24 @@ export interface Tutoria {
   idTutoria: number;
   idTutor: number;
   idCarrera: number;
-  nombre: string;
+  nombre?: string; // Nombre de la asignatura (legacy)
+  nombreAsignatura?: string; // Nombre de la asignatura
   descripcion?: string;
   capacidadMaxima: number;
   ubicacion?: string;
   estado: number;
   nombreTutor?: string;
-  nombreCarrera?: string;
+  nombreCarrera?: string; // Carrera del tutor
 }
 
 export interface CreateTutoriaDto {
   idTutor: number;
-  idCarrera: number;
-  nombre: string;
+  idCarrera: number; // Se envía para compatibilidad actual frontend (backend puede ignorarlo)
+  idAsignatura: number; // Nueva relación con asignatura
+  modalidad: string; // Presencial | Virtual | Híbrida
   descripcion?: string;
   capacidadMaxima: number;
-  ubicacion?: string;
+  ubicacion?: string; // Mapeado a "lugar" en backend si existe
 }
 
 export interface UpdateTutoriaDto {
@@ -53,6 +55,8 @@ export interface TutorInfo {
   especialidad?: string;
   id_rol?: number;         // Como viene del backend
   idRol?: number;          // Para compatibilidad con frontend
+  id_carrera?: number;     // ID de carrera del tutor (del backend)
+  idCarrera?: number;      // Para compatibilidad con frontend
   correo?: string;
   telefono?: string;
 }
@@ -113,8 +117,37 @@ export class TutoriaService {
    * Crea una nueva tutoría
    */
   createTutoria(tutoria: CreateTutoriaDto): Observable<Tutoria> {
+    console.log('🌐 TutoriaService.createTutoria - DTO recibido:', tutoria);
     const headers = this.authService.getAuthHeaders();
-    return this.http.post<Tutoria>(`${this.apiUrl}/`, tutoria, { headers });
+    console.log('🔑 Headers:', headers.keys().map(k => `${k}: ${headers.get(k)}`));
+    
+    // Adaptar payload a modelo backend Tutoria
+    // Campos BD: id_tutor, id_asignatura, modalidad, lugar, descripcion, capacidad_maxima, estado
+    const payload: any = {
+      idTutor: tutoria.idTutor,
+      idAsignatura: tutoria.idAsignatura,
+      modalidad: tutoria.modalidad,
+      lugar: tutoria.ubicacion || null,
+      descripcion: tutoria.descripcion || null,
+      capacidadMaxima: tutoria.capacidadMaxima,
+      estado: 1
+    };
+    
+    console.log('📤 TutoriaService.createTutoria - Payload enviado:', payload);
+    console.log('🌐 URL:', `${this.apiUrl}/`);
+    
+    return this.http.post<Tutoria>(`${this.apiUrl}/`, payload, { headers }).pipe(
+      tap(response => {
+        console.log('✅ TutoriaService.createTutoria - Respuesta exitosa:', response);
+      }),
+      catchError(error => {
+        console.error('❌ TutoriaService.createTutoria - Error:', error);
+        console.error('❌ Status:', error.status);
+        console.error('❌ Error body:', error.error);
+        console.error('❌ URL que falló:', error.url);
+        return throwError(() => error);
+      })
+    );
   }
 
   /**

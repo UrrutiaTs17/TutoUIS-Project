@@ -3,10 +3,9 @@ package uis.edu.tutouis_project.servicio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uis.edu.tutouis_project.dto.TutoriaResponseDto;
-import uis.edu.tutouis_project.modelo.Asignatura;
 import uis.edu.tutouis_project.modelo.Tutoria;
-import uis.edu.tutouis_project.modelo.Usuario;
 import uis.edu.tutouis_project.repositorio.AsignaturaRepository;
+import uis.edu.tutouis_project.repositorio.CarreraRepository;
 import uis.edu.tutouis_project.repositorio.TutoriaRepository;
 import uis.edu.tutouis_project.repositorio.UsuarioRepository;
 
@@ -24,6 +23,9 @@ public class TutoriaService {
 
     @Autowired
     private AsignaturaRepository asignaturaRepository;
+    
+    @Autowired
+    private CarreraRepository carreraRepository;
 
     /**
      * Obtiene todas las tutorías con información completa (nombre tutor, nombre asignatura)
@@ -51,8 +53,7 @@ public class TutoriaService {
         
         dto.setIdTutoria(tutoria.getIdTutoria());
         dto.setIdTutor(tutoria.getIdTutor());
-        dto.setIdCarrera(tutoria.getIdAsignatura()); // idAsignatura se mapea a idCarrera para el frontend
-        dto.setNombre(tutoria.getDescripcion()); // Usamos descripción como nombre
+        dto.setIdCarrera(tutoria.getIdAsignatura());
         dto.setDescripcion(tutoria.getDescripcion());
         dto.setCapacidadMaxima(tutoria.getCapacidadMaxima());
         dto.setUbicacion(tutoria.getLugar());
@@ -62,9 +63,9 @@ public class TutoriaService {
         dto.setFechaCreacion(tutoria.getFechaCreacion());
         dto.setFechaUltimaModificacion(tutoria.getFechaUltimaModificacion());
         
-        System.out.println("  📝 Datos básicos: nombre=" + dto.getNombre() + ", capacidad=" + dto.getCapacidadMaxima());
+        System.out.println("  📝 Datos básicos: capacidad=" + dto.getCapacidadMaxima());
         
-        // Obtener nombre del tutor
+        // Obtener nombre del tutor y su carrera
         if (tutoria.getIdTutor() != null) {
             System.out.println("  🔍 Buscando tutor con ID=" + tutoria.getIdTutor());
             usuarioRepository.findById(tutoria.getIdTutor()).ifPresent(tutor -> {
@@ -73,6 +74,17 @@ public class TutoriaService {
                                        (tutor.getApellido() != null ? tutor.getApellido() : "");
                 dto.setNombreTutor(nombreCompleto.trim());
                 System.out.println("  ✅ Tutor encontrado: " + nombreCompleto.trim());
+                
+                // Obtener la carrera del tutor usando id_carrera
+                if (tutor.getId_carrera() != null) {
+                    System.out.println("  🔍 Buscando carrera con ID=" + tutor.getId_carrera());
+                    carreraRepository.findById(tutor.getId_carrera()).ifPresent(carrera -> {
+                        dto.setNombreCarrera(carrera.getNombre());
+                        System.out.println("  ✅ Carrera del tutor: " + carrera.getNombre());
+                    });
+                } else {
+                    System.out.println("  ⚠️ El tutor no tiene carrera asignada");
+                }
             });
             if (dto.getNombreTutor() == null) {
                 System.out.println("  ⚠️ No se encontró tutor con ID=" + tutoria.getIdTutor());
@@ -81,21 +93,22 @@ public class TutoriaService {
             System.out.println("  ⚠️ La tutoría no tiene idTutor asignado");
         }
         
-        // Obtener nombre de la asignatura (se mapea a nombreCarrera para el frontend)
+        // Obtener nombre de la asignatura
         if (tutoria.getIdAsignatura() != null) {
             System.out.println("  🔍 Buscando asignatura con ID=" + tutoria.getIdAsignatura());
             asignaturaRepository.findById(tutoria.getIdAsignatura()).ifPresent(asignatura -> {
-                dto.setNombreCarrera(asignatura.getNombre()); // nombreAsignatura se envía como nombreCarrera
+                dto.setNombre(asignatura.getNombre()); // Para compatibilidad
+                dto.setNombreAsignatura(asignatura.getNombre()); // Nombre de asignatura
                 System.out.println("  ✅ Asignatura encontrada: " + asignatura.getNombre());
             });
-            if (dto.getNombreCarrera() == null) {
+            if (dto.getNombre() == null) {
                 System.out.println("  ⚠️ No se encontró asignatura con ID=" + tutoria.getIdAsignatura());
             }
         } else {
             System.out.println("  ⚠️ La tutoría no tiene idAsignatura asignado");
         }
         
-        System.out.println("  ✅ DTO completado: nombreTutor=" + dto.getNombreTutor() + ", nombreCarrera=" + dto.getNombreCarrera());
+        System.out.println("  ✅ DTO completado: nombreAsignatura=" + dto.getNombreAsignatura() + ", nombreTutor=" + dto.getNombreTutor() + ", nombreCarrera=" + dto.getNombreCarrera());
         return dto;
     }
 }

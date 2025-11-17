@@ -18,8 +18,11 @@ public class TutoriaResponseDto {
     @Schema(description = "ID de la asignatura/carrera", example = "1")
     private Integer idCarrera;
     
-    @Schema(description = "Nombre de la asignatura/carrera", example = "Ingeniería de Sistemas")
+    @Schema(description = "Nombre de la carrera del tutor", example = "Ingeniería de Sistemas")
     private String nombreCarrera;
+    
+    @Schema(description = "Nombre de la asignatura", example = "Cálculo Diferencial")
+    private String nombreAsignatura;
     
     @Schema(description = "Nombre de la tutoría", example = "Tutoría de Cálculo")
     private String nombre;
@@ -185,5 +188,13 @@ public class TutoriaResponseDto {
     
     public void setFechaUltimaModificacion(Timestamp fechaUltimaModificacion) {
         this.fechaUltimaModificacion = fechaUltimaModificacion;
+    }
+    
+    public String getNombreAsignatura() {
+        return nombreAsignatura;
+    }
+    
+    public void setNombreAsignatura(String nombreAsignatura) {
+        this.nombreAsignatura = nombreAsignatura;
     }
 }

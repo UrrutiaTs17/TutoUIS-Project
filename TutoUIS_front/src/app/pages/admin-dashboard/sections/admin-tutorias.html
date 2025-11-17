@@ -82,7 +82,8 @@
       <thead class="table-dark">
         <tr>
           <th>ID</th>
-          <th>Nombre</th>
+          <th>Asignatura</th>
+          <th>Descripción</th>
           <th>Tutor</th>
           <th>Carrera</th>
           <th>Capacidad</th>
@@ -94,7 +95,8 @@
       <tbody>
         <tr *ngFor="let tutoria of tutoriasFiltradas">
           <td class="text-muted small">{{ tutoria.idTutoria }}</td>
-          <td class="fw-bold">{{ tutoria.nombre }}</td>
+          <td class="fw-bold">{{ tutoria.nombreAsignatura }}</td>
+          <td>{{ tutoria.descripcion || 'N/A' }}</td>
           <td>{{ tutoria.nombreTutor }}</td>
           <td>{{ tutoria.nombreCarrera }}</td>
           <td class="text-center">{{ tutoria.capacidadMaxima }}</td>
@@ -114,13 +116,13 @@
             <button 
               class="btn btn-sm btn-danger"
               title="Eliminar"
-              (click)="eliminarTutoria(tutoria.idTutoria, tutoria.nombre)">
+              (click)="eliminarTutoria(tutoria.idTutoria, tutoria.nombreAsignatura || tutoria.descripcion || 'Tutoría')">
               <i class="bi bi-trash"></i>
             </button>
           </td>
         </tr>
         <tr *ngIf="tutoriasFiltradas.length === 0 && !loading">
-          <td colspan="8" class="text-center text-muted py-4">
+          <td colspan="9" class="text-center text-muted py-4">
             <i class="bi bi-inbox"></i> No hay tutorías disponibles
           </td>
         </tr>

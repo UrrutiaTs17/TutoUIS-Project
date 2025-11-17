@@ -1,0 +1,87 @@
+<div class="section-content">
+  <!-- Header Mejorado -->
+  <div class="reservation-header">
+    <div class="header-left">
+      <div class="header-icon">
+        <i class="bi bi-calendar-plus"></i>
+      </div>
+      <div class="header-text">
+        <h1 class="page-title">Nueva Reserva de Tutoría</h1>
+        <p class="page-subtitle">
+          <i class="bi bi-lightning-charge"></i>
+          Reserva rápido y fácil tu sesión de estudio
+        </p>
+      </div>
+    </div>
+    <div class="header-stats">
+      <div class="mini-stat">
+        <i class="bi bi-calendar-check"></i>
+        <div>
+          <span class="stat-num">{{ quickStats.disponibles }}</span>
+          <span class="stat-text">Disponibles</span>
+        </div>
+      </div>
+      <div class="mini-stat">
+        <i class="bi bi-people"></i>
+        <div>
+          <span class="stat-num">{{ quickStats.tutores }}</span>
+          <span class="stat-text">Tutores</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Proceso Visual Mejorado -->
+  <div class="process-timeline">
+    <div class="timeline-step active">
+      <div class="step-icon">
+        <i class="bi bi-search"></i>
+      </div>
+      <div class="step-info">
+        <h4>Buscar</h4>
+        <p>Materia</p>
+      </div>
+    </div>
+    <div class="timeline-connector"></div>
+    <div class="timeline-step">
+      <div class="step-icon">
+        <i class="bi bi-calendar3"></i>
+      </div>
+      <div class="step-info">
+        <h4>Seleccionar</h4>
+        <p>Horario</p>
+      </div>
+    </div>
+    <div class="timeline-connector"></div>
+    <div class="timeline-step">
+      <div class="step-icon">
+        <i class="bi bi-person-check"></i>
+      </div>
+      <div class="step-info">
+        <h4>Confirmar</h4>
+        <p>Reserva</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenedor principal a ancho completo -->
+  <div>
+    <!-- Calendar a ancho completo -->
+    <div class="calendar-section-full">
+      <div class="section-card">
+        <div class="card-header">
+          <h3>
+            <i class="bi bi-calendar-week"></i>
+            Buscar Tutorías Disponibles
+          </h3>
+          <span class="badge-live">
+            <span class="live-dot"></span>
+            En vivo
+          </span>
+        </div>
+        <app-calendar></app-calendar>
+      </div>
+    </div>
+  </div>
+
+</div>

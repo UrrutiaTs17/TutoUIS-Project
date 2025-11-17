@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TutoriaService, Carrera, TutorInfo, CreateTutoriaDto } from '../../services/tutoria.service';
 import { AdminService, Usuario } from '../../services/admin.service';
+import { AsignaturaService, Asignatura } from '../../services/asignatura.service';
 
 @Component({
   selector: 'app-create-tutoria-modal',
@@ -22,6 +23,8 @@ export class CreateTutoriaModal implements OnInit {
   form = {
     idTutor: '',
     idCarrera: '',
+    idAsignatura: '',
+    modalidad: '',
     nombre: '',
     descripcion: '',
     capacidadMaxima: 30,
@@ -31,6 +34,9 @@ export class CreateTutoriaModal implements OnInit {
   // Listas para los dropdowns
   tutores: TutorInfo[] = [];
   carreras: Carrera[] = [];
+  asignaturas: Asignatura[] = [];
+  asignaturasFiltradas: Asignatura[] = [];
+  carreraSeleccionadaNombre: string = '';
 
   // Estados del modal
   loading: boolean = false;
@@ -43,7 +49,8 @@ export class CreateTutoriaModal implements OnInit {
 
   constructor(
     private tutoriaService: TutoriaService,
-    private adminService: AdminService
+    private adminService: AdminService,
+    private asignaturaService: AsignaturaService
   ) {}
 
   ngOnInit(): void {
@@ -77,22 +84,16 @@ export class CreateTutoriaModal implements OnInit {
         
         if (data && data.length > 0) {
           console.log('📋 Estructura del primer registro:', data[0]);
+          console.log('🔑 Claves disponibles:', Object.keys(data[0]));
           
-          // Normalizar los datos para que funcionen con ambas nomenclaturas
-          this.tutores = data.map((user: any) => ({
-            ...user,
-            idUsuario: user.id_usuario || user.idUsuario,
-            idRol: user.id_rol || user.idRol
-          }));
-          
-          // Filtrar solo los tutores (rol id = 2)
-          this.tutores = this.tutores.filter((user: any) => {
-            const rolId = user.idRol || user.id_rol;
-            console.log(`👤 Usuario ${user.nombre} ${user.apellido}: rol_id = ${rolId}`);
+          // Filtrar solo los tutores (rol id = 2) - usar id_rol directamente del backend
+          this.tutores = data.filter((user: any) => {
+            const rolId = user.id_rol;
+            console.log(`👤 Usuario ${user.nombre} ${user.apellido}: id_rol=${rolId}, id_usuario=${user.id_usuario}, id_carrera=${user.id_carrera}`);
             return rolId === 2;
           });
           
-          console.log('✅ Tutores filtrados (rol_id=2):', this.tutores.length);
+          console.log('✅ Tutores filtrados (id_rol=2):', this.tutores.length);
           
           if (this.tutores.length === 0) {
             console.warn('⚠️ No hay tutores disponibles');
@@ -207,11 +208,12 @@ export class CreateTutoriaModal implements OnInit {
   recargarDatos(): void {
     console.log('🔄 Recargando datos de tutores y carreras...');
     this.loading = true;
-    this.pendingRequests = 2; // Dos peticiones: tutores y carreras
+    this.pendingRequests = 3; // Tutores, carreras, asignaturas
     this.errorMessage = '';
     
     this.loadTutores();
     this.loadCarreras();
+    this.loadAsignaturas();
   }
   
   /**
@@ -223,6 +225,86 @@ export class CreateTutoriaModal implements OnInit {
       this.loading = false;
       console.log('✅ Todas las peticiones completadas');
     }
+  }
+
+  /**
+   * Carga todas las asignaturas disponibles
+   */
+  loadAsignaturas(): void {
+    console.log('🔍 Cargando asignaturas...');
+    this.asignaturaService.getAllAsignaturas().subscribe({
+      next: (data) => {
+        // Normalizar id
+        this.asignaturas = data.map(a => ({
+          ...a,
+          idAsignatura: a.idAsignatura || (a as any).id_asignatura
+        }));
+        console.log('✅ Asignaturas cargadas:', this.asignaturas.length);
+        this.actualizarAsignaturasFiltradas();
+        this.markRequestComplete();
+      },
+      error: (err) => {
+        console.error('❌ Error cargando asignaturas', err);
+        if (!this.errorMessage) {
+          this.errorMessage = 'Error al cargar asignaturas';
+        }
+        this.markRequestComplete();
+      }
+    });
+  }
+
+  /**
+   * Cuando cambia el tutor seleccionado: fija carrera y filtra asignaturas
+   */
+  onTutorChange(): void {
+    console.log('🔄 onTutorChange - ID Tutor seleccionado:', this.form.idTutor);
+    
+    if (!this.form.idTutor) {
+      this.form.idCarrera = '';
+      this.carreraSeleccionadaNombre = '';
+      this.asignaturasFiltradas = [];
+      return;
+    }
+    
+    // Buscar tutor por id_usuario
+    const tutor = this.tutores.find(t => t.id_usuario?.toString() === this.form.idTutor);
+    console.log('👤 Tutor encontrado:', tutor);
+    
+    if (!tutor) {
+      console.warn('⚠️ No se encontró el tutor con id:', this.form.idTutor);
+      return;
+    }
+    
+    const idCarreraTutor = tutor.id_carrera;
+    console.log('🎓 ID Carrera del tutor:', idCarreraTutor);
+    
+    if (idCarreraTutor) {
+      this.form.idCarrera = idCarreraTutor.toString();
+      
+      // Buscar nombre de la carrera
+      const carrera = this.carreras.find(c => {
+        const id = (c as any).id_carrera || c.idCarrera;
+        return id?.toString() === this.form.idCarrera;
+      });
+      
+      this.carreraSeleccionadaNombre = carrera ? carrera.nombre : '';
+      console.log('✅ Carrera asignada:', this.carreraSeleccionadaNombre);
+    } else {
+      this.form.idCarrera = '';
+      this.carreraSeleccionadaNombre = '';
+      console.warn('⚠️ El tutor no tiene carrera asignada');
+    }
+    
+    this.actualizarAsignaturasFiltradas();
+  }
+
+  /**
+   * Filtra asignaturas asociadas a la carrera (placeholder: sin relación explícita se muestran todas)
+   */
+  actualizarAsignaturasFiltradas(): void {
+    // Sin relación carrera-asignatura en modelo: retorno todas.
+    // Si se añade relación futura, ajustar aquí.
+    this.asignaturasFiltradas = [...this.asignaturas];
   }
 
   /**
@@ -238,17 +320,24 @@ export class CreateTutoriaModal implements OnInit {
    * Envía el formulario para crear una nueva tutoría
    */
   submitForm(): void {
+    console.log('📝 submitForm - Iniciando validación y envío');
+    console.log('📋 Datos del formulario:', this.form);
+    
     // Validaciones
     if (!this.form.idTutor) {
       this.errorMessage = 'Por favor selecciona un tutor';
       return;
     }
     if (!this.form.idCarrera) {
-      this.errorMessage = 'Por favor selecciona una carrera';
+      this.errorMessage = 'La carrera asociada al tutor no se pudo determinar';
       return;
     }
-    if (!this.form.nombre.trim()) {
-      this.errorMessage = 'Por favor ingresa un nombre para la tutoría';
+    if (!this.form.idAsignatura) {
+      this.errorMessage = 'Por favor selecciona una asignatura';
+      return;
+    }
+    if (!this.form.modalidad) {
+      this.errorMessage = 'Por favor selecciona una modalidad';
       return;
     }
     if (this.form.capacidadMaxima < 1) {
@@ -256,35 +345,63 @@ export class CreateTutoriaModal implements OnInit {
       return;
     }
 
+    console.log('✅ Validaciones pasadas');
     this.submitting = true;
     this.errorMessage = '';
 
     const tutoriaDto: CreateTutoriaDto = {
       idTutor: parseInt(this.form.idTutor),
       idCarrera: parseInt(this.form.idCarrera),
-      nombre: this.form.nombre.trim(),
+      idAsignatura: parseInt(this.form.idAsignatura),
+      modalidad: this.form.modalidad,
       descripcion: this.form.descripcion.trim() || undefined,
       capacidadMaxima: this.form.capacidadMaxima,
       ubicacion: this.form.ubicacion.trim() || undefined
     };
 
+    console.log('📦 DTO creado:', tutoriaDto);
+    console.log('🚀 Llamando a tutoriaService.createTutoria...');
+
     this.tutoriaService.createTutoria(tutoriaDto).subscribe({
       next: (tutoria) => {
+        console.log('✅ Tutoría creada exitosamente:', tutoria);
         this.successMessage = '✓ Tutoría creada exitosamente';
         this.submitting = false;
         
         // Emitir evento para que el componente padre actualice la lista
         this.tutoriaCreated.emit(tutoria);
         
-        // Cerrar el modal después de 1 segundo
+        // Mostrar alert y cerrar modal
         setTimeout(() => {
+          alert('✓ Tutoría creada exitosamente');
           this.close();
           this.successMessage = '';
-        }, 1000);
+        }, 100);
       },
       error: (error) => {
-        console.error('Error creando tutoría:', error);
-        this.errorMessage = error?.error?.mensaje || 'Error al crear la tutoría';
+        console.error('❌ Error creando tutoría:', error);
+        console.error('❌ Detalles completos:', {
+          status: error.status,
+          statusText: error.statusText,
+          message: error.message,
+          error: error.error
+        });
+        
+        // Mensaje de error mejorado
+        let errorMsg = 'Error al crear la tutoría';
+        if (error.status === 0) {
+          errorMsg = '❌ No se puede conectar con el servidor. Verifica que el backend esté ejecutándose.';
+        } else if (error.status === 400) {
+          errorMsg = error.error?.mensaje || error.error?.message || 'Datos inválidos. Verifica los campos.';
+        } else if (error.status === 401 || error.status === 403) {
+          errorMsg = '❌ No tienes permisos para crear tutorías.';
+        } else if (error.error?.mensaje) {
+          errorMsg = error.error.mensaje;
+        } else if (error.error?.message) {
+          errorMsg = error.error.message;
+        }
+        
+        this.errorMessage = errorMsg;
         this.submitting = false;
       }
     });
@@ -297,11 +414,15 @@ export class CreateTutoriaModal implements OnInit {
     this.form = {
       idTutor: '',
       idCarrera: '',
+      idAsignatura: '',
+      modalidad: '',
       nombre: '',
       descripcion: '',
       capacidadMaxima: 30,
       ubicacion: ''
     };
+    this.carreraSeleccionadaNombre = '';
+    this.asignaturasFiltradas = [];
     this.errorMessage = '';
     this.successMessage = '';
   }

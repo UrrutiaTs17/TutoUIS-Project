@@ -23,84 +23,147 @@ interface UserProfile {
   imports: [CommonModule, FormsModule],
   template: `
     <div class="section-content">
-      <!-- TARJETA DE PERFIL PRINCIPAL -->
-      <div class="user-profile-card mb-4">
-        <div class="card">
-          <div class="card-body">
-            <!-- Loading Skeleton -->
+      <!-- Header -->
+      <div class="profile-header">
+        <div class="header-content">
+          <div class="profile-avatar">
+            <i class="bi bi-person-circle"></i>
+          </div>
+          <div class="header-info">
             @if (isLoading) {
-              <div class="skeleton-loader">
-                <div class="d-flex justify-content-between align-items-start mb-4">
-                  <div class="user-info">
-                    <h4 class="loading-skeleton" style="width: 300px; height: 2rem;"></h4>
-                    <span class="badge loading-skeleton" style="width: 100px; height: 2rem; display: inline-block;"></span>
-                  </div>
-                  <button class="btn btn-primary loading-skeleton" style="width: 150px; height: 2.5rem;"></button>
-                </div>
-              </div>
+              <div class="loading-skeleton" style="width: 250px; height: 28px; margin-bottom: 8px;"></div>
+              <div class="loading-skeleton" style="width: 180px; height: 20px;"></div>
             } @else {
-              <!-- Header con nombre y botón editar -->
-              <div class="d-flex justify-content-between align-items-start mb-4">
-                <div class="user-info">
-                  <h4>
-                    <i class="bi bi-person-circle me-2"></i>
-                    {{ profileData?.nombre }} {{ profileData?.apellido }}
-                  </h4>
-                  <span class="badge" [ngClass]="profileData?.activo ? 'bg-success' : 'bg-danger'">
-                    <i class="bi me-1" [ngClass]="profileData?.activo ? 'bi-check-circle' : 'bi-x-circle'"></i>
-                    {{ profileData?.activo ? 'Activo' : 'Inactivo' }}
-                  </span>
-                </div>
-                <button 
-                  class="btn btn-primary"
-                  (click)="toggleEditMode()"
-                  title="Editar información de usuario"
-                >
-                  @if (!isEditing) {
-                    <i class="bi bi-pencil-square me-2"></i><span>Editar Perfil</span>
-                  } @else {
-                    <i class="bi bi-x-lg me-2"></i><span>Cerrar</span>
-                  }
-                </button>
-              </div>
+              <h1 class="profile-name">{{ profileData?.nombre }} {{ profileData?.apellido }}</h1>
+              <p class="profile-role">
+                <i class="bi bi-shield-check"></i>
+                {{ getRoleName(profileData?.id_rol) }}
+              </p>
+            }
+          </div>
+        </div>
+        <div class="header-actions">
+          <span class="status-badge" [class.active]="profileData?.activo" [class.inactive]="!profileData?.activo">
+            <i class="bi" [class.bi-check-circle-fill]="profileData?.activo" [class.bi-x-circle-fill]="!profileData?.activo"></i>
+            {{ profileData?.activo ? 'Activo' : 'Inactivo' }}
+          </span>
+          <button class="btn-edit" (click)="toggleEditMode()" [class.active]="isEditing">
+            @if (!isEditing) {
+              <i class="bi bi-pencil-square"></i>
+              <span>Editar Perfil</span>
+            } @else {
+              <i class="bi bi-x-lg"></i>
+              <span>Cancelar</span>
+            }
+          </button>
+        </div>
+      </div>
 
-              <!-- Datos del usuario -->
-              <div class="user-details">
-                <div class="row">
-                  <div class="col-md-6">
-                    <p>
-                      <i class="bi bi-code-square"></i>
-                      <strong>Código:</strong> 
-                      <span>{{ profileData?.codigo }}</span>
-                    </p>
-                    <p>
-                      <i class="bi bi-envelope"></i>
-                      <strong>Correo:</strong> 
-                      <span>{{ profileData?.correo }}</span>
-                    </p>
-                    <p>
-                      <i class="bi bi-telephone"></i>
-                      <strong>Teléfono:</strong> 
-                      <span>{{ profileData?.telefono || 'No registrado' }}</span>
-                    </p>
-                  </div>
-                  <div class="col-md-6">
-                    <p>
-                      <i class="bi bi-shield-check"></i>
-                      <strong>Rol:</strong> 
-                      <span>{{ getRoleName(profileData?.id_rol) }}</span>
-                    </p>
-                    <p>
-                      <i class="bi bi-book"></i>
-                      <strong>Carrera:</strong> 
-                      <span>{{ getCarreraName(profileData?.id_carrera) }}</span>
-                    </p>
-                    <p>
-                      <i class="bi bi-calendar"></i>
-                      <strong>ID Usuario:</strong> 
-                      <span>#{{ profileData?.id_usuario }}</span>
-                    </p>
-                  </div>
+      <!-- Profile Cards Grid -->
+      <div class="profile-grid">
+        <!-- Información Personal -->
+        <div class="info-card">
+          <div class="card-header-custom">
+            <i class="bi bi-person-badge"></i>
+            <h3>Información Personal</h3>
+          </div>
+          <div class="card-content">
+            @if (isLoading) {
+              <div class="loading-skeleton" style="width: 100%; height: 20px; margin-bottom: 16px;"></div>
+              <div class="loading-skeleton" style="width: 100%; height: 20px; margin-bottom: 16px;"></div>
+              <div class="loading-skeleton" style="width: 100%; height: 20px;"></div>
+            } @else {
+              <div class="info-row">
+                <div class="info-icon blue">
+                  <i class="bi bi-person"></i>
+                </div>
+                <div class="info-details">
+                  <span class="info-label">Nombre Completo</span>
+                  <span class="info-value">{{ profileData?.nombre }} {{ profileData?.apellido }}</span>
+                </div>
+              </div>
+              <div class="info-row">
+                <div class="info-icon purple">
+                  <i class="bi bi-hash"></i>
+                </div>
+                <div class="info-details">
+                  <span class="info-label">Código Estudiantil</span>
+                  <span class="info-value">{{ profileData?.codigo }}</span>
+                </div>
+              </div>
+              <div class="info-row">
+                <div class="info-icon orange">
+                  <i class="bi bi-key"></i>
+                </div>
+                <div class="info-details">
+                  <span class="info-label">ID de Usuario</span>
+                  <span class="info-value">#{{ profileData?.id_usuario }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Información de Contacto -->
+        <div class="info-card">
+          <div class="card-header-custom">
+            <i class="bi bi-envelope-at"></i>
+            <h3>Contacto</h3>
+          </div>
+          <div class="card-content">
+            @if (isLoading) {
+              <div class="loading-skeleton" style="width: 100%; height: 20px; margin-bottom: 16px;"></div>
+              <div class="loading-skeleton" style="width: 100%; height: 20px;"></div>
+            } @else {
+              <div class="info-row">
+                <div class="info-icon green">
+                  <i class="bi bi-envelope"></i>
+                </div>
+                <div class="info-details">
+                  <span class="info-label">Correo Electrónico</span>
+                  <span class="info-value">{{ profileData?.correo }}</span>
+                </div>
+              </div>
+              <div class="info-row">
+                <div class="info-icon teal">
+                  <i class="bi bi-telephone"></i>
+                </div>
+                <div class="info-details">
+                  <span class="info-label">Teléfono</span>
+                  <span class="info-value">{{ profileData?.telefono || 'No registrado' }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Información Académica -->
+        <div class="info-card">
+          <div class="card-header-custom">
+            <i class="bi bi-mortarboard"></i>
+            <h3>Información Académica</h3>
+          </div>
+          <div class="card-content">
+            @if (isLoading) {
+              <div class="loading-skeleton" style="width: 100%; height: 20px; margin-bottom: 16px;"></div>
+              <div class="loading-skeleton" style="width: 100%; height: 20px;"></div>
+            } @else {
+              <div class="info-row">
+                <div class="info-icon indigo">
+                  <i class="bi bi-book"></i>
+                </div>
+                <div class="info-details">
+                  <span class="info-label">Carrera</span>
+                  <span class="info-value">{{ getCarreraName(profileData?.id_carrera) }}</span>
+                </div>
+              </div>
+              <div class="info-row">
+                <div class="info-icon pink">
+                  <i class="bi bi-calendar-check"></i>
+                </div>
+                <div class="info-details">
+                  <span class="info-label">Estado de Cuenta</span>
+                  <span class="info-value">{{ profileData?.activo ? 'Cuenta Activa' : 'Cuenta Inactiva' }}</span>
                 </div>
               </div>
             }
@@ -108,66 +171,77 @@ interface UserProfile {
         </div>
       </div>
 
-      <!-- FORMULARIO DE EDICIÓN -->
+      <!-- Edit Form Modal -->
       @if (isEditing) {
-        <div class="card">
-          <div class="card-header" style="background: linear-gradient(135deg, #1e7e34 0%, #155724 100%); color: white;">
-            <h5 class="mb-0">
-              <i class="bi bi-pencil-square me-2"></i>Editar Información de Contacto
-            </h5>
-          </div>
-          <div class="card-body">
-            <div class="edit-form-section">
-              <form (ngSubmit)="onSubmit()">
-                <div class="row">
-                  <div class="col-md-6">
-                    <label for="telefono" class="form-label">TELÉFONO</label>
-                    <input
-                      type="tel"
-                      class="form-control"
-                      id="telefono"
-                      [(ngModel)]="editData.telefono"
-                      name="telefono"
-                      placeholder="+57 123 456 7890"
-                    />
-                  </div>
-                  <div class="col-md-6">
-                    <label for="correo" class="form-label">CORREO ELECTRÓNICO <span class="text-danger">*</span></label>
-                    <input
-                      type="email"
-                      class="form-control"
-                      id="correo"
-                      [(ngModel)]="editData.correo"
-                      name="correo"
-                      placeholder="correo@ejemplo.com"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <!-- Mensajes de error -->
-                @if (errorMessage) {
-                  <div class="alert alert-danger" role="alert">
-                    <i class="bi bi-exclamation-circle me-2"></i>{{ errorMessage }}
-                  </div>
-                }
-
-                <!-- Botones de acción -->
-                <div class="form-buttons">
-                  <button type="submit" class="btn btn-success" [disabled]="isSubmitting">
-                    @if (isSubmitting) {
-                      <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                      Guardando...
-                    } @else {
-                      <i class="bi bi-check-circle me-2"></i>Guardar Cambios
-                    }
-                  </button>
-                  <button type="button" class="btn btn-secondary" (click)="cancelEdit()">
-                    <i class="bi bi-x-circle me-2"></i>Cancelar
-                  </button>
-                </div>
-              </form>
+        <div class="edit-modal">
+          <div class="modal-backdrop" (click)="cancelEdit()"></div>
+          <div class="modal-content">
+            <div class="modal-header">
+              <div class="modal-header-info">
+                <i class="bi bi-pencil-square"></i>
+                <h2>Editar Información de Contacto</h2>
+              </div>
+              <button class="modal-close" (click)="cancelEdit()">
+                <i class="bi bi-x-lg"></i>
+              </button>
             </div>
+            
+            <form (ngSubmit)="onSubmit()" class="modal-form">
+              <div class="form-group">
+                <label for="correo">
+                  <i class="bi bi-envelope"></i>
+                  Correo Electrónico
+                  <span class="required">*</span>
+                </label>
+                <input
+                  type="email"
+                  id="correo"
+                  class="form-input"
+                  [(ngModel)]="editData.correo"
+                  name="correo"
+                  placeholder="correo@ejemplo.com"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="telefono">
+                  <i class="bi bi-telephone"></i>
+                  Teléfono
+                </label>
+                <input
+                  type="tel"
+                  id="telefono"
+                  class="form-input"
+                  [(ngModel)]="editData.telefono"
+                  name="telefono"
+                  placeholder="+57 123 456 7890"
+                />
+              </div>
+
+              @if (errorMessage) {
+                <div class="error-alert">
+                  <i class="bi bi-exclamation-triangle"></i>
+                  <span>{{ errorMessage }}</span>
+                </div>
+              }
+
+              <div class="form-actions">
+                <button type="button" class="btn-cancel" (click)="cancelEdit()">
+                  <i class="bi bi-x-circle"></i>
+                  Cancelar
+                </button>
+                <button type="submit" class="btn-save" [disabled]="isSubmitting">
+                  @if (isSubmitting) {
+                    <span class="spinner"></span>
+                    Guardando...
+                  } @else {
+                    <i class="bi bi-check-circle"></i>
+                    Guardar Cambios
+                  }
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       }
@@ -370,19 +444,237 @@ export class Reservations {}
   imports: [CommonModule],
   template: `
     <div class="section-content">
-      <div class="card">
-        <div class="card-header">
-          <h5 class="mb-0">
-            <i class="bi bi-clock-history me-2"></i>Historial de Reservas
-          </h5>
+      <!-- Header -->
+      <div class="history-header">
+        <div class="header-content">
+          <div class="header-icon">
+            <i class="bi bi-clock-history"></i>
+          </div>
+          <div>
+            <h1 class="page-title">Historial de Reservas</h1>
+            <p class="page-subtitle">Todas tus sesiones de tutoría completadas</p>
+          </div>
         </div>
-        <div class="card-body text-center py-5">
-          <i class="bi bi-hourglass-split" style="font-size: 3rem; color: #007bff;"></i>
-          <p class="mt-3 text-muted">Aquí aparecerá tu historial de reservas pasadas</p>
+        <div class="header-stats">
+          <div class="stat-badge">
+            <i class="bi bi-check-circle"></i>
+            <span>{{ completedCount }} Completadas</span>
+          </div>
+          <div class="stat-badge cancelled">
+            <i class="bi bi-x-circle"></i>
+            <span>{{ cancelledCount }} Canceladas</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="filters-bar">
+        <div class="filter-group">
+          <button class="filter-btn active">
+            <i class="bi bi-calendar-check"></i>
+            Todas ({{ historyList.length }})
+          </button>
+          <button class="filter-btn">
+            <i class="bi bi-check-circle"></i>
+            Completadas
+          </button>
+          <button class="filter-btn">
+            <i class="bi bi-x-circle"></i>
+            Canceladas
+          </button>
+        </div>
+        <div class="search-box">
+          <i class="bi bi-search"></i>
+          <input type="text" placeholder="Buscar por materia o tutor...">
+        </div>
+      </div>
+
+      <!-- Timeline -->
+      <div class="history-timeline">
+        @for (item of historyList; track item.id) {
+          <div class="timeline-item" [class.cancelled]="item.status === 'cancelled'">
+            <div class="timeline-marker">
+              <i class="bi" [class.bi-check-circle-fill]="item.status === 'completed'" 
+                 [class.bi-x-circle-fill]="item.status === 'cancelled'"></i>
+            </div>
+            <div class="timeline-card">
+              <div class="card-header-row">
+                <div class="subject-info">
+                  <h3>{{ item.subject }}</h3>
+                  <span class="badge" [class.badge-success]="item.status === 'completed'"
+                        [class.badge-danger]="item.status === 'cancelled'">
+                    {{ item.status === 'completed' ? 'Completada' : 'Cancelada' }}
+                  </span>
+                </div>
+                @if (item.status === 'completed') {
+                  <div class="rating-stars">
+                    @for (star of [1,2,3,4,5]; track star) {
+                      <i class="bi bi-star-fill" [class.active]="star <= (item.rating || 0)"></i>
+                    }
+                  </div>
+                }
+              </div>
+              
+              <div class="card-details">
+                <div class="detail-row">
+                  <i class="bi bi-person"></i>
+                  <span>Tutor: <strong>{{ item.tutor }}</strong></span>
+                </div>
+                <div class="detail-row">
+                  <i class="bi bi-calendar3"></i>
+                  <span>{{ item.date }}</span>
+                </div>
+                <div class="detail-row">
+                  <i class="bi bi-clock"></i>
+                  <span>{{ item.time }}</span>
+                </div>
+                <div class="detail-row">
+                  <i class="bi bi-geo-alt"></i>
+                  <span>{{ item.location }}</span>
+                </div>
+              </div>
+
+              @if (item.status === 'completed' && item.comment) {
+                <div class="comment-section">
+                  <i class="bi bi-chat-left-quote"></i>
+                  <p>"{{ item.comment }}"</p>
+                </div>
+              }
+
+              @if (item.status === 'cancelled' && item.cancelReason) {
+                <div class="cancel-reason">
+                  <i class="bi bi-info-circle"></i>
+                  <span>{{ item.cancelReason }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Stats Summary -->
+      <div class="summary-section">
+        <h3 class="summary-title">
+          <i class="bi bi-bar-chart"></i>
+          Resumen de Actividad
+        </h3>
+        <div class="summary-grid">
+          <div class="summary-card">
+            <div class="summary-icon blue">
+              <i class="bi bi-calendar-check"></i>
+            </div>
+            <div class="summary-data">
+              <span class="summary-value">{{ historyList.length }}</span>
+              <span class="summary-label">Total Reservas</span>
+            </div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-icon green">
+              <i class="bi bi-check-circle"></i>
+            </div>
+            <div class="summary-data">
+              <span class="summary-value">{{ completedCount }}</span>
+              <span class="summary-label">Completadas</span>
+            </div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-icon orange">
+              <i class="bi bi-star-fill"></i>
+            </div>
+            <div class="summary-data">
+              <span class="summary-value">{{ averageRating }}</span>
+              <span class="summary-label">Calificación Promedio</span>
+            </div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-icon purple">
+              <i class="bi bi-clock"></i>
+            </div>
+            <div class="summary-data">
+              <span class="summary-value">{{ totalHours }}h</span>
+              <span class="summary-label">Horas Totales</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   `,
-  styleUrl: './placeholder.css'
+  styleUrl: './history.css'
 })
-export class History {}
+export class History {
+  historyList = [
+    {
+      id: 1,
+      subject: 'Cálculo Diferencial',
+      tutor: 'Dr. Carlos Ramírez',
+      date: '15 de Noviembre, 2025',
+      time: '2:00 PM - 4:00 PM',
+      location: 'Sala B-203',
+      status: 'completed',
+      rating: 5,
+      comment: 'Excelente explicación de derivadas. Muy clara la sesión.'
+    },
+    {
+      id: 2,
+      subject: 'Programación Orientada a Objetos',
+      tutor: 'Ing. María González',
+      date: '10 de Noviembre, 2025',
+      time: '10:00 AM - 12:00 PM',
+      location: 'Laboratorio 3',
+      status: 'completed',
+      rating: 4,
+      comment: 'Buena sesión sobre herencia y polimorfismo.'
+    },
+    {
+      id: 3,
+      subject: 'Física II',
+      tutor: 'Dr. Jorge Méndez',
+      date: '8 de Noviembre, 2025',
+      time: '3:00 PM - 5:00 PM',
+      location: 'Sala C-105',
+      status: 'cancelled',
+      cancelReason: 'Cancelada por el estudiante con 2 horas de anticipación'
+    },
+    {
+      id: 4,
+      subject: 'Álgebra Lineal',
+      tutor: 'Prof. Ana Torres',
+      date: '5 de Noviembre, 2025',
+      time: '9:00 AM - 11:00 AM',
+      location: 'Sala A-301',
+      status: 'completed',
+      rating: 5,
+      comment: 'Perfecta explicación de matrices y determinantes.'
+    },
+    {
+      id: 5,
+      subject: 'Bases de Datos',
+      tutor: 'Ing. Pedro Ruiz',
+      date: '1 de Noviembre, 2025',
+      time: '1:00 PM - 3:00 PM',
+      location: 'Laboratorio 5',
+      status: 'completed',
+      rating: 4,
+      comment: 'Muy útil para entender normalización de datos.'
+    }
+  ];
+
+  get completedCount(): number {
+    return this.historyList.filter(item => item.status === 'completed').length;
+  }
+
+  get cancelledCount(): number {
+    return this.historyList.filter(item => item.status === 'cancelled').length;
+  }
+
+  get averageRating(): number {
+    const completed = this.historyList.filter(item => item.status === 'completed');
+    const sum = completed.reduce((acc, item) => acc + (item.rating || 0), 0);
+    return completed.length > 0 ? Number((sum / completed.length).toFixed(1)) : 0;
+  }
+
+  get totalHours(): number {
+    return this.historyList.length * 2; // Asumiendo 2 horas por sesión
+  }
+}
+
