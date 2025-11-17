@@ -93,11 +93,12 @@ public class TutoriaService {
             System.out.println("  ⚠️ La tutoría no tiene idTutor asignado");
         }
         
-        // Obtener nombre de la asignatura (se muestra en la columna Nombre)
+        // Obtener nombre de la asignatura
         if (tutoria.getIdAsignatura() != null) {
             System.out.println("  🔍 Buscando asignatura con ID=" + tutoria.getIdAsignatura());
             asignaturaRepository.findById(tutoria.getIdAsignatura()).ifPresent(asignatura -> {
-                dto.setNombre(asignatura.getNombre()); // Nombre de asignatura en columna Nombre
+                dto.setNombre(asignatura.getNombre()); // Para compatibilidad
+                dto.setNombreAsignatura(asignatura.getNombre()); // Nombre de asignatura
                 System.out.println("  ✅ Asignatura encontrada: " + asignatura.getNombre());
             });
             if (dto.getNombre() == null) {
@@ -107,7 +108,7 @@ public class TutoriaService {
             System.out.println("  ⚠️ La tutoría no tiene idAsignatura asignado");
         }
         
-        System.out.println("  ✅ DTO completado: nombre=" + dto.getNombre() + ", nombreTutor=" + dto.getNombreTutor() + ", nombreCarrera=" + dto.getNombreCarrera());
+        System.out.println("  ✅ DTO completado: nombreAsignatura=" + dto.getNombreAsignatura() + ", nombreTutor=" + dto.getNombreTutor() + ", nombreCarrera=" + dto.getNombreCarrera());
         return dto;
     }
 }

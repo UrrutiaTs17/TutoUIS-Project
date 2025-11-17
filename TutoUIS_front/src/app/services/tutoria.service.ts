@@ -8,13 +8,14 @@ export interface Tutoria {
   idTutoria: number;
   idTutor: number;
   idCarrera: number;
-  nombre: string;
+  nombre?: string; // Nombre de la asignatura (legacy)
+  nombreAsignatura?: string; // Nombre de la asignatura
   descripcion?: string;
   capacidadMaxima: number;
   ubicacion?: string;
   estado: number;
   nombreTutor?: string;
-  nombreCarrera?: string;
+  nombreCarrera?: string; // Carrera del tutor
 }
 
 export interface CreateTutoriaDto {
