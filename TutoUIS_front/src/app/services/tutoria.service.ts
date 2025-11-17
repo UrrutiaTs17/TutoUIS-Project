@@ -19,11 +19,13 @@ export interface Tutoria {
 
 export interface CreateTutoriaDto {
   idTutor: number;
-  idCarrera: number;
-  nombre: string;
+  idCarrera: number; // Se envía para compatibilidad actual frontend (backend puede ignorarlo)
+  idAsignatura: number; // Nueva relación con asignatura
+  modalidad: string; // Presencial | Virtual | Híbrida
+  nombre: string; // Nombre lógico interno (si backend no lo usa, puede ignorarse)
   descripcion?: string;
   capacidadMaxima: number;
-  ubicacion?: string;
+  ubicacion?: string; // Mapeado a "lugar" en backend si existe
 }
 
 export interface UpdateTutoriaDto {
@@ -114,7 +116,17 @@ export class TutoriaService {
    */
   createTutoria(tutoria: CreateTutoriaDto): Observable<Tutoria> {
     const headers = this.authService.getAuthHeaders();
-    return this.http.post<Tutoria>(`${this.apiUrl}/`, tutoria, { headers });
+    // Adaptar payload a modelo backend (lugar en vez de ubicacion, omitir campos no existentes)
+    const payload: any = {
+      idTutor: tutoria.idTutor,
+      idAsignatura: tutoria.idAsignatura,
+      modalidad: tutoria.modalidad,
+      lugar: tutoria.ubicacion, // mapeo
+      descripcion: tutoria.descripcion,
+      capacidadMaxima: tutoria.capacidadMaxima,
+      estado: 1
+    };
+    return this.http.post<Tutoria>(`${this.apiUrl}/`, payload, { headers });
   }
 
   /**
