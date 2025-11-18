@@ -336,47 +336,848 @@
 .dept-phys{ border-left-color:#a855f7; }
 .dept-prog{ border-left-color:#22c55e; }
 
-/* ========= Responsive ========= */
-@media (max-width: 768px){
-  .schedule-cell{ min-width:160px; height:140px; }
-  .time-col, .time-cell{ width:90px; min-width:90px; }
-  .curso-title, .tutoria-title{ font-size:.95rem; }
-  .time-badge{ font-size:.8rem; padding:5px 10px; }
+/* ========= Responsive Design ========= */
+
+/* Tablets grandes y desktop pequeño (768px - 1024px) */
+@media (max-width: 1024px) {
+  .container {
+    padding: 12px;
+  }
+  
+  .search-card {
+    padding: 1.5rem 1rem !important;
+  }
+  
+  .search-card h2 {
+    font-size: 1rem;
+  }
+  
+  .search-card .form-control {
+    min-width: 300px;
+    max-width: 600px;
+    font-size: 1rem;
+    height: 3rem;
+  }
+  
+  .search-card .list-group {
+    min-width: 300px;
+    max-width: 600px;
+  }
+  
+  .calendar-table {
+    font-size: 0.85rem;
+  }
+  
+  .schedule-cell {
+    min-width: 100px;
+    height: 80px;
+    padding: 6px;
+  }
+  
+  .time-col, .time-cell {
+    width: 80px;
+    min-width: 80px;
+    font-size: 0.75rem;
+  }
 }
+
+/* Tablets (768px - 900px) */
 @media (max-width: 900px) {
   .calendar-card {
     max-width: 100%;
     padding: 1rem 0.5rem;
   }
+  
+  .calendar-scroll {
+    max-height: 500px;
+  }
+  
   .calendar-table {
-    font-size: 0.90rem;
-  }
-  .schedule-cell {
-    min-width: 60px;
-    height: 32px;
-    padding: 2px 1px;
-  }
-  .time-col, .time-cell {
-    width: 40px;
-    min-width: 40px;
     font-size: 0.80rem;
   }
-}
-@media (max-width: 600px) {
-  .calendar-card {
-    padding: 0.5rem 0.2rem;
+  
+  .schedule-cell {
+    min-width: 80px;
+    height: 70px;
+    padding: 4px;
   }
+  
+  .time-col, .time-cell {
+    width: 70px;
+    min-width: 70px;
+    font-size: 0.72rem;
+  }
+  
+  .curso-title, .tutoria-title {
+    font-size: 0.85rem;
+  }
+  
+  .curso-meta, .tutoria-info {
+    font-size: 0.75rem;
+  }
+  
+  .badge-cap {
+    font-size: 0.70rem;
+    padding: 3px 8px;
+  }
+}
+
+/* Móviles grandes (600px - 768px) */
+@media (max-width: 768px) {
+  .container {
+    padding: 8px;
+  }
+  
+  .search-card {
+    padding: 1.2rem 0.8rem !important;
+    border-radius: 16px;
+  }
+  
+  .search-card h2 {
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+  }
+  
+  .search-card .form-control {
+    min-width: 100%;
+    max-width: 100%;
+    font-size: 0.95rem;
+    height: 2.8rem;
+    padding-left: 2.5rem;
+  }
+  
+  .search-card .bi-search {
+    font-size: 1.2rem;
+    left: 1rem;
+  }
+  
+  .search-card .list-group {
+    min-width: 100%;
+    max-width: 100%;
+  }
+  
+  .btn-limpiar {
+    font-size: 0.85rem !important;
+    padding: 0.4rem 0.8rem !important;
+    max-width: 90px !important;
+  }
+  
+  .search-help-animated {
+    font-size: 0.85rem;
+    padding: 0.3rem 0.6rem !important;
+    margin-left: 0.5rem !important;
+  }
+  
+  .calendar-card {
+    padding: 0.8rem 0.3rem;
+  }
+  
+  .calendar-scroll {
+    max-height: 400px;
+  }
+  
   .calendar-table {
+    font-size: 0.75rem;
+  }
+  
+  .schedule-cell {
+    min-width: 70px;
+    height: 60px;
+    padding: 3px;
+  }
+  
+  .time-col, .time-cell {
+    width: 60px;
+    min-width: 60px;
+    font-size: 0.68rem;
+    padding: 4px 2px;
+  }
+  
+  .curso-title, .tutoria-title {
     font-size: 0.78rem;
   }
+  
+  .curso-meta, .tutoria-info {
+    font-size: 0.70rem;
+  }
+  
+  .badge-cap {
+    font-size: 0.65rem;
+    padding: 2px 6px;
+  }
+  
+  .time-badge {
+    font-size: 0.7rem;
+    padding: 4px 8px;
+  }
+}
+
+/* Móviles medianos (480px - 600px) */
+@media (max-width: 600px) {
+  .container {
+    padding: 6px;
+  }
+  
+  .search-card {
+    padding: 1rem 0.6rem !important;
+    border-radius: 12px;
+  }
+  
+  .search-card h2 {
+    font-size: 0.85rem;
+  }
+  
+  .search-card .form-control {
+    font-size: 0.9rem;
+    height: 2.5rem;
+    padding-left: 2.2rem;
+    padding-right: 2.5rem;
+  }
+  
+  .search-card .bi-search {
+    font-size: 1.1rem;
+  }
+  
+  .btn-limpiar {
+    font-size: 0.8rem !important;
+    max-width: 80px !important;
+  }
+  
+  .search-help-animated {
+    display: none !important;
+  }
+  
+  .calendar-card {
+    padding: 0.6rem 0.2rem;
+  }
+  
+  .card-header h3 {
+    font-size: 0.9rem;
+  }
+  
+  .calendar-scroll {
+    max-height: 350px;
+  }
+  
+  .calendar-table {
+    font-size: 0.70rem;
+  }
+  
+  .calendar-table thead th {
+    padding: 6px 2px;
+    font-size: 0.68rem;
+  }
+  
   .schedule-cell {
-    min-width: 28px;
-    height: 18px;
+    min-width: 55px;
+    height: 50px;
+    padding: 2px;
+  }
+  
+  .time-col, .time-cell {
+    width: 50px;
+    min-width: 50px;
+    font-size: 0.62rem;
+    padding: 3px 1px;
+  }
+  
+  .curso-title, .tutoria-title {
+    font-size: 0.72rem;
+    margin-bottom: 4px;
+  }
+  
+  .curso-meta, .tutoria-info {
+    font-size: 0.65rem;
+  }
+  
+  .badge-cap {
+    font-size: 0.60rem;
+    padding: 2px 5px;
+  }
+}
+
+/* Móviles pequeños (menos de 480px) */
+@media (max-width: 480px) {
+  .container {
+    padding: 4px;
+  }
+  
+  .search-card {
+    padding: 0.8rem 0.5rem !important;
+    border-radius: 10px;
+  }
+  
+  .search-card h2 {
+    font-size: 0.8rem;
+    margin-bottom: 10px;
+  }
+  
+  .search-card .form-control {
+    font-size: 0.85rem;
+    height: 2.3rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
+    border-radius: 12px;
+  }
+  
+  .search-card .bi-search {
+    font-size: 1rem;
+    left: 0.8rem;
+  }
+  
+  .btn-limpiar {
+    font-size: 0.75rem !important;
+    padding: 0.3rem 0.6rem !important;
+    max-width: 70px !important;
+  }
+  
+  .calendar-card {
+    padding: 0.5rem 0.1rem;
+    border-radius: 8px;
+  }
+  
+  .card-header {
+    padding: 8px 10px;
+  }
+  
+  .card-header h3 {
+    font-size: 0.85rem;
+  }
+  
+  .badge-live {
+    font-size: 0.65rem;
+    padding: 3px 6px;
+  }
+  
+  .calendar-scroll {
+    max-height: 300px;
+  }
+  
+  .calendar-table {
+    font-size: 0.65rem;
+  }
+  
+  .calendar-table thead th {
+    padding: 5px 1px;
+    font-size: 0.62rem;
+  }
+  
+  .schedule-cell {
+    min-width: 45px;
+    height: 45px;
     padding: 1px;
   }
+  
   .time-col, .time-cell {
-    width: 22px;
-    min-width: 22px;
-    font-size: 0.70rem;
+    width: 45px;
+    min-width: 45px;
+    font-size: 0.58rem;
+    padding: 2px 1px;
+  }
+  
+  .curso-title, .tutoria-title {
+    font-size: 0.68rem;
+    margin-bottom: 3px;
+  }
+  
+  .curso-meta, .tutoria-info {
+    font-size: 0.60rem;
+  }
+  
+  .curso-badges {
+    gap: 3px;
+    margin-top: 5px;
+  }
+  
+  .badge-cap {
+    font-size: 0.55rem;
+    padding: 1px 4px;
+  }
+  
+  /* Ocultar algunos elementos en pantallas muy pequeñas */
+  .curso-meta i,
+  .tutoria-info i {
+    display: none;
+  }
+}
+
+/* Orientación horizontal en móviles */
+@media (max-height: 500px) and (orientation: landscape) {
+  .calendar-scroll {
+    max-height: 200px;
+  }
+  
+  .search-card {
+    padding: 0.8rem !important;
+  }
+  
+  .schedule-cell {
+    height: 40px;
+  }
+}
+
+/* ========= Mejoras para táctil ========= */
+@media (hover: none) and (pointer: coarse) {
+  /* Dispositivos táctiles */
+  .schedule-cell,
+  .curso-card,
+  .tutoria-item {
+    cursor: default;
+    -webkit-tap-highlight-color: rgba(16, 185, 129, 0.1);
+  }
+  
+  .schedule-cell:active {
+    transform: scale(0.98);
+  }
+  
+  .list-group-item {
+    touch-action: manipulation;
+  }
+  
+  .list-group-item:active {
+    background: #d1fae5 !important;
+    transform: scale(0.98);
+  }
+  
+  .btn-limpiar:active {
+    transform: scale(0.95);
+  }
+  
+  /* Aumentar área de toque */
+  .search-card .form-control {
+    min-height: 44px;
+  }
+  
+  .btn-limpiar {
+    min-height: 38px;
+    min-width: 70px;
+  }
+}
+
+/* ========= Scroll suave ========= */
+.calendar-scroll {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+.calendar-table {
+  scroll-snap-type: x proximity;
+}
+
+.calendar-table td,
+.calendar-table th {
+  scroll-snap-align: start;
+}
+
+/* ========= Modal de Slots de 15 Minutos ========= */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-dialog {
+  max-width: 600px;
+  width: 100%;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-content {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+.modal-header {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: none;
+}
+
+.modal-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.btn-close:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.modal-body {
+  padding: 1.5rem;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.tutoria-info {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid #28a745;
+}
+
+.tutoria-info h6 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.tutoria-info p {
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.slots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.slot-button {
+  background: #f8f9fa;
+  border: 2px solid #e0e7ef;
+  border-radius: 8px;
+  padding: 0.75rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #495057;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.slot-button:hover {
+  background: #e9ecef;
+  border-color: #28a745;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(40, 167, 69, 0.2);
+}
+
+.slot-button.selected {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  border-color: #28a745;
+  color: white;
+  font-weight: 600;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+}
+
+.modal-footer {
+  background: #f8f9fa;
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.btn {
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-outline-secondary {
+  background: white;
+  border: 2px solid #6c757d;
+  color: #6c757d;
+}
+
+.btn-outline-secondary:hover:not(:disabled) {
+  background: #6c757d;
+  color: white;
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+}
+
+.btn-success:hover:not(:disabled) {
+  background: linear-gradient(135deg, #218838, #1aa179);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+.alert {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin: 0;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  border: 1px solid #f5c2c7;
+  color: #842029;
+}
+
+.spinner-border {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive para el modal */
+@media (max-width: 768px) {
+  .modal-overlay {
+    padding: 10px;
+  }
+  
+  .slots-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 0.5rem;
+  }
+  
+  .modal-body {
+    padding: 1rem;
+    max-height: 60vh;
+  }
+  
+  .modal-footer {
+    flex-direction: column;
+  }
+  
+  .btn {
+    width: 100%;
+  }
+}
+
+/* ========= Mejoras de accesibilidad ========= */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ========= Modal de Slots de 15 Minutos ========= */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 20px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal-dialog {
+  max-width: 600px;
+  width: 100%;
+  animation: slideUp 0.3s ease-out;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.modal-header {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.btn-close:hover {
+  opacity: 1;
+}
+
+.modal-body {
+  padding: 1.5rem;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.tutoria-info {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid #28a745;
+}
+
+.tutoria-info h6 {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.slots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.slot-button {
+  padding: 0.75rem 1rem;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  background: white;
+  color: #495057;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.slot-button:hover {
+  border-color: #28a745;
+  background: #f8fef9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.15);
+}
+
+.slot-button.selected {
+  border-color: #28a745;
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+.modal-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #e9ecef;
+  background: #f8f9fa;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.modal-footer .btn {
+  padding: 0.6rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive para el modal */
+@media (max-width: 768px) {
+  .modal-dialog {
+    max-width: 95%;
+  }
+  
+  .slots-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 0.5rem;
+  }
+  
+  .slot-button {
+    padding: 0.6rem 0.75rem;
+    font-size: 0.9rem;
   }
 }

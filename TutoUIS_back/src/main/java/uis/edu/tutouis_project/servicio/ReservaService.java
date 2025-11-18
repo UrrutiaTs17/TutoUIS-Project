@@ -12,6 +12,8 @@ import uis.edu.tutouis_project.repositorio.ReservaRepository;
 import uis.edu.tutouis_project.repositorio.DisponibilidadRepository;
 import uis.edu.tutouis_project.repositorio.UsuarioRepository;
 import uis.edu.tutouis_project.repositorio.EstadoReservaRepository;
+import uis.edu.tutouis_project.repositorio.TutoriaRepository;
+import uis.edu.tutouis_project.modelo.Tutoria;
 
 import java.util.List;
 
@@ -29,6 +31,9 @@ public class ReservaService implements IReservaService {
 
     @Autowired
     private EstadoReservaRepository estadoReservaRepository;
+
+    @Autowired
+    private TutoriaRepository tutoriaRepository;
 
     @Override
     public List<Reserva> obtenerTodasLasReservas() {
@@ -58,6 +63,21 @@ public class ReservaService implements IReservaService {
             throw new IllegalArgumentException("El ID del estudiante debe ser un número positivo");
         }
         return reservaRepository.findByIdEstudiante(idEstudiante);
+    }
+
+    @Override
+    public List<ReservaResponseDto> obtenerReservasDtosPorUsuario(Integer idEstudiante) {
+        if (idEstudiante == null || idEstudiante <= 0) {
+            throw new IllegalArgumentException("El ID del estudiante debe ser un número positivo");
+        }
+        
+        System.out.println("📊 Consultando reservas con JOIN FETCH optimizado para estudiante: " + idEstudiante);
+        List<Reserva> reservas = reservaRepository.findByIdEstudianteWithDetails(idEstudiante);
+        System.out.println("✅ Reservas obtenidas: " + reservas.size());
+        
+        return reservas.stream()
+                .map(this::convertirAResponseDtoOptimizado)
+                .collect(java.util.stream.Collectors.toList());
     }
 
     @Override
@@ -329,10 +349,25 @@ public class ReservaService implements IReservaService {
         dto.setHoraInicio(reserva.getHoraInicio());
         dto.setHoraFin(reserva.getHoraFin());
 
-        // Obtener información de la disponibilidad
+        // Obtener información de la disponibilidad, tutoría y asignatura
         disponibilidadRepository.findById(reserva.getIdDisponibilidad()).ifPresent(disponibilidad -> {
             dto.setDisponibilidadHoraInicio(disponibilidad.getHoraInicio().toLocalTime());
             dto.setDisponibilidadHoraFin(disponibilidad.getHoraFin().toLocalTime());
+            
+            // Obtener información de la tutoría
+            if (disponibilidad.getIdTutoria() != null) {
+                tutoriaRepository.findById(disponibilidad.getIdTutoria()).ifPresent(tutoria -> {
+                    // Obtener nombre de la asignatura
+                    if (tutoria.getAsignatura() != null) {
+                        dto.setNombreAsignatura(tutoria.getAsignatura().getNombre());
+                    }
+                    // Obtener nombre del tutor
+                    if (tutoria.getTutor() != null) {
+                        String nombreTutor = (tutoria.getTutor().getNombre() + " " + tutoria.getTutor().getApellido()).trim();
+                        dto.setNombreTutor(nombreTutor);
+                    }
+                });
+            }
         });
 
         // Obtener el nombre del estudiante
@@ -350,6 +385,55 @@ public class ReservaService implements IReservaService {
                 dto.setNombreEstado(estado.getNombre());
             }
         }
+
+        return dto;
+    }
+
+    /**
+     * Versión optimizada que usa las relaciones ya cargadas por JOIN FETCH
+     * Evita N+1 queries
+     */
+    private ReservaResponseDto convertirAResponseDtoOptimizado(Reserva reserva) {
+        ReservaResponseDto dto = new ReservaResponseDto();
+        dto.setIdReserva(reserva.getIdReserva());
+        dto.setIdDisponibilidad(reserva.getIdDisponibilidad());
+        dto.setIdEstudiante(reserva.getIdEstudiante());
+        dto.setIdEstado(reserva.getIdEstado());
+        dto.setObservaciones(reserva.getObservaciones());
+        dto.setFechaCreacion(reserva.getFechaCreacion());
+        dto.setFechaCancelacion(reserva.getFechaCancelacion());
+        dto.setRazonCancelacion(reserva.getRazonCancelacion());
+        dto.setHoraInicio(reserva.getHoraInicio());
+        dto.setHoraFin(reserva.getHoraFin());
+
+        // Usar relaciones ya cargadas (no hace queries adicionales)
+        if (reserva.getEstudiante() != null) {
+            String nombreCompleto = (reserva.getEstudiante().getNombre() + " " + reserva.getEstudiante().getApellido()).trim();
+            dto.setNombreEstudiante(nombreCompleto);
+        }
+
+        if (reserva.getEstadoReserva() != null) {
+            dto.setNombreEstado(reserva.getEstadoReserva().getNombre());
+        }
+
+        // Obtener disponibilidad con sus relaciones
+        disponibilidadRepository.findById(reserva.getIdDisponibilidad()).ifPresent(disponibilidad -> {
+            dto.setDisponibilidadHoraInicio(disponibilidad.getHoraInicio().toLocalTime());
+            dto.setDisponibilidadHoraFin(disponibilidad.getHoraFin().toLocalTime());
+            
+            // Obtener tutoría con sus relaciones
+            if (disponibilidad.getIdTutoria() != null) {
+                tutoriaRepository.findById(disponibilidad.getIdTutoria()).ifPresent(tutoria -> {
+                    if (tutoria.getAsignatura() != null) {
+                        dto.setNombreAsignatura(tutoria.getAsignatura().getNombre());
+                    }
+                    if (tutoria.getTutor() != null) {
+                        String nombreTutor = (tutoria.getTutor().getNombre() + " " + tutoria.getTutor().getApellido()).trim();
+                        dto.setNombreTutor(nombreTutor);
+                    }
+                });
+            }
+        });
 
         return dto;
     }

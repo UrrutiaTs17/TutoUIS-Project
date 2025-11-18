@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ReservationService, CreateReservaDto } from '../../services/reservation.service';
@@ -37,6 +37,7 @@ export class ReservationModal {
 
   private reservationService = inject(ReservationService);
   private authService = inject(AuthService);
+  private cdr = inject(ChangeDetectorRef);
 
   formData = {
     horaInicio: '',
@@ -143,42 +144,73 @@ export class ReservationModal {
         }, 1500);
       },
       error: (error) => {
-        console.error('❌ Error al crear reserva:', error);
-        console.log('🔍 Depurando error:');
-        console.log('  - error.status:', error.status);
-        console.log('  - error.error:', error.error);
-        console.log('  - error.error.mensaje:', error.error?.mensaje);
-        console.log('  - error.message:', error.message);
+        console.error('❌ ERROR COMPLETO:', error);
+        console.log('🔍 error.status:', error.status);
+        console.log('🔍 error.error:', error.error);
+        console.log('🔍 typeof error.error:', typeof error.error);
         
-        // Detectar error de horario ocupado
-        const errorMsg = error.error?.mensaje || error.error?.message || error.message || '';
-        console.log('  - errorMsg final:', errorMsg);
+        // Extraer el mensaje de error
+        let errorMsg = '';
         
-        // Verificar si es un error de horario ya ocupado
-        if (errorMsg.toLowerCase().includes('ya existe una reserva')) {
-          console.log('✅ Detectado: horario ocupado');
-          this.errorMessage = '⚠️ Este horario ya está ocupado. Por favor selecciona otro espacio de tiempo disponible.';
-        } else if (error.status === 400 || error.status === 409) {
-          console.log('⚠️ Error 400/409 detectado');
-          // Otros errores de validación
-          if (errorMsg.toLowerCase().includes('cupo')) {
-            this.errorMessage = '⚠️ No hay cupos disponibles para esta tutoría.';
-          } else if (errorMsg.toLowerCase().includes('rango') || errorMsg.toLowerCase().includes('dentro')) {
-            this.errorMessage = '⚠️ El horario seleccionado está fuera del rango de la disponibilidad.';
-          } else if (errorMsg.toLowerCase().includes('15 minutos')) {
-            this.errorMessage = '⚠️ La reserva debe ser de exactamente 15 minutos.';
-          } else {
-            this.errorMessage = errorMsg || 'No se pudo crear la reserva. Verifica los datos ingresados.';
-          }
-        } else if (error.status === 405) {
-          // Método no soportado
-          this.errorMessage = 'Error en la comunicación con el servidor. Inténtalo de nuevo.';
-        } else {
-          this.errorMessage = errorMsg || 'Error al crear la reserva. Inténtalo de nuevo.';
+        // Si error.error es un objeto con propiedad 'mensaje'
+        if (error.error && typeof error.error === 'object' && error.error.mensaje) {
+          errorMsg = error.error.mensaje;
+          console.log('✅ Mensaje extraído de error.error.mensaje:', errorMsg);
+        }
+        // Si error.error es un objeto con propiedad 'message'
+        else if (error.error && typeof error.error === 'object' && error.error.message) {
+          errorMsg = error.error.message;
+          console.log('✅ Mensaje extraído de error.error.message:', errorMsg);
+        }
+        // Si error.error es un string directamente
+        else if (error.error && typeof error.error === 'string') {
+          errorMsg = error.error;
+          console.log('✅ Mensaje extraído de error.error (string):', errorMsg);
+        }
+        // Si viene en error.message
+        else if (error.message) {
+          errorMsg = error.message;
+          console.log('✅ Mensaje extraído de error.message:', errorMsg);
         }
         
-        console.log('📢 Mensaje de error establecido:', this.errorMessage);
+        console.log('� Mensaje final extraído:', errorMsg);
+        
+        // Si el error es 400 y tenemos mensaje del backend, mostrarlo
+        if (error.status === 400 && errorMsg) {
+          const errorMsgLower = errorMsg.toLowerCase();
+          
+          // Detectar el mensaje específico de reserva duplicada
+          if (errorMsgLower.includes('ya existe')) {
+            this.errorMessage = '⚠️ Este horario ya está ocupado. Por favor selecciona otro espacio de tiempo disponible.';
+            console.log('✅ Mensaje de horario ocupado establecido');
+          } 
+          else if (errorMsgLower.includes('cupo')) {
+            this.errorMessage = '⚠️ No hay cupos disponibles para esta tutoría.';
+          } 
+          else if (errorMsgLower.includes('rango') || errorMsgLower.includes('fuera')) {
+            this.errorMessage = '⚠️ El horario seleccionado está fuera del rango de la disponibilidad.';
+          } 
+          else if (errorMsgLower.includes('15 minutos')) {
+            this.errorMessage = '⚠️ La reserva debe ser de exactamente 15 minutos.';
+          }
+          else {
+            // Mostrar el mensaje del backend directamente
+            this.errorMessage = errorMsg;
+            console.log('ℹ️ Mostrando mensaje del backend tal cual');
+          }
+        } 
+        else {
+          this.errorMessage = errorMsg || 'Error al crear la reserva. Por favor intenta de nuevo.';
+          console.log('⚠️ Error sin mensaje específico');
+        }
+        
+        console.log('📢 MENSAJE FINAL ESTABLECIDO:', this.errorMessage);
         this.isSubmitting = false;
+        
+        // Forzar detección de cambios para que Angular actualice la vista
+        setTimeout(() => {
+          this.cdr.detectChanges();
+        }, 0);
       }
     });
   }

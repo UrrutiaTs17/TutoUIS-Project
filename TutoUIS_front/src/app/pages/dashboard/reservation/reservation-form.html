@@ -17,14 +17,22 @@
       <div class="mini-stat">
         <i class="bi bi-calendar-check"></i>
         <div>
-          <span class="stat-num">{{ quickStats.disponibles }}</span>
+          @if (loadingStats) {
+            <span class="stat-num loading-placeholder">--</span>
+          } @else {
+            <span class="stat-num">{{ quickStats.disponibles }}</span>
+          }
           <span class="stat-text">Disponibles</span>
         </div>
       </div>
       <div class="mini-stat">
         <i class="bi bi-people"></i>
         <div>
-          <span class="stat-num">{{ quickStats.tutores }}</span>
+          @if (loadingStats) {
+            <span class="stat-num loading-placeholder">--</span>
+          } @else {
+            <span class="stat-num">{{ quickStats.tutores }}</span>
+          }
           <span class="stat-text">Tutores</span>
         </div>
       </div>
@@ -79,7 +87,7 @@
             En vivo
           </span>
         </div>
-        <app-calendar></app-calendar>
+        <app-calendar (statsLoaded)="onStatsLoaded($event)"></app-calendar>
       </div>
     </div>
   </div>

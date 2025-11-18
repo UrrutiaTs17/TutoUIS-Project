@@ -9,9 +9,14 @@ import java.util.List;
 public interface IReservaService {
     
     /**
-     * Obtiene todas las reservas del sistema
+     * Obtiene todas las reservas del sistema como entidades
      */
     List<Reserva> obtenerTodasLasReservas();
+    
+    /**
+     * Lista todas las reservas del sistema con información completa (DTOs)
+     */
+    List<ReservaResponseDto> listarTodasLasReservas();
     
     /**
      * Obtiene una reserva por su ID
@@ -22,6 +27,11 @@ public interface IReservaService {
      * Obtiene todas las reservas de un estudiante
      */
     List<Reserva> obtenerReservasPorUsuario(Integer idEstudiante);
+    
+    /**
+     * Obtiene todas las reservas de un estudiante con información completa (DTOs)
+     */
+    List<ReservaResponseDto> obtenerReservasDtosPorUsuario(Integer idEstudiante);
     
     /**
      * Obtiene todas las reservas de una disponibilidad

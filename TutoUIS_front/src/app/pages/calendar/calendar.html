@@ -8,15 +8,15 @@
     <p class="mt-3 text-muted">Cargando tutorías disponibles...</p>
   </div>
 
-  <!-- Mensaje de error -->
-  <div *ngIf="error && !loading" class="alert alert-danger alert-dismissible fade show" role="alert">
-    <i class="bi bi-exclamation-triangle-fill me-2"></i>
-    <strong>Error:</strong> {{ error }}
-    <button type="button" class="btn-close" (click)="error = ''; cargarDatos()" aria-label="Reintentar"></button>
+  <!-- Mensaje de error (no bloqueante, se puede cerrar) -->
+  <div *ngIf="error" class="alert alert-warning alert-dismissible fade show mb-3" role="alert">
+    <i class="bi bi-info-circle-fill me-2"></i>
+    {{ error }}
+    <button type="button" class="btn-close" (click)="error = ''" aria-label="Cerrar"></button>
   </div>
 
-  <!-- Buscador y Calendario -->
-  <div *ngIf="!loading && !error" class="card search-card mb-4" style="max-width: 100%; margin-left: auto; margin-right: auto; box-shadow: 0 8px 32px rgba(102,187,45,0.08); border-radius: 24px; background: #f8fafc; border: 1.5px solid #e0e7ef; padding: 2.5rem 2rem;">
+  <!-- Buscador y Calendario (se muestra incluso si hay error) -->
+  <div *ngIf="!loading" class="card search-card mb-4" style="max-width: 100%; margin-left: auto; margin-right: auto; box-shadow: 0 8px 32px rgba(102,187,45,0.08); border-radius: 24px; background: #f8fafc; border: 1.5px solid #e0e7ef; padding: 2.5rem 2rem;">
   <div class="card-body position-relative" style="padding:0;">
       <h2 class="h4 mb-4 text-success" style="font-weight:1200; letter-spacing:1px;">
         Buscar Materia
@@ -125,6 +125,90 @@
             </div>
           </ng-container>
         </ng-container>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Slots de 15 Minutos -->
+<div *ngIf="showSlotModal" class="modal-overlay" (click)="closeSlotModal()">
+  <div class="modal-dialog" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+      <!-- Header -->
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-clock me-2"></i>Selecciona tu Horario (15 minutos)
+        </h5>
+        <button type="button" class="btn-close" (click)="closeSlotModal()"></button>
+      </div>
+
+      <!-- Body -->
+      <div class="modal-body">
+        <div class="tutoria-info mb-4">
+          <h6 class="text-success mb-2">
+            <i class="bi bi-book me-2"></i>{{ selectedTutoria?.nombre || 'Tutoría' }}
+          </h6>
+          <p class="text-muted mb-1">
+            <i class="bi bi-person me-2"></i>{{ selectedTutoria?.nombreTutor || 'Tutor' }}
+          </p>
+          <p class="text-muted mb-0">
+            <i class="bi bi-calendar-week me-2"></i>{{ selectedDisponibilidad?.diaSemana }}
+            <span class="ms-2">
+              <i class="bi bi-clock me-1"></i>{{ selectedDisponibilidad?.horaInicio }} - {{ selectedDisponibilidad?.horaFin }}
+            </span>
+          </p>
+        </div>
+
+        <!-- Slots disponibles -->
+        <div class="slots-grid">
+          <button
+            *ngFor="let slot of availableSlots"
+            type="button"
+            class="slot-button"
+            [class.selected]="selectedSlot?.inicio === slot.inicio"
+            (click)="selectSlot(slot)">
+            <i class="bi bi-clock-fill me-2"></i>{{ slot.display }}
+          </button>
+        </div>
+
+        <!-- Campo de observaciones -->
+        <div class="mt-4">
+          <label for="observaciones" class="form-label">
+            <i class="bi bi-chat-left-text me-2"></i>Observaciones (opcional)
+          </label>
+          <textarea
+            id="observaciones"
+            class="form-control"
+            rows="3"
+            [(ngModel)]="observaciones"
+            [disabled]="creandoReserva"
+            placeholder="Ej: Necesito ayuda con límites y derivadas"></textarea>
+        </div>
+
+        <!-- Mensaje de error -->
+        <div *ngIf="errorMessage" class="alert alert-danger mt-3 mb-0">
+          <i class="bi bi-exclamation-triangle me-2"></i>{{ errorMessage }}
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          (click)="closeSlotModal()"
+          [disabled]="creandoReserva">
+          <i class="bi bi-x-circle me-2"></i>Cancelar
+        </button>
+        <button
+          type="button"
+          class="btn btn-success"
+          (click)="confirmarReserva()"
+          [disabled]="!selectedSlot || creandoReserva">
+          <span *ngIf="creandoReserva" class="spinner-border spinner-border-sm me-2"></span>
+          <i *ngIf="!creandoReserva" class="bi bi-check-circle me-2"></i>
+          {{ creandoReserva ? 'Creando...' : 'Confirmar Reserva' }}
+        </button>
       </div>
     </div>
   </div>

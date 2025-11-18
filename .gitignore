@@ -1,0 +1,36 @@
+# Dependencies
+**/node_modules/
+**/package-lock.json
+
+# Build outputs
+**/target/
+**/dist/
+**/.angular/
+**/build/
+
+# IDE
+**/.vscode/
+**/.idea/
+**/*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment files
+**/.env
+**/.env.local
+
+# Temporary SQL files
+*.sql
+
+# Java
+*.class
+*.jar
+!**/wrapper/*.jar
+*.war
+*.ear

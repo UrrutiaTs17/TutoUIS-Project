@@ -90,12 +90,23 @@ export class ReservationService {
     return this.http.post<Reserva>(`${this.API_URL}/`, reservaData, { headers }).pipe(
       tap((reserva: Reserva) => {
         console.log('ReservationService - Reserva creada exitosamente:', reserva);
-      }),
-      catchError((error: any) => {
-        console.error('ReservationService - Error al crear reserva:', error);
-        // Extraer mensaje de error más amigable
-        const errorMessage = error.error?.message || error.message || 'Error al crear la reserva';
-        return throwError(() => new Error(errorMessage));
+      })
+      // NO transformar el error - dejarlo pasar tal cual para que el componente lo maneje
+    );
+  }
+
+  /**
+   * Obtiene todas las reservas de un usuario específico
+   * @param idEstudiante ID del estudiante
+   * @returns Observable con array de reservas
+   */
+  getUserReservations(idEstudiante: number): Observable<Reserva[]> {
+    console.log('ReservationService - Obteniendo reservas del usuario:', idEstudiante);
+    const headers = this.authService.getAuthHeaders();
+    
+    return this.http.get<Reserva[]>(`${this.API_URL}/estudiante/${idEstudiante}`, { headers }).pipe(
+      tap((reservas: Reserva[]) => {
+        console.log('ReservationService - Reservas del usuario obtenidas:', reservas.length);
       })
     );
   }

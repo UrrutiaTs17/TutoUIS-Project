@@ -322,12 +322,13 @@
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 9999;
+  z-index: 10000;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 20px;
   animation: fadeIn 0.3s ease;
+  pointer-events: auto;
 }
 
 .modal-backdrop {
@@ -336,13 +337,16 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(4px);
+  z-index: 10001;
   animation: fadeIn 0.3s ease;
+  cursor: pointer;
 }
 
 .modal-content {
   position: relative;
+  z-index: 10002;
   background: white;
   border-radius: 14px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
@@ -351,6 +355,8 @@
   max-height: 90vh;
   overflow-y: auto;
   animation: slideDown 0.4s ease;
+  pointer-events: auto;
+  cursor: default;
 }
 
 .modal-header {
@@ -470,6 +476,36 @@
 .error-alert i {
   color: #dc2626;
   font-size: 16px;
+}
+
+.error-alert span {
+  color: #991b1b;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.success-alert {
+  background: #d1fae5;
+  border: 1px solid #a7f3d0;
+  border-left: 3px solid #10b981;
+  padding: 10px 14px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  animation: slideDown 0.3s ease;
+}
+
+.success-alert i {
+  color: #059669;
+  font-size: 16px;
+}
+
+.success-alert span {
+  color: #065f46;
+  font-size: 12px;
+  font-weight: 500;
 }
 
 .error-alert span {
