@@ -36,9 +36,9 @@ public class ReservaController {
         @ApiResponse(responseCode = "401", description = "No autorizado")
     })
     @GetMapping("/list")
-    public ResponseEntity<List<Reserva>> listarReservas() {
+    public ResponseEntity<List<ReservaResponseDto>> listarReservas() {
         try {
-            List<Reserva> reservas = reservaService.obtenerTodasLasReservas();
+            List<ReservaResponseDto> reservas = reservaService.listarTodasLasReservas();
             return ResponseEntity.ok(reservas);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -78,13 +78,18 @@ public class ReservaController {
     @GetMapping("/estudiante/{idUsuario}")
     public ResponseEntity<?> misReservas(@PathVariable Integer idUsuario) {
         try {
-            List<Reserva> reservas = reservaService.obtenerReservasPorUsuario(idUsuario);
+            System.out.println("🔍 Obteniendo reservas para usuario ID: " + idUsuario);
+            List<ReservaResponseDto> reservas = reservaService.obtenerReservasDtosPorUsuario(idUsuario);
+            System.out.println("✅ Reservas encontradas: " + reservas.size());
             return ResponseEntity.ok(reservas);
         } catch (IllegalArgumentException e) {
+            System.out.println("❌ Error de validación: " + e.getMessage());
             Map<String, String> error = new HashMap<>();
             error.put("mensaje", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
         } catch (Exception e) {
+            System.out.println("💥 Error interno: " + e.getMessage());
+            e.printStackTrace();
             Map<String, String> error = new HashMap<>();
             error.put("mensaje", "Error interno del servidor");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
@@ -147,20 +152,37 @@ public class ReservaController {
     })
     @PostMapping("/")
     public ResponseEntity<?> crearReserva(@Valid @RequestBody CreateReservaDto createDto) {
+        System.out.println("🌐 ReservaController: Recibida petición POST /api/reservas/");
         try {
             ReservaResponseDto nuevaReserva = reservaService.crearReserva(createDto);
+            System.out.println("✅ ReservaController: Reserva creada exitosamente");
             return ResponseEntity.status(HttpStatus.CREATED).body(nuevaReserva);
         } catch (IllegalArgumentException e) {
+            System.out.println("⚠️ ReservaController: IllegalArgumentException capturada");
+            System.out.println("   Mensaje: " + e.getMessage());
             Map<String, String> error = new HashMap<>();
             error.put("mensaje", e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            System.out.println("   Enviando respuesta 400 con: " + error);
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .header("Content-Type", "application/json")
+                    .body(error);
         } catch (RuntimeException e) {
+            System.out.println("❌ ReservaController: RuntimeException capturada");
+            System.out.println("   Mensaje: " + e.getMessage());
             Map<String, String> error = new HashMap<>();
             error.put("mensaje", e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            System.out.println("   Enviando respuesta 400 con: " + error);
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .header("Content-Type", "application/json")
+                    .body(error);
         } catch (Exception e) {
+            System.out.println("💥 ReservaController: Exception genérica capturada");
+            System.out.println("   Mensaje: " + e.getMessage());
             Map<String, String> error = new HashMap<>();
             error.put("mensaje", "Error al crear reserva: " + e.getMessage());
+            System.out.println("   Enviando respuesta 500 con: " + error);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }

@@ -1,8 +1,10 @@
 package uis.edu.tutouis_project.modelo.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import java.time.LocalTime;
 
 @Schema(description = "DTO para crear una nueva reserva")
 public class CreateReservaDto {
@@ -20,12 +22,29 @@ public class CreateReservaDto {
     @Schema(description = "Observaciones adicionales sobre la reserva", example = "Necesito reforzar en Java")
     private String observaciones;
 
+    @NotNull(message = "La hora de inicio no puede ser nula")
+    @JsonFormat(pattern = "HH:mm:ss")
+    @Schema(description = "Hora de inicio de la reserva (HH:mm:ss)", example = "08:00:00", required = true)
+    private LocalTime horaInicio;
+
+    @NotNull(message = "La hora de fin no puede ser nula")
+    @JsonFormat(pattern = "HH:mm:ss")
+    @Schema(description = "Hora de fin de la reserva (HH:mm:ss)", example = "08:15:00", required = true)
+    private LocalTime horaFin;
+
     public CreateReservaDto() {
     }
 
     public CreateReservaDto(Integer idDisponibilidad, Integer idEstudiante) {
         this.idDisponibilidad = idDisponibilidad;
         this.idEstudiante = idEstudiante;
+    }
+
+    public CreateReservaDto(Integer idDisponibilidad, Integer idEstudiante, LocalTime horaInicio, LocalTime horaFin) {
+        this.idDisponibilidad = idDisponibilidad;
+        this.idEstudiante = idEstudiante;
+        this.horaInicio = horaInicio;
+        this.horaFin = horaFin;
     }
 
     public Integer getIdDisponibilidad() {
@@ -50,5 +69,21 @@ public class CreateReservaDto {
 
     public void setObservaciones(String observaciones) {
         this.observaciones = observaciones;
+    }
+
+    public LocalTime getHoraInicio() {
+        return horaInicio;
+    }
+
+    public void setHoraInicio(LocalTime horaInicio) {
+        this.horaInicio = horaInicio;
+    }
+
+    public LocalTime getHoraFin() {
+        return horaFin;
+    }
+
+    public void setHoraFin(LocalTime horaFin) {
+        this.horaFin = horaFin;
     }
 }

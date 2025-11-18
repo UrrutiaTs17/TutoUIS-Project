@@ -115,6 +115,11 @@
   line-height: 1;
 }
 
+.stat-num.loading-placeholder {
+  opacity: 0.6;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
 .stat-text {
   font-size: 0.7rem;
   color: rgba(255, 255, 255, 0.9);

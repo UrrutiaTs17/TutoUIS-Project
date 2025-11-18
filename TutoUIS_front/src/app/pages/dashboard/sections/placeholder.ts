@@ -1,5 +1,5 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, ChangeDetectorRef, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../services/auth.service';
@@ -175,7 +175,7 @@ interface UserProfile {
       @if (isEditing) {
         <div class="edit-modal">
           <div class="modal-backdrop" (click)="cancelEdit()"></div>
-          <div class="modal-content">
+          <div class="modal-content" (click)="$event.stopPropagation()">
             <div class="modal-header">
               <div class="modal-header-info">
                 <i class="bi bi-pencil-square"></i>
@@ -226,6 +226,13 @@ interface UserProfile {
                 </div>
               }
 
+              @if (successMessage) {
+                <div class="success-alert">
+                  <i class="bi bi-check-circle-fill"></i>
+                  <span>{{ successMessage }}</span>
+                </div>
+              }
+
               <div class="form-actions">
                 <button type="button" class="btn-cancel" (click)="cancelEdit()">
                   <i class="bi bi-x-circle"></i>
@@ -256,11 +263,13 @@ export class Profile implements OnInit {
   isSubmitting: boolean = false;
   isLoading: boolean = false;
   errorMessage: string = '';
+  successMessage: string = '';
 
   constructor(
     private authService: AuthService,
     private carreraService: CarreraService,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit(): void {
@@ -361,24 +370,17 @@ export class Profile implements OnInit {
       next: (response) => {
         this.profileData = response;
         this.editData = { ...response };
-        this.isEditing = false;
-        // stop the submitting state first so the UI can update (spinner removed)
         this.isSubmitting = false;
-
-        // force change detection so the template reflects isSubmitting=false
-        // before we show the blocking alert
-        try {
-          this.cd.detectChanges();
-        } catch (e) {
-          // ignore - detectChanges may not be necessary in all environments
-          console.debug('detectChanges failed or unnecessary', e);
-        }
-
-        // show the blocking alert after the UI updates so the spinner isn't
-        // still visible while the native alert is open
+        
+        // Mostrar mensaje de éxito
+        this.successMessage = 'Perfil actualizado correctamente';
+        
+        // Cerrar el modal después de mostrar el mensaje brevemente
         setTimeout(() => {
-          alert('Perfil actualizado correctamente');
-        }, 0);
+          this.isEditing = false;
+          this.successMessage = '';
+          this.cd.detectChanges();
+        }, 1500);
       },
       error: (error) => {
         console.error('Error actualizando perfil:', error);
@@ -441,7 +443,7 @@ export class Reservations {}
 @Component({
   selector: 'app-history',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   template: `
     <div class="section-content">
       <!-- Header -->
@@ -470,87 +472,98 @@ export class Reservations {}
       <!-- Filters -->
       <div class="filters-bar">
         <div class="filter-group">
-          <button class="filter-btn active">
+          <button class="filter-btn" [class.active]="currentFilter === 'all'" (click)="setFilter('all')">
             <i class="bi bi-calendar-check"></i>
-            Todas ({{ historyList.length }})
+            Todas ({{ filteredList.length }})
           </button>
-          <button class="filter-btn">
+          <button class="filter-btn" [class.active]="currentFilter === 'completed'" (click)="setFilter('completed')">
             <i class="bi bi-check-circle"></i>
             Completadas
           </button>
-          <button class="filter-btn">
+          <button class="filter-btn" [class.active]="currentFilter === 'cancelled'" (click)="setFilter('cancelled')">
             <i class="bi bi-x-circle"></i>
             Canceladas
           </button>
         </div>
         <div class="search-box">
           <i class="bi bi-search"></i>
-          <input type="text" placeholder="Buscar por materia o tutor...">
+          <input type="text" placeholder="Buscar por materia o tutor..." [(ngModel)]="searchText" (input)="applyFilters()">
         </div>
       </div>
 
+      <!-- Loading State -->
+      @if (isLoading) {
+        <div class="loading-container">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+          <p class="mt-3">Cargando historial de reservas...</p>
+        </div>
+      }
+
+      <!-- Empty State -->
+      @else if (filteredList.length === 0 && !isLoading) {
+        <div class="empty-state">
+          <i class="bi bi-inbox"></i>
+          <h3>No se encontraron reservas</h3>
+          <p>{{ searchText ? 'Intenta con otro término de búsqueda' : 'Aún no has realizado ninguna reserva' }}</p>
+        </div>
+      }
+
       <!-- Timeline -->
-      <div class="history-timeline">
-        @for (item of historyList; track item.id) {
-          <div class="timeline-item" [class.cancelled]="item.status === 'cancelled'">
-            <div class="timeline-marker">
-              <i class="bi" [class.bi-check-circle-fill]="item.status === 'completed'" 
-                 [class.bi-x-circle-fill]="item.status === 'cancelled'"></i>
-            </div>
-            <div class="timeline-card">
-              <div class="card-header-row">
-                <div class="subject-info">
-                  <h3>{{ item.subject }}</h3>
-                  <span class="badge" [class.badge-success]="item.status === 'completed'"
-                        [class.badge-danger]="item.status === 'cancelled'">
-                    {{ item.status === 'completed' ? 'Completada' : 'Cancelada' }}
-                  </span>
+      @else {
+        <div class="history-timeline">
+          @for (item of filteredList; track item.idReserva) {
+            <div class="timeline-item" [class.cancelled]="item.nombreEstado === 'Cancelada'">
+              <div class="timeline-marker">
+                <i class="bi" [class.bi-check-circle-fill]="item.nombreEstado === 'Realizada'" 
+                   [class.bi-x-circle-fill]="item.nombreEstado === 'Cancelada'"></i>
+              </div>
+              <div class="timeline-card">
+                <div class="card-header-row">
+                  <div class="subject-info">
+                    <h3>{{ item.nombreAsignatura || 'Asignatura no disponible' }}</h3>
+                    <span class="badge" [class.badge-success]="item.nombreEstado === 'Realizada'"
+                          [class.badge-danger]="item.nombreEstado === 'Cancelada'"
+                          [class.badge-warning]="item.nombreEstado === 'Reservada'"
+                          [class.badge-secondary]="item.nombreEstado === 'No Asistida'">
+                      {{ item.nombreEstado }}
+                    </span>
+                  </div>
                 </div>
-                @if (item.status === 'completed') {
-                  <div class="rating-stars">
-                    @for (star of [1,2,3,4,5]; track star) {
-                      <i class="bi bi-star-fill" [class.active]="star <= (item.rating || 0)"></i>
-                    }
+                
+                <div class="card-details">
+                  <div class="detail-row">
+                    <i class="bi bi-person"></i>
+                    <span>Tutor: <strong>{{ item.nombreTutor || 'No disponible' }}</strong></span>
+                  </div>
+                  <div class="detail-row">
+                    <i class="bi bi-calendar3"></i>
+                    <span>{{ formatDate(item.fechaCreacion) }}</span>
+                  </div>
+                  <div class="detail-row">
+                    <i class="bi bi-clock"></i>
+                    <span>{{ formatTime(item.horaInicio) }} - {{ formatTime(item.horaFin) }}</span>
+                  </div>
+                  @if (item.observaciones) {
+                    <div class="detail-row">
+                      <i class="bi bi-file-text"></i>
+                      <span>{{ item.observaciones }}</span>
+                    </div>
+                  }
+                </div>
+
+                @if (item.nombreEstado === 'Cancelada' && item.razonCancelacion) {
+                  <div class="cancel-reason">
+                    <i class="bi bi-info-circle"></i>
+                    <span>{{ item.razonCancelacion }}</span>
                   </div>
                 }
               </div>
-              
-              <div class="card-details">
-                <div class="detail-row">
-                  <i class="bi bi-person"></i>
-                  <span>Tutor: <strong>{{ item.tutor }}</strong></span>
-                </div>
-                <div class="detail-row">
-                  <i class="bi bi-calendar3"></i>
-                  <span>{{ item.date }}</span>
-                </div>
-                <div class="detail-row">
-                  <i class="bi bi-clock"></i>
-                  <span>{{ item.time }}</span>
-                </div>
-                <div class="detail-row">
-                  <i class="bi bi-geo-alt"></i>
-                  <span>{{ item.location }}</span>
-                </div>
-              </div>
-
-              @if (item.status === 'completed' && item.comment) {
-                <div class="comment-section">
-                  <i class="bi bi-chat-left-quote"></i>
-                  <p>"{{ item.comment }}"</p>
-                </div>
-              }
-
-              @if (item.status === 'cancelled' && item.cancelReason) {
-                <div class="cancel-reason">
-                  <i class="bi bi-info-circle"></i>
-                  <span>{{ item.cancelReason }}</span>
-                </div>
-              }
             </div>
-          </div>
-        }
-      </div>
+          }
+        </div>
+      }
 
       <!-- Stats Summary -->
       <div class="summary-section">
@@ -564,7 +577,7 @@ export class Reservations {}
               <i class="bi bi-calendar-check"></i>
             </div>
             <div class="summary-data">
-              <span class="summary-value">{{ historyList.length }}</span>
+              <span class="summary-value">{{ allReservations.length }}</span>
               <span class="summary-label">Total Reservas</span>
             </div>
           </div>
@@ -574,16 +587,16 @@ export class Reservations {}
             </div>
             <div class="summary-data">
               <span class="summary-value">{{ completedCount }}</span>
-              <span class="summary-label">Completadas</span>
+              <span class="summary-label">Realizadas</span>
             </div>
           </div>
           <div class="summary-card">
-            <div class="summary-icon orange">
-              <i class="bi bi-star-fill"></i>
+            <div class="summary-icon red">
+              <i class="bi bi-x-circle"></i>
             </div>
             <div class="summary-data">
-              <span class="summary-value">{{ averageRating }}</span>
-              <span class="summary-label">Calificación Promedio</span>
+              <span class="summary-value">{{ cancelledCount }}</span>
+              <span class="summary-label">Canceladas</span>
             </div>
           </div>
           <div class="summary-card">
@@ -591,8 +604,8 @@ export class Reservations {}
               <i class="bi bi-clock"></i>
             </div>
             <div class="summary-data">
-              <span class="summary-value">{{ totalHours }}h</span>
-              <span class="summary-label">Horas Totales</span>
+              <span class="summary-value">{{ activeCount }}</span>
+              <span class="summary-label">Activas</span>
             </div>
           </div>
         </div>
@@ -601,80 +614,102 @@ export class Reservations {}
   `,
   styleUrl: './history.css'
 })
-export class History {
-  historyList = [
-    {
-      id: 1,
-      subject: 'Cálculo Diferencial',
-      tutor: 'Dr. Carlos Ramírez',
-      date: '15 de Noviembre, 2025',
-      time: '2:00 PM - 4:00 PM',
-      location: 'Sala B-203',
-      status: 'completed',
-      rating: 5,
-      comment: 'Excelente explicación de derivadas. Muy clara la sesión.'
-    },
-    {
-      id: 2,
-      subject: 'Programación Orientada a Objetos',
-      tutor: 'Ing. María González',
-      date: '10 de Noviembre, 2025',
-      time: '10:00 AM - 12:00 PM',
-      location: 'Laboratorio 3',
-      status: 'completed',
-      rating: 4,
-      comment: 'Buena sesión sobre herencia y polimorfismo.'
-    },
-    {
-      id: 3,
-      subject: 'Física II',
-      tutor: 'Dr. Jorge Méndez',
-      date: '8 de Noviembre, 2025',
-      time: '3:00 PM - 5:00 PM',
-      location: 'Sala C-105',
-      status: 'cancelled',
-      cancelReason: 'Cancelada por el estudiante con 2 horas de anticipación'
-    },
-    {
-      id: 4,
-      subject: 'Álgebra Lineal',
-      tutor: 'Prof. Ana Torres',
-      date: '5 de Noviembre, 2025',
-      time: '9:00 AM - 11:00 AM',
-      location: 'Sala A-301',
-      status: 'completed',
-      rating: 5,
-      comment: 'Perfecta explicación de matrices y determinantes.'
-    },
-    {
-      id: 5,
-      subject: 'Bases de Datos',
-      tutor: 'Ing. Pedro Ruiz',
-      date: '1 de Noviembre, 2025',
-      time: '1:00 PM - 3:00 PM',
-      location: 'Laboratorio 5',
-      status: 'completed',
-      rating: 4,
-      comment: 'Muy útil para entender normalización de datos.'
+export class History implements OnInit {
+  private reservationService = inject(ReservationService);
+  private authService = inject(AuthService);
+
+  allReservations: any[] = [];
+  filteredList: any[] = [];
+  currentFilter: 'all' | 'completed' | 'cancelled' = 'all';
+  searchText: string = '';
+  isLoading: boolean = true;
+
+  ngOnInit() {
+    this.loadReservations();
+  }
+
+  loadReservations() {
+    this.isLoading = true;
+    const userData = this.authService.getUserData();
+    
+    if (!userData) {
+      console.error('No hay datos de usuario');
+      this.isLoading = false;
+      return;
     }
-  ];
+
+    const idUsuario = (userData as any).id_usuario || (userData as any).idUsuario;
+
+    // Obtener todas las reservas del usuario (ya vienen con asignatura y tutor desde el backend)
+    this.reservationService.getUserReservations(idUsuario).subscribe({
+      next: (reservas) => {
+        console.log('Reservas obtenidas:', reservas);
+        this.allReservations = reservas;
+        this.applyFilters();
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar reservas:', error);
+        this.isLoading = false;
+      }
+    });
+  }
+
+  setFilter(filter: 'all' | 'completed' | 'cancelled') {
+    this.currentFilter = filter;
+    this.applyFilters();
+  }
+
+  applyFilters() {
+    let filtered = [...this.allReservations];
+
+    // Filtrar por estado
+    if (this.currentFilter === 'completed') {
+      filtered = filtered.filter(r => r.nombreEstado === 'Realizada');
+    } else if (this.currentFilter === 'cancelled') {
+      filtered = filtered.filter(r => r.nombreEstado === 'Cancelada');
+    }
+
+    // Filtrar por búsqueda
+    if (this.searchText.trim()) {
+      const searchLower = this.searchText.toLowerCase();
+      filtered = filtered.filter(r => 
+        (r.nombreAsignatura && r.nombreAsignatura.toLowerCase().includes(searchLower)) ||
+        (r.nombreTutor && r.nombreTutor.toLowerCase().includes(searchLower))
+      );
+    }
+
+    this.filteredList = filtered;
+  }
+
+  formatDate(dateString: string): string {
+    if (!dateString) return 'Fecha no disponible';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-ES', { 
+      day: 'numeric', 
+      month: 'long', 
+      year: 'numeric' 
+    });
+  }
+
+  formatTime(timeString: string): string {
+    if (!timeString) return '';
+    return timeString.substring(0, 5); // "HH:mm:ss" -> "HH:mm"
+  }
 
   get completedCount(): number {
-    return this.historyList.filter(item => item.status === 'completed').length;
+    return this.allReservations.filter(r => r.nombreEstado === 'Realizada').length;
   }
 
   get cancelledCount(): number {
-    return this.historyList.filter(item => item.status === 'cancelled').length;
+    return this.allReservations.filter(r => r.nombreEstado === 'Cancelada').length;
   }
 
-  get averageRating(): number {
-    const completed = this.historyList.filter(item => item.status === 'completed');
-    const sum = completed.reduce((acc, item) => acc + (item.rating || 0), 0);
-    return completed.length > 0 ? Number((sum / completed.length).toFixed(1)) : 0;
-  }
-
-  get totalHours(): number {
-    return this.historyList.length * 2; // Asumiendo 2 horas por sesión
+  get activeCount(): number {
+    return this.allReservations.filter(r => r.nombreEstado === 'Reservada').length;
   }
 }
+
+import { ReservationService } from '../../../services/reservation.service';
+import { inject } from '@angular/core';
 

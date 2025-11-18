@@ -1,11 +1,13 @@
-import { Component, OnInit, Input, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { Observable, of, combineLatest } from 'rxjs';
-import { debounceTime, distinctUntilChanged, map, startWith, catchError } from 'rxjs/operators';
+import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { Observable, of, forkJoin } from 'rxjs';
+import { debounceTime, distinctUntilChanged, map, startWith, catchError, finalize } from 'rxjs/operators';
 import { ModalService } from '../../services/modal.service';
 import { TutoriaService, Tutoria } from '../../services/tutoria.service';
 import { DisponibilidadService, Disponibilidad } from '../../services/disponibilidad.service';
+import { ReservationService, CreateReservaDto } from '../../services/reservation.service';
+import { AuthService } from '../../services/auth.service';
 
 type MateriaCatalogo = {
   id: number;
@@ -27,10 +29,15 @@ type MateriaCelda = {
   idTutoria?: number;
 };
 
+export interface CalendarStats {
+  disponibles: number;
+  tutores: number;
+}
+
 @Component({
   selector: 'app-calendar',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './calendar.html',
   styleUrl: './calendar.css'
 })
@@ -38,6 +45,9 @@ export class CalendarComponent implements OnInit {
 
   /** Cuando es false, ocultamos el buscador y mostramos directamente el calendario */
   @Input() showSearch: boolean = true;
+
+  /** Emite las estadísticas cuando los datos se cargan */
+  @Output() statsLoaded = new EventEmitter<CalendarStats>();
 
   // ======== Cabeceras de tabla ========
   dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
@@ -61,18 +71,35 @@ export class CalendarComponent implements OnInit {
 
   // selección de celda (para resaltar/acciones)
   selected: { hora: string; dia: string } | null = null;
+  
+  // Modal de slots de 15 minutos
+  showSlotModal = false;
+  selectedDisponibilidad: Disponibilidad | null = null;
+  selectedTutoria: Tutoria | null = null;
+  availableSlots: { inicio: string; fin: string; display: string }[] = [];
+  selectedSlot: { inicio: string; fin: string } | null = null;
+  observaciones = '';
+  creandoReserva = false;
+  errorMessage = '';
 
   constructor(
     private modalService: ModalService,
     private tutoriaService: TutoriaService,
     private disponibilidadService: DisponibilidadService,
-    private cdr: ChangeDetectorRef
+    private reservationService: ReservationService,
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   // ======== Ciclo de vida ========
   ngOnInit(): void {
     console.log('📅 CalendarComponent: Inicializando...');
+    console.log('📅 CalendarComponent: showSearch =', this.showSearch);
+    console.log('📅 CalendarComponent: ¿statsLoaded tiene observers?', this.statsLoaded.observers.length);
+    
     this.loading = true;
+    this.error = ''; // Limpiar errores previos
     this.cargarDatos();
 
     this.suggestions$ = this.searchControl.valueChanges.pipe(
@@ -88,48 +115,98 @@ export class CalendarComponent implements OnInit {
       this.showDropdown = hasQuery || list.length > 0;
       this.activeIndex = 0;
     });
-
-    // Timeout de seguridad (15 segundos)
-    setTimeout(() => {
-      if (this.loading) {
-        console.warn('⏱️ CalendarComponent: Timeout alcanzado, deteniendo carga');
-        this.loading = false;
-        this.error = 'La carga de datos está tomando más tiempo del esperado. Por favor, intenta recargar la página.';
-        this.cdr.detectChanges();
-      }
-    }, 15000);
   }
 
   /**
    * Carga tutorías y disponibilidades desde la base de datos
+   * Optimizado para cargar en paralelo y manejar errores sin bloquear
    */
   cargarDatos(): void {
     console.log('🔄 CalendarComponent: Cargando tutorías y disponibilidades...');
     
-    combineLatest([
-      this.tutoriaService.getAllTutorias(),
-      this.disponibilidadService.getDisponibilidadesActivas()
-    ]).pipe(
-      catchError(error => {
-        console.error('❌ CalendarComponent: Error al cargar datos:', error);
-        this.error = 'Error al cargar las tutorías disponibles. Por favor, intenta de nuevo.';
+    // Cargar ambas peticiones en paralelo con manejo individual de errores
+    forkJoin({
+      tutorias: this.tutoriaService.getAllTutorias().pipe(
+        catchError(error => {
+          console.error('❌ CalendarComponent: Error al cargar tutorías:', error);
+          return of([] as Tutoria[]);
+        })
+      ),
+      disponibilidades: this.disponibilidadService.getDisponibilidadesActivas().pipe(
+        catchError(error => {
+          console.error('❌ CalendarComponent: Error al cargar disponibilidades:', error);
+          return of([] as Disponibilidad[]);
+        })
+      )
+    }).pipe(
+      finalize(() => {
         this.loading = false;
         this.cdr.detectChanges();
-        return of([[], []]);
       })
-    ).subscribe(([tutorias, disponibilidades]) => {
-      console.log('✅ CalendarComponent: Datos cargados -', tutorias.length, 'tutorías,', disponibilidades.length, 'disponibilidades');
-      
-      this.tutorias = tutorias;
-      this.disponibilidades = disponibilidades;
-      
-      // Construir el horario a partir de las disponibilidades
-      this.construirHorario();
-      
-      this.loading = false;
-      this.error = '';
-      this.cdr.detectChanges();
+    ).subscribe({
+      next: ({ tutorias, disponibilidades }) => {
+        console.log('✅ CalendarComponent: Datos recibidos del servidor');
+        console.log('✅ CalendarComponent: Tutorías:', tutorias.length);
+        console.log('✅ CalendarComponent: Disponibilidades:', disponibilidades.length);
+        console.log('✅ CalendarComponent: Datos de tutorías:', tutorias);
+        console.log('✅ CalendarComponent: Datos de disponibilidades:', disponibilidades);
+        
+        this.tutorias = tutorias;
+        this.disponibilidades = disponibilidades;
+        
+        console.log('✅ CalendarComponent: Datos asignados a las propiedades');
+        
+        // Verificar si hay datos
+        if (tutorias.length === 0 && disponibilidades.length === 0) {
+          this.error = 'No hay tutorías disponibles en este momento.';
+          console.warn('⚠️ CalendarComponent: No hay datos disponibles');
+        } else if (disponibilidades.length === 0) {
+          this.error = 'No hay horarios disponibles en este momento.';
+          console.warn('⚠️ CalendarComponent: No hay disponibilidades');
+        }
+        
+        // Construir el horario a partir de las disponibilidades
+        this.construirHorario();
+        
+        console.log('✅ CalendarComponent: Horario construido, procediendo a emitir estadísticas');
+        
+        // Emitir estadísticas
+        this.emitirEstadisticas();
+      },
+      error: (error) => {
+        console.error('❌ CalendarComponent: Error inesperado:', error);
+        this.error = 'Error al cargar los datos. Por favor, intenta recargar la página.';
+        
+        // Emitir estadísticas vacías en caso de error
+        this.statsLoaded.emit({ disponibles: 0, tutores: 0 });
+      }
     });
+  }
+
+  /**
+   * Emite las estadísticas calculadas a partir de los datos cargados
+   */
+  private emitirEstadisticas(): void {
+    console.log('📊 CalendarComponent: Preparando estadísticas...');
+    console.log('📊 CalendarComponent: Total tutorías:', this.tutorias.length);
+    console.log('📊 CalendarComponent: Total disponibilidades:', this.disponibilidades.length);
+    
+    // Contar tutores únicos
+    const tutoresUnicos = new Set(this.tutorias.map(t => t.idTutor));
+    console.log('📊 CalendarComponent: Tutores únicos:', Array.from(tutoresUnicos));
+    
+    const stats: CalendarStats = {
+      disponibles: this.disponibilidades.length,
+      tutores: tutoresUnicos.size
+    };
+    
+    console.log('📊 CalendarComponent: Estadísticas calculadas:', stats);
+    console.log('📊 CalendarComponent: ¿Tiene suscriptores statsLoaded?', this.statsLoaded.observed);
+    console.log('📊 CalendarComponent: Emitiendo evento statsLoaded con:', stats);
+    
+    this.statsLoaded.emit(stats);
+    
+    console.log('📊 CalendarComponent: Evento emitido exitosamente');
   }
 
   /**
@@ -236,8 +313,137 @@ trackMateria = (_: number, m: MateriaCatalogo) => m.id; // o `${m.id}-${m.nombre
   }
 
   selectCell(hora: string, dia: string) {
+    const key = `${hora}__${dia}`;
+    const materia = this.schedule.get(key);
+    
+    if (!materia || !materia.idDisponibilidad) {
+      console.warn('⚠️ No hay disponibilidad para esta celda');
+      return;
+    }
+
+    // Buscar la disponibilidad completa
+    const disponibilidad = this.disponibilidades.find(d => d.idDisponibilidad === materia.idDisponibilidad);
+    if (!disponibilidad) {
+      console.error('❌ No se encontró la disponibilidad');
+      return;
+    }
+
+    // Buscar la tutoría asociada
+    const tutoria = this.tutorias.find(t => t.idTutoria === disponibilidad.idTutoria);
+    if (!tutoria) {
+      console.error('❌ No se encontró la tutoría');
+      return;
+    }
+
     this.selected = { hora, dia };
-    this.modalService.showModal();
+    this.selectedDisponibilidad = disponibilidad;
+    this.selectedTutoria = tutoria;
+    this.generateTimeSlots(disponibilidad);
+    this.showSlotModal = true;
+    this.errorMessage = '';
+    this.cdr.detectChanges();
+  }
+
+  /**
+   * Genera slots de 15 minutos dentro del rango de la disponibilidad
+   */
+  private generateTimeSlots(disponibilidad: Disponibilidad): void {
+    this.availableSlots = [];
+    
+    // Convertir hora_inicio y hora_fin a minutos
+    const [startHour, startMin] = disponibilidad.horaInicio.split(':').map(Number);
+    const [endHour, endMin] = disponibilidad.horaFin.split(':').map(Number);
+    
+    const startMinutes = startHour * 60 + startMin;
+    const endMinutes = endHour * 60 + endMin;
+    
+    // Generar slots de 15 minutos
+    for (let current = startMinutes; current + 15 <= endMinutes; current += 15) {
+      const slotStartHour = Math.floor(current / 60);
+      const slotStartMin = current % 60;
+      const slotEndHour = Math.floor((current + 15) / 60);
+      const slotEndMin = (current + 15) % 60;
+      
+      const inicio = `${String(slotStartHour).padStart(2, '0')}:${String(slotStartMin).padStart(2, '0')}:00`;
+      const fin = `${String(slotEndHour).padStart(2, '0')}:${String(slotEndMin).padStart(2, '0')}:00`;
+      const display = `${String(slotStartHour).padStart(2, '0')}:${String(slotStartMin).padStart(2, '0')} - ${String(slotEndHour).padStart(2, '0')}:${String(slotEndMin).padStart(2, '0')}`;
+      
+      this.availableSlots.push({ inicio, fin, display });
+    }
+    
+    console.log('🕐 Slots generados:', this.availableSlots.length, 'slots de 15 minutos');
+  }
+
+  selectSlot(slot: { inicio: string; fin: string }): void {
+    this.selectedSlot = slot;
+    this.cdr.detectChanges();
+  }
+
+  closeSlotModal(): void {
+    this.showSlotModal = false;
+    this.selectedDisponibilidad = null;
+    this.selectedTutoria = null;
+    this.availableSlots = [];
+    this.selectedSlot = null;
+    this.observaciones = '';
+    this.errorMessage = '';
+    this.creandoReserva = false;
+    this.cdr.detectChanges();
+  }
+
+  confirmarReserva(): void {
+    if (!this.selectedDisponibilidad || !this.selectedSlot) {
+      this.errorMessage = 'Por favor selecciona un horario';
+      return;
+    }
+
+    const userData = this.authService.getUserData();
+    console.log('📋 Datos de usuario obtenidos:', userData);
+    
+    if (!userData) {
+      console.error('❌ getUserData() retornó null');
+      this.errorMessage = 'No se encontraron datos de sesión. Por favor inicia sesión nuevamente.';
+      return;
+    }
+    
+    // Soportar ambos formatos: id_usuario (snake_case) e idUsuario (camelCase)
+    const idUsuario = (userData as any).id_usuario || (userData as any).idUsuario;
+    
+    if (!idUsuario) {
+      console.error('❌ userData no tiene id_usuario ni idUsuario:', userData);
+      this.errorMessage = 'Datos de usuario incompletos. Por favor inicia sesión nuevamente.';
+      return;
+    }
+
+    this.creandoReserva = true;
+    this.errorMessage = '';
+
+    const reservaData: CreateReservaDto = {
+      idDisponibilidad: this.selectedDisponibilidad.idDisponibilidad,
+      idEstudiante: idUsuario,
+      horaInicio: this.selectedSlot.inicio,
+      horaFin: this.selectedSlot.fin,
+      observaciones: this.observaciones.trim() || undefined
+    };
+
+    console.log('📝 Creando reserva:', reservaData);
+
+    this.reservationService.createReservation(reservaData).subscribe({
+      next: (reserva) => {
+        console.log('✅ Reserva creada exitosamente:', reserva);
+        if (isPlatformBrowser(this.platformId)) {
+          alert(`✅ Reserva creada exitosamente para el ${this.selectedSlot!.inicio.substring(0, 5)} - ${this.selectedSlot!.fin.substring(0, 5)}`);
+        }
+        this.closeSlotModal();
+        this.cargarDatos(); // Recargar datos para actualizar cupos
+      },
+      error: (error) => {
+        console.error('❌ Error al crear reserva:', error);
+        this.errorMessage = error.message || 'Error al crear la reserva. Inténtalo de nuevo.';
+        this.creandoReserva = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   isSelected(hora: string, dia: string): boolean {

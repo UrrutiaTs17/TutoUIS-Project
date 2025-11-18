@@ -700,3 +700,77 @@
     font-size: 20px;
   }
 }
+
+/* ==================== LOADING STATE ==================== */
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.loading-container .spinner-border {
+  width: 3rem;
+  height: 3rem;
+  border-width: 0.3rem;
+}
+
+.loading-container p {
+  margin-top: 20px;
+  color: #6b7280;
+  font-size: 16px;
+}
+
+/* ==================== EMPTY STATE ==================== */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  text-align: center;
+  background: #f9fafb;
+  border-radius: 14px;
+  margin: 20px 0;
+}
+
+.empty-state i {
+  font-size: 64px;
+  color: #d1d5db;
+  margin-bottom: 20px;
+}
+
+.empty-state h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.empty-state p {
+  font-size: 15px;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* ==================== BADGE COLORS ==================== */
+
+.badge-warning {
+  background-color: #f59e0b;
+  color: white;
+}
+
+.badge-secondary {
+  background-color: #6b7280;
+  color: white;
+}
+
+/* ==================== SUMMARY ICON COLORS ==================== */
+
+.summary-icon.red {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+}

@@ -156,10 +156,11 @@
           <tr>
             <th>ID</th>
             <th>Estudiante</th>
-            <th>Disponibilidad</th>
+            <th>Horario Disponibilidad</th>
+            <th>Horario Reserva</th>
             <th>Estado</th>
             <th>Observaciones</th>
-            <th>Fecha</th>
+            <th>Fecha Creación</th>
             <th class="text-center">Acciones</th>
           </tr>
         </thead>
@@ -173,24 +174,43 @@
                 <div class="user-avatar">
                   <i class="bi bi-person-fill"></i>
                 </div>
-                <span class="user-id">ID: {{ reserva.idEstudiante }}</span>
+                <div class="user-info">
+                  <span class="user-name">{{ reserva.nombreEstudiante || 'Sin nombre' }}</span>
+                  <small class="user-id">ID: {{ reserva.idEstudiante }}</small>
+                </div>
               </div>
             </td>
             <td>
-              <span class="availability-badge">
-                <i class="bi bi-calendar3"></i>
-                {{ reserva.idDisponibilidad }}
-              </span>
+              <div class="time-cell">
+                <i class="bi bi-calendar-range"></i>
+                <span *ngIf="reserva.disponibilidadHoraInicio && reserva.disponibilidadHoraFin">
+                  {{ reserva.disponibilidadHoraInicio }} - {{ reserva.disponibilidadHoraFin }}
+                </span>
+                <span *ngIf="!reserva.disponibilidadHoraInicio || !reserva.disponibilidadHoraFin" class="text-muted">
+                  Sin horario
+                </span>
+              </div>
+            </td>
+            <td>
+              <div class="time-cell time-cell-highlight">
+                <i class="bi bi-clock-fill"></i>
+                <span *ngIf="reserva.horaInicio && reserva.horaFin">
+                  {{ reserva.horaInicio }} - {{ reserva.horaFin }}
+                </span>
+                <span *ngIf="!reserva.horaInicio || !reserva.horaFin" class="text-muted">
+                  Sin horario
+                </span>
+              </div>
             </td>
             <td>
               <span class="status-badge" [ngClass]="{
-                'status-reservada': reserva.estadoReserva.nombre === 'Reservada',
-                'status-pendiente': reserva.estadoReserva.nombre === 'Pendiente',
-                'status-cancelada': reserva.estadoReserva.nombre === 'Cancelada',
-                'status-completada': reserva.estadoReserva.nombre === 'Completada'
+                'status-reservada': reserva.nombreEstado === 'Reservada',
+                'status-pendiente': reserva.nombreEstado === 'Pendiente',
+                'status-cancelada': reserva.nombreEstado === 'Cancelada',
+                'status-completada': reserva.nombreEstado === 'Completada'
               }">
                 <span class="status-dot"></span>
-                {{ reserva.estadoReserva.nombre || 'Sin estado' }}
+                {{ reserva.nombreEstado || 'Sin estado' }}
               </span>
             </td>
             <td>

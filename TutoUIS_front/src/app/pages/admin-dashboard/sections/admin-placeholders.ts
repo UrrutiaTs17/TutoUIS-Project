@@ -75,11 +75,12 @@ export class AdminReservations implements OnInit {
       const matchSearch = this.searchTerm === '' || 
         reserva.idEstudiante.toString().includes(this.searchTerm) ||
         reserva.idDisponibilidad.toString().includes(this.searchTerm) ||
-        reserva.idReserva.toString().includes(this.searchTerm);
+        reserva.idReserva.toString().includes(this.searchTerm) ||
+        (reserva.nombreEstudiante || '').toLowerCase().includes(this.searchTerm.toLowerCase());
 
       // Filtro por estado
       const matchEstado = this.filterEstado === '' || 
-        reserva.estadoReserva.nombre === this.filterEstado;
+        reserva.nombreEstado === this.filterEstado;
 
       // Filtro por fecha
       let matchFecha = true;
@@ -112,7 +113,7 @@ export class AdminReservations implements OnInit {
   }
 
   getReservasPorEstado(estado: string): number {
-    return this.reservas.filter(r => r.estadoReserva.nombre === estado).length;
+    return this.reservas.filter(r => r.nombreEstado === estado).length;
   }
 }
 

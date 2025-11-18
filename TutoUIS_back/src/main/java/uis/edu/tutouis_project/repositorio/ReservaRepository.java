@@ -17,6 +17,17 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
     List<Reserva> findByIdEstudiante(Integer idEstudiante);
     
     /**
+     * Encuentra todas las reservas de un estudiante con JOIN FETCH optimizado
+     * Carga en una sola consulta: reserva + disponibilidad + tutoría + asignatura + tutor + estudiante + estado
+     */
+    @Query("SELECT DISTINCT r FROM Reserva r " +
+           "LEFT JOIN FETCH r.estudiante " +
+           "LEFT JOIN FETCH r.estadoReserva " +
+           "WHERE r.idEstudiante = :idEstudiante " +
+           "ORDER BY r.fechaCreacion DESC")
+    List<Reserva> findByIdEstudianteWithDetails(@Param("idEstudiante") Integer idEstudiante);
+    
+    /**
      * Encuentra todas las reservas de una disponibilidad
      */
     List<Reserva> findByIdDisponibilidad(Integer idDisponibilidad);

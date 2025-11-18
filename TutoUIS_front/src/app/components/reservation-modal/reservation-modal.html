@@ -1,0 +1,130 @@
+<!-- Modal Backdrop (fondo difuminado) -->
+<div class="modal-backdrop" (click)="close()"></div>
+
+<!-- Modal Container (centrado) -->
+<div class="modal-container">
+  <div class="modal-content">
+    <!-- Header -->
+    <div class="modal-header">
+      <h5 class="modal-title">
+        <i class="bi bi-calendar-plus me-2"></i>Crear Reserva
+      </h5>
+      <button type="button" class="btn-close" (click)="close()" aria-label="Close">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="modal-body">
+      <!-- Info Card -->
+      <div class="info-card mb-3">
+        <h6 class="info-title">
+          <i class="bi bi-info-circle me-2"></i>
+          Información de la Tutoría
+        </h6>
+        <div class="row">
+          <div class="col-md-6 mb-2">
+            <strong>Asignatura:</strong> {{ disponibilidad.tutoria?.nombreAsignatura || 'Cargando...' }}
+          </div>
+          <div class="col-md-6 mb-2">
+            <strong>Tutor:</strong> {{ disponibilidad.tutoria?.nombreTutor || 'Cargando...' }}
+          </div>
+          <div class="col-md-4 mb-2">
+            <strong>Fecha:</strong> {{ disponibilidad.fecha | date:'fullDate' }}
+          </div>
+          <div class="col-md-4 mb-2">
+            <strong>Horario:</strong> {{ disponibilidad.horaInicio }} - {{ disponibilidad.horaFin }}
+          </div>
+          <div class="col-md-4 mb-2">
+            <strong>Cupos:</strong> {{ disponibilidad.aforoDisponible }} / {{ disponibilidad.aforoMaximo }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Alert Info -->
+      <div class="alert alert-info" role="alert">
+        <i class="bi bi-lightbulb me-2"></i>
+        <strong>Importante:</strong> Las reservas tienen una duración de 15 minutos. Selecciona la hora de inicio y la hora final se calculará automáticamente.
+      </div>
+
+      <!-- Form -->
+      <form (ngSubmit)="onSubmit()" #reservaForm="ngForm">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="horaInicio" class="form-label">
+              HORA DE INICIO <span class="text-danger">*</span>
+            </label>
+            <input
+              type="time"
+              id="horaInicio"
+              class="form-control"
+              [(ngModel)]="formData.horaInicio"
+              name="horaInicio"
+              [min]="getMinTime()"
+              [max]="getMaxTime()"
+              (change)="calculateEndTime()"
+              required
+            />
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label for="horaFin" class="form-label">HORA FINAL</label>
+            <input
+              type="time"
+              id="horaFin"
+              class="form-control"
+              [(ngModel)]="formData.horaFin"
+              name="horaFin"
+              disabled
+            />
+            <small class="text-muted">Se calcula automáticamente (15 minutos después)</small>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="observaciones" class="form-label">OBSERVACIONES</label>
+          <textarea
+            id="observaciones"
+            class="form-control"
+            [(ngModel)]="formData.observaciones"
+            name="observaciones"
+            rows="4"
+            maxlength="500"
+            placeholder="Agrega cualquier observación o nota sobre tu reserva..."
+          ></textarea>
+          <small class="text-muted">
+            {{ (formData.observaciones || '').length }} / 500 caracteres
+          </small>
+        </div>
+
+        <!-- Error Message -->
+        @if (errorMessage) {
+          <div class="alert alert-danger" role="alert">
+            <i class="bi bi-exclamation-circle me-2"></i>{{ errorMessage }}
+          </div>
+        }
+
+        <!-- Success Message -->
+        @if (successMessage) {
+          <div class="alert alert-success" role="alert">
+            <i class="bi bi-check-circle me-2"></i>{{ successMessage }}
+          </div>
+        }
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="close()">
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="isSubmitting || !formData.horaInicio">
+            @if (isSubmitting) {
+              <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+              Creando...
+            } @else {
+              <i class="bi bi-check-circle me-2"></i>Crear Reserva
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -11,7 +11,9 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.sql.Timestamp;
+import java.time.LocalTime;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "reserva")
@@ -57,7 +59,7 @@ public class Reserva {
     @Schema(description = "Observaciones sobre la reserva")
     private String observaciones;
 
-    @Column(name = "fecha_creacion", insertable = false, updatable = false)
+    @Column(name = "fecha_creacion", updatable = false)
     @Schema(description = "Fecha de creación de la reserva")
     private Timestamp fechaCreacion;
 
@@ -69,6 +71,16 @@ public class Reserva {
     @Schema(description = "Motivo de cancelación si aplica")
     private String razonCancelacion;
 
+    @Column(name = "hora_inicio", nullable = false)
+    @NotNull(message = "La hora de inicio es obligatoria")
+    @Schema(description = "Hora de inicio de la reserva (sesión de 15 minutos)", example = "08:00:00")
+    private LocalTime horaInicio;
+
+    @Column(name = "hora_fin", nullable = false)
+    @NotNull(message = "La hora de fin es obligatoria")
+    @Schema(description = "Hora de fin de la reserva (sesión de 15 minutos)", example = "08:15:00")
+    private LocalTime horaFin;
+
     public Reserva() {
     }
 
@@ -76,6 +88,14 @@ public class Reserva {
         this.idDisponibilidad = idDisponibilidad;
         this.idEstudiante = idEstudiante;
         this.idEstado = 1;
+    }
+
+    public Reserva(Integer idDisponibilidad, Integer idEstudiante, LocalTime horaInicio, LocalTime horaFin) {
+        this.idDisponibilidad = idDisponibilidad;
+        this.idEstudiante = idEstudiante;
+        this.idEstado = 1;
+        this.horaInicio = horaInicio;
+        this.horaFin = horaFin;
     }
 
     public Integer getIdReserva() {
@@ -166,6 +186,22 @@ public class Reserva {
         this.estadoReserva = estadoReserva;
     }
 
+    public LocalTime getHoraInicio() {
+        return horaInicio;
+    }
+
+    public void setHoraInicio(LocalTime horaInicio) {
+        this.horaInicio = horaInicio;
+    }
+
+    public LocalTime getHoraFin() {
+        return horaFin;
+    }
+
+    public void setHoraFin(LocalTime horaFin) {
+        this.horaFin = horaFin;
+    }
+
     @Override
     public String toString() {
         return "Reserva{" +
@@ -173,6 +209,8 @@ public class Reserva {
                 ", idDisponibilidad=" + idDisponibilidad +
                 ", idEstudiante=" + idEstudiante +
                 ", idEstado=" + idEstado +
+                ", horaInicio=" + horaInicio +
+                ", horaFin=" + horaFin +
                 '}';
     }
 }
