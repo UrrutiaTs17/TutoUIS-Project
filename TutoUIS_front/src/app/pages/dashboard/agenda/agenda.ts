@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReservationService } from '../../../services/reservation.service';
+import { AuthService } from '../../../services/auth.service';
 import { CalendarComponent } from '../../calendar/calendar';
 
 @Component({
@@ -18,14 +19,26 @@ export class Agenda implements OnInit {
   currentPage: number = 0;
   pagedReservations: any[] = [];
   Math = Math;
-  tutorId: number = 0; // Debe obtenerse del perfil del usuario actual
+  tutorId: number = 0;
 
-  constructor(private reservationService: ReservationService) {}
+  constructor(
+    private reservationService: ReservationService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
-    // Aquí deberías obtener el id del tutor desde el servicio de autenticación
-    // this.tutorId = this.authService.getUserProfile().id_usuario;
-    this.tutorId = 2; // Demo: id fijo
+    // Obtener el ID del tutor desde los datos de usuario
+    const userData = this.authService.getUserData();
+    const profile = this.authService.getCachedProfile();
+    console.log('📋 Agenda: userData obtenido:', userData);
+    console.log('📋 Agenda: profile obtenido:', profile);
+    if (userData) {
+      // El userData puede tener id_usuario o idUsuario dependiendo del formato
+      this.tutorId = (userData as any).idUsuario || (userData as any).id_usuario;
+      console.log('✅ Agenda: tutorId establecido a:', this.tutorId);
+    } else {
+      console.error('❌ Agenda: No se pudo obtener userData');
+    }
     this.loadReservations();
   }
 
