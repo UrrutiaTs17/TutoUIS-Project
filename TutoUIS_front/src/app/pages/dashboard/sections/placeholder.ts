@@ -617,6 +617,7 @@ export class Reservations {}
 export class History implements OnInit {
   private reservationService = inject(ReservationService);
   private authService = inject(AuthService);
+  private cdr = inject(ChangeDetectorRef);
 
   allReservations: any[] = [];
   filteredList: any[] = [];
@@ -629,28 +630,35 @@ export class History implements OnInit {
   }
 
   loadReservations() {
+    const startTime = performance.now();
     this.isLoading = true;
     const userData = this.authService.getUserData();
     
     if (!userData) {
       console.error('No hay datos de usuario');
       this.isLoading = false;
+      this.cdr.detectChanges();
       return;
     }
 
     const idUsuario = (userData as any).id_usuario || (userData as any).idUsuario;
 
+    const reqStart = performance.now();
     // Obtener todas las reservas del usuario (ya vienen con asignatura y tutor desde el backend)
     this.reservationService.getUserReservations(idUsuario).subscribe({
       next: (reservas) => {
-        console.log('Reservas obtenidas:', reservas);
+        const reqDuration = performance.now() - reqStart;
+        console.log(`✅ [Historial] Datos recibidos en ${reqDuration.toFixed(2)}ms. Registros: ${reservas.length}`);
         this.allReservations = reservas;
         this.applyFilters();
         this.isLoading = false;
+        this.cdr.detectChanges();
+        console.log(`⏱️ [Historial] Total: ${(performance.now()-startTime).toFixed(2)}ms`);
       },
       error: (error) => {
         console.error('Error al cargar reservas:', error);
         this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -680,6 +688,7 @@ export class History implements OnInit {
     }
 
     this.filteredList = filtered;
+    this.cdr.detectChanges();
   }
 
   formatDate(dateString: string): string {

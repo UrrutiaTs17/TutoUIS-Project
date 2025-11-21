@@ -31,6 +31,10 @@ export class CreateTutoriaModal implements OnInit {
     ubicacion: ''
   };
 
+  // Modo de edición
+  isEditMode: boolean = false;
+  tutoriaIdEditar: number | null = null;
+
   // Listas para los dropdowns
   tutores: TutorInfo[] = [];
   carreras: Carrera[] = [];
@@ -187,15 +191,53 @@ export class CreateTutoriaModal implements OnInit {
   }
 
   /**
-   * Abre el modal
+   * Abre el modal en modo creación
    */
   open(): void {
+    this.isEditMode = false;
+    this.tutoriaIdEditar = null;
     this.resetForm();
     
     // Solo recargar si no hay datos o si queremos forzar la recarga
     if (this.tutores.length === 0 || this.carreras.length === 0) {
       this.recargarDatos();
     }
+    
+    if (this.bootstrapModal) {
+      this.bootstrapModal.show();
+    }
+  }
+
+  /**
+   * Abre el modal en modo edición
+   */
+  openForEdit(tutoria: any): void {
+    this.isEditMode = true;
+    this.tutoriaIdEditar = tutoria.idTutoria;
+    
+    // Cargar datos si no están cargados
+    if (this.tutores.length === 0 || this.carreras.length === 0) {
+      this.recargarDatos();
+    }
+    
+    // Llenar el formulario con los datos de la tutoría
+    setTimeout(() => {
+      this.form = {
+        idTutor: tutoria.idTutor?.toString() || '',
+        idCarrera: tutoria.idCarrera?.toString() || '',
+        idAsignatura: tutoria.idAsignatura?.toString() || '',
+        modalidad: tutoria.modalidad || '',
+        nombre: tutoria.nombre || tutoria.nombreAsignatura || '',
+        descripcion: tutoria.descripcion || '',
+        capacidadMaxima: tutoria.capacidadMaxima || 30,
+        ubicacion: tutoria.ubicacion || ''
+      };
+      
+      // Si hay carrera, actualizar asignaturas filtradas
+      if (this.form.idCarrera) {
+        this.actualizarAsignaturasFiltradas();
+      }
+    }, 500);
     
     if (this.bootstrapModal) {
       this.bootstrapModal.show();
@@ -317,11 +359,12 @@ export class CreateTutoriaModal implements OnInit {
   }
 
   /**
-   * Envía el formulario para crear una nueva tutoría
+   * Envía el formulario para crear o actualizar una tutoría
    */
   submitForm(): void {
     console.log('📝 submitForm - Iniciando validación y envío');
     console.log('📋 Datos del formulario:', this.form);
+    console.log('🔧 Modo:', this.isEditMode ? 'EDICIÓN' : 'CREACIÓN');
     
     // Validaciones
     if (!this.form.idTutor) {
@@ -360,26 +403,53 @@ export class CreateTutoriaModal implements OnInit {
     };
 
     console.log('📦 DTO creado:', tutoriaDto);
-    console.log('🚀 Llamando a tutoriaService.createTutoria...');
 
-    this.tutoriaService.createTutoria(tutoriaDto).subscribe({
-      next: (tutoria) => {
-        console.log('✅ Tutoría creada exitosamente:', tutoria);
-        this.successMessage = '✓ Tutoría creada exitosamente';
-        this.submitting = false;
-        
-        // Emitir evento para que el componente padre actualice la lista
-        this.tutoriaCreated.emit(tutoria);
-        
-        // Mostrar alert y cerrar modal
-        setTimeout(() => {
-          alert('✓ Tutoría creada exitosamente');
-          this.close();
-          this.successMessage = '';
-        }, 100);
-      },
-      error: (error) => {
-        console.error('❌ Error creando tutoría:', error);
+    if (this.isEditMode && this.tutoriaIdEditar) {
+      // MODO EDICIÓN
+      console.log('🚀 Llamando a tutoriaService.updateTutoria...');
+      this.tutoriaService.updateTutoria(this.tutoriaIdEditar, tutoriaDto).subscribe({
+        next: (tutoria) => {
+          console.log('✅ Tutoría actualizada exitosamente:', tutoria);
+          this.successMessage = '✓ Tutoría actualizada exitosamente';
+          this.submitting = false;
+          
+          // Emitir evento para que el componente padre actualice la lista
+          this.tutoriaCreated.emit(tutoria);
+          
+          // Mostrar alert y cerrar modal
+          setTimeout(() => {
+            alert('✓ Tutoría actualizada exitosamente');
+            this.close();
+            this.successMessage = '';
+          }, 100);
+        },
+        error: (error) => {
+          console.error('❌ Error actualizando tutoría:', error);
+          this.errorMessage = error?.error?.mensaje || 'Error al actualizar la tutoría';
+          this.submitting = false;
+        }
+      });
+    } else {
+      // MODO CREACIÓN
+      console.log('🚀 Llamando a tutoriaService.createTutoria...');
+      this.tutoriaService.createTutoria(tutoriaDto).subscribe({
+        next: (tutoria) => {
+          console.log('✅ Tutoría creada exitosamente:', tutoria);
+          this.successMessage = '✓ Tutoría creada exitosamente';
+          this.submitting = false;
+          
+          // Emitir evento para que el componente padre actualice la lista
+          this.tutoriaCreated.emit(tutoria);
+          
+          // Mostrar alert y cerrar modal
+          setTimeout(() => {
+            alert('✓ Tutoría creada exitosamente');
+            this.close();
+            this.successMessage = '';
+          }, 100);
+        },
+        error: (error) => {
+          console.error('❌ Error creando tutoría:', error);
         console.error('❌ Detalles completos:', {
           status: error.status,
           statusText: error.statusText,
@@ -401,10 +471,11 @@ export class CreateTutoriaModal implements OnInit {
           errorMsg = error.error.message;
         }
         
-        this.errorMessage = errorMsg;
-        this.submitting = false;
-      }
-    });
+          this.errorMessage = errorMsg;
+          this.submitting = false;
+        }
+      });
+    }
   }
 
   /**
@@ -421,6 +492,8 @@ export class CreateTutoriaModal implements OnInit {
       capacidadMaxima: 30,
       ubicacion: ''
     };
+    this.isEditMode = false;
+    this.tutoriaIdEditar = null;
     this.carreraSeleccionadaNombre = '';
     this.asignaturasFiltradas = [];
     this.errorMessage = '';

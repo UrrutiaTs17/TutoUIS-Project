@@ -9,9 +9,10 @@
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <!-- Header del Modal -->
-      <div class="modal-header bg-primary text-white">
+      <div class="modal-header text-white" [ngClass]="isEditMode ? 'bg-warning' : 'bg-success'">
         <h1 class="modal-title fs-5" id="createTutoriaModalLabel">
-          <i class="bi bi-plus-circle me-2"></i> Crear Nueva Tutoría
+          <i class="bi me-2" [ngClass]="isEditMode ? 'bi-pencil-square' : 'bi-plus-circle'"></i> 
+          {{ isEditMode ? 'Editar Tutoría' : 'Crear Nueva Tutoría' }}
         </h1>
         <button 
           type="button" 
@@ -241,16 +242,16 @@
         </button>
         <button
           type="button"
-          class="btn btn-primary"
+          [ngClass]="isEditMode ? 'btn btn-warning' : 'btn btn-success'"
           (click)="submitForm()"
-          [disabled]="submitting || loading || tutores.length === 0 || carreras.length === 0"
-          [title]="getBotonCrearTooltip()">
+          [disabled]="submitting || loading || tutores.length === 0 || carreras.length === 0">
           <span *ngIf="!submitting">
-            <i class="bi bi-check-circle me-2"></i> Crear Tutoría
+            <i class="bi me-2" [ngClass]="isEditMode ? 'bi-pencil-square' : 'bi-check-circle'"></i> 
+            {{ isEditMode ? 'Actualizar Tutoría' : 'Crear Tutoría' }}
           </span>
           <span *ngIf="submitting">
             <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-            Creando...
+            {{ isEditMode ? 'Actualizando...' : 'Creando...' }}
           </span>
         </button>
       </div>

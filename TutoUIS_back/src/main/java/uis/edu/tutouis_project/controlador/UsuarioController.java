@@ -28,10 +28,13 @@ public class UsuarioController {
         return ResponseEntity.ok(creado);
     }
 
-    @Operation(summary = "Listar usuarios", description = "Retorna la lista completa de usuarios (protegido)")
+    @Operation(summary = "Listar usuarios", description = "Retorna la lista completa de usuarios con sus relaciones (Rol + Carrera) optimizado (protegido)")
     @GetMapping("/list")
-    public List<Usuario> listarUsuarios() {
-        return usuarioService.getUsuarios();
+    public List<uis.edu.tutouis_project.dto.UsuarioResponseDto> listarUsuarios() {
+        System.out.println("🔵 UsuarioController: Iniciando listarUsuarios()");
+        List<uis.edu.tutouis_project.dto.UsuarioResponseDto> usuarios = usuarioService.getUsuariosOptimizado();
+        System.out.println("✅ UsuarioController: Se obtuvieron " + usuarios.size() + " usuarios");
+        return usuarios;
     }
 
     @Operation(summary = "Obtener usuario por id", description = "Retorna un usuario dado su id (protegido)")

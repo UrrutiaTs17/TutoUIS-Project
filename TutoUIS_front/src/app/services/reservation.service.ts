@@ -19,6 +19,8 @@ export interface Reserva {
   razonCancelacion: string | null;
   horaInicio: string; // Format: "HH:mm:ss"
   horaFin: string;    // Format: "HH:mm:ss"
+  nombreAsignatura?: string; // Nombre de la asignatura de la tutoría
+  nombreTutor?: string; // Nombre completo del tutor
 }
 
 export interface CreateReservaDto {
@@ -107,6 +109,39 @@ export class ReservationService {
     return this.http.get<Reserva[]>(`${this.API_URL}/estudiante/${idEstudiante}`, { headers }).pipe(
       tap((reservas: Reserva[]) => {
         console.log('ReservationService - Reservas del usuario obtenidas:', reservas.length);
+      })
+    );
+  }
+
+  /**
+   * Cancela una reserva existente
+   * @param id ID de la reserva
+   * @param razon Razón de la cancelación
+   * @returns Observable con la reserva cancelada
+   */
+  cancelReservation(id: number, razon: string): Observable<Reserva> {
+    console.log('ReservationService - Cancelando reserva:', id);
+    const headers = this.authService.getAuthHeaders();
+    
+    return this.http.put<Reserva>(`${this.API_URL}/${id}/cancelar`, { razon }, { headers }).pipe(
+      tap((reserva: Reserva) => {
+        console.log('ReservationService - Reserva cancelada exitosamente:', reserva);
+      })
+    );
+  }
+
+  /**
+   * Elimina una reserva permanentemente
+   * @param id ID de la reserva
+   * @returns Observable vacío
+   */
+  deleteReservation(id: number): Observable<void> {
+    console.log('ReservationService - Eliminando reserva:', id);
+    const headers = this.authService.getAuthHeaders();
+    
+    return this.http.delete<void>(`${this.API_URL}/${id}`, { headers }).pipe(
+      tap(() => {
+        console.log('ReservationService - Reserva eliminada exitosamente');
       })
     );
   }
