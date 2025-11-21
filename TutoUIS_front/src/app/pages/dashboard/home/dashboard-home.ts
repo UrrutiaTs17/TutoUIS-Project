@@ -44,8 +44,10 @@ interface Reservation {
             <i class="bi bi-calendar-check"></i>
           </div>
           <div class="stat-content">
-            <h3 class="stat-number">{{ stats.totalReservas }}</h3>
-            <p class="stat-label">Total Reservas</p>
+            <div class="stat-header">
+              <h3 class="stat-number">{{ stats.totalReservas }}</h3>
+              <p class="stat-label">Total Reservas</p>
+            </div>
             <div class="stat-trend positive">
               <i class="bi bi-arrow-up"></i>
               <span>+3 este mes</span>
@@ -58,8 +60,10 @@ interface Reservation {
             <i class="bi bi-check-circle"></i>
           </div>
           <div class="stat-content">
-            <h3 class="stat-number">{{ stats.completadas }}</h3>
-            <p class="stat-label">Completadas</p>
+            <div class="stat-header">
+              <h3 class="stat-number">{{ stats.completadas }}</h3>
+              <p class="stat-label">Completadas</p>
+            </div>
             <div class="stat-progress">
               <div class="progress-bar-mini" [style.width.%]="stats.tasaCompletadas"></div>
             </div>
@@ -71,8 +75,10 @@ interface Reservation {
             <i class="bi bi-hourglass-split"></i>
           </div>
           <div class="stat-content">
-            <h3 class="stat-number">{{ stats.proximas }}</h3>
-            <p class="stat-label">Próximas</p>
+            <div class="stat-header">
+              <h3 class="stat-number">{{ stats.proximas }}</h3>
+              <p class="stat-label">Próximas</p>
+            </div>
             <div class="stat-info">
               <i class="bi bi-clock"></i>
               <span>Esta semana</span>
@@ -85,8 +91,10 @@ interface Reservation {
             <i class="bi bi-star-fill"></i>
           </div>
           <div class="stat-content">
-            <h3 class="stat-number">{{ stats.calificacion }}/5</h3>
-            <p class="stat-label">Calificación</p>
+            <div class="stat-header">
+              <h3 class="stat-number">{{ stats.calificacion }}/5</h3>
+              <p class="stat-label">Calificación</p>
+            </div>
             <div class="rating-stars">
               @for (star of [1,2,3,4,5]; track star) {
                 <i class="bi bi-star-fill" [class.active]="star <= stats.calificacion"></i>
