@@ -109,22 +109,4 @@ public class UsuarioService implements IUsuarioService {
         // Actualizar sin reencriptar la contraseña
         return usuarioRepository.save(usuario);
     }
-    
-    /**
-     * OPTIMIZADO: Obtiene todos los usuarios con sus relaciones (Rol + Carrera)
-     * Usa una sola query con JOINs para evitar el problema N+1
-     */
-    public List<uis.edu.tutouis_project.dto.UsuarioResponseDto> getUsuariosOptimizado() {
-        System.out.println("🔵 UsuarioService: Iniciando getUsuariosOptimizado() [VERSIÓN OPTIMIZADA]");
-        long inicio = System.currentTimeMillis();
-        
-        // Una sola consulta con JOINs - evita el problema N+1
-        List<uis.edu.tutouis_project.dto.UsuarioResponseDto> resultado = usuarioRepository.findAllUsuariosWithDetails();
-        
-        long fin = System.currentTimeMillis();
-        System.out.println("✅ UsuarioService: Se obtuvieron " + resultado.size() + 
-                           " usuarios en " + (fin - inicio) + "ms con UNA sola query SQL");
-        
-        return resultado;
-    }
 }
