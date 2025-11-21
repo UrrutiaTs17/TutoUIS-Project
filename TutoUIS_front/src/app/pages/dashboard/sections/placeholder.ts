@@ -720,5 +720,5 @@ export class History implements OnInit {
 }
 
 import { ReservationService } from '../../../services/reservation.service';
-import { inject, ChangeDetectorRef } from '@angular/core';
+import { inject } from '@angular/core';
 
