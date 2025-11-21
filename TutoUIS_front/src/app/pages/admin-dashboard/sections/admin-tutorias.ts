@@ -149,6 +149,15 @@ export class AdminTutorias implements OnInit {
   }
   
   /**
+   * Edita una tutoría
+   */
+  editarTutoria(tutoria: Tutoria): void {
+    if (this.createTutoriaModal) {
+      this.createTutoriaModal.openForEdit(tutoria);
+    }
+  }
+
+  /**
    * Elimina una tutoría
    */
   eliminarTutoria(id: number, nombre: string): void {

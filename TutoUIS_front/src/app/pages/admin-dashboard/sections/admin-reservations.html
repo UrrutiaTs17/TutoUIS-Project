@@ -154,9 +154,8 @@
       <table class="modern-table">
         <thead>
           <tr>
-            <th>ID</th>
             <th>Estudiante</th>
-            <th>Horario Disponibilidad</th>
+            <th>Asignatura</th>
             <th>Horario Reserva</th>
             <th>Estado</th>
             <th>Observaciones</th>
@@ -166,9 +165,6 @@
         </thead>
         <tbody>
           <tr *ngFor="let reserva of reservasFiltradas; let i = index" class="table-row" [style.animation-delay]="i * 0.05 + 's'">
-            <td class="id-cell">
-              <span class="id-badge">#{{ reserva.idReserva }}</span>
-            </td>
             <td>
               <div class="user-cell">
                 <div class="user-avatar">
@@ -181,13 +177,13 @@
               </div>
             </td>
             <td>
-              <div class="time-cell">
-                <i class="bi bi-calendar-range"></i>
-                <span *ngIf="reserva.disponibilidadHoraInicio && reserva.disponibilidadHoraFin">
-                  {{ reserva.disponibilidadHoraInicio }} - {{ reserva.disponibilidadHoraFin }}
+              <div class="subject-cell">
+                <i class="bi bi-book"></i>
+                <span *ngIf="reserva.nombreAsignatura">
+                  {{ reserva.nombreAsignatura }}
                 </span>
-                <span *ngIf="!reserva.disponibilidadHoraInicio || !reserva.disponibilidadHoraFin" class="text-muted">
-                  Sin horario
+                <span *ngIf="!reserva.nombreAsignatura" class="text-muted">
+                  Sin asignatura
                 </span>
               </div>
             </td>
@@ -234,13 +230,13 @@
             </td>
             <td class="actions-cell">
               <div class="action-buttons">
-                <button class="btn-action btn-view" title="Ver detalles">
+                <button class="btn-action btn-view" title="Ver detalles" (click)="verDetalles(reserva)">
                   <i class="bi bi-eye"></i>
                 </button>
-                <button class="btn-action btn-edit" title="Editar">
-                  <i class="bi bi-pencil"></i>
+                <button class="btn-action btn-edit" title="Cancelar reserva" (click)="editarReserva(reserva)">
+                  <i class="bi bi-x-circle"></i>
                 </button>
-                <button class="btn-action btn-delete" title="Cancelar">
+                <button class="btn-action btn-delete" title="Eliminar reserva" (click)="eliminarReserva(reserva)">
                   <i class="bi bi-trash"></i>
                 </button>
               </div>
@@ -264,3 +260,11 @@
     </div>
   </div>
 </div>
+
+<!-- Modal de Detalles/Edición de Reserva -->
+<app-reserva-detail-modal
+  [reserva]="selectedReserva"
+  [isEditMode]="isEditMode"
+  (onSaved)="onReservaSaved()"
+  (onCancelled)="onReservaCancelled()">
+</app-reserva-detail-modal>

@@ -576,6 +576,27 @@
   font-size: 14px;
 }
 
+/* Estilos para la celda de asignatura */
+.subject-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #495057;
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.subject-cell i {
+  color: #20c953;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.subject-cell .text-muted {
+  font-weight: 400;
+  color: #adb5bd;
+}
+
 .availability-badge {
   background: rgba(108, 117, 125, 0.1);
   color: #495057;
