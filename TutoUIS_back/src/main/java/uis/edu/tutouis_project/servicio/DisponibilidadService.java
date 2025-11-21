@@ -20,7 +20,20 @@ public class DisponibilidadService implements IDisponibilidadService {
 
     @Override
     public List<Disponibilidad> listarDisponibilidades() {
-        return disponibilidadRepository.findAll();
+        long inicio = System.currentTimeMillis();
+        System.out.println("📊 Consultando disponibilidades con JOIN FETCH optimizado");
+        
+        List<Disponibilidad> disponibilidades = disponibilidadRepository.findAllWithDetails();
+        long tiempoQuery = System.currentTimeMillis() - inicio;
+        
+        System.out.println("✅ Disponibilidades obtenidas: " + disponibilidades.size());
+        System.out.println("⏱️ Tiempo total query: " + tiempoQuery + " ms");
+        
+        if (tiempoQuery > 1000) {
+            System.out.println("⚠️ WARNING: Query lenta detectada (>" + tiempoQuery + "ms)");
+        }
+        
+        return disponibilidades;
     }
 
     @Override
@@ -31,7 +44,10 @@ public class DisponibilidadService implements IDisponibilidadService {
 
     @Override
     public List<Disponibilidad> listarPorTutoria(Integer idTutoria) {
-        return disponibilidadRepository.findByIdTutoria(idTutoria);
+        System.out.println("📊 Consultando disponibilidades por tutoría con JOIN FETCH optimizado");
+        List<Disponibilidad> disponibilidades = disponibilidadRepository.findByIdTutoriaWithDetails(idTutoria);
+        System.out.println("✅ Disponibilidades obtenidas: " + disponibilidades.size());
+        return disponibilidades;
     }
 
     @Override
@@ -41,7 +57,20 @@ public class DisponibilidadService implements IDisponibilidadService {
 
     @Override
     public List<Disponibilidad> listarPorEstado(Integer idEstado) {
-        return disponibilidadRepository.findByIdEstado(idEstado);
+        long inicio = System.currentTimeMillis();
+        System.out.println("📊 Consultando disponibilidades por estado=" + idEstado + " con JOIN FETCH optimizado");
+        
+        List<Disponibilidad> disponibilidades = disponibilidadRepository.findByIdEstadoWithDetails(idEstado);
+        long tiempoQuery = System.currentTimeMillis() - inicio;
+        
+        System.out.println("✅ Disponibilidades obtenidas: " + disponibilidades.size());
+        System.out.println("⏱️ Tiempo total query: " + tiempoQuery + " ms");
+        
+        if (tiempoQuery > 1000) {
+            System.out.println("⚠️ WARNING: Query lenta detectada (>" + tiempoQuery + "ms)");
+        }
+        
+        return disponibilidades;
     }
 
     @Override

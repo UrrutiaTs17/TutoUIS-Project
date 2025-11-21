@@ -2,11 +2,15 @@ package uis.edu.tutouis_project.modelo;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import io.swagger.v3.oas.annotations.media.Schema;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 @Table(name = "usuario")
@@ -52,6 +56,12 @@ public class Usuario {
     @Column(name = "id_carrera")
     @Schema(description = "ID de la carrera (opcional)", example = "3")
     private Integer id_carrera; // Puede ser null
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_carrera", insertable = false, updatable = false)
+    @JsonBackReference
+    @Schema(description = "Carrera del usuario")
+    private Carrera carrera;
 
     @Column(name = "activo")
     @Schema(description = "Si el usuario está activo", example = "true")
@@ -181,5 +191,13 @@ public class Usuario {
 
     public void setFecha_desbloqueo(java.sql.Timestamp fecha_desbloqueo) {
         this.fecha_desbloqueo = fecha_desbloqueo;
+    }
+
+    public Carrera getCarrera() {
+        return carrera;
+    }
+
+    public void setCarrera(Carrera carrera) {
+        this.carrera = carrera;
     }
 }

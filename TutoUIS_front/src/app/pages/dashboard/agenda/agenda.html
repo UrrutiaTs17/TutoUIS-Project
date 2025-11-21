@@ -66,34 +66,32 @@
                 <div class="reservation-item">
                   <div class="reservation-header">
                     <h4>{{ r.materia || r.asignatura || r.nombre }}</h4>
+                    <span class="badge-cupos">
+                      <i class="bi bi-people"></i>
+                      {{ r.cupos || r.cuposDisponibles || r.cupos_actuales || '0' }}
+                    </span>
                   </div>
                   <div class="reservation-details">
-                    <div style="display: flex; gap: 12px; flex-wrap: wrap; flex: 1; align-items: center;">
-                      <span class="badge-cupos">
-                        <i class="bi bi-people"></i>
-                        {{ r.cupos || r.cuposDisponibles || r.cupos_actuales || '0' }}
-                      </span>
-                      @if (r.detalle || r.docente) {
-                        <div class="detail-row">
-                          <i class="bi bi-person"></i>
-                          <span>{{ r.detalle || r.docente }}</span>
-                        </div>
-                      }
+                    @if (r.detalle || r.docente) {
                       <div class="detail-row">
-                        <i class="bi bi-calendar3"></i>
-                        <span>{{ r.fecha ? formatDate(r.fecha) : (r.dia || '-') }}</span>
+                        <i class="bi bi-person"></i>
+                        <span>{{ r.detalle || r.docente }}</span>
                       </div>
-                      <div class="detail-row">
-                        <i class="bi bi-clock"></i>
-                        <span>{{ r.hora || r.horario || '-' }}</span>
-                      </div>
+                    }
+                    <div class="detail-row">
+                      <i class="bi bi-calendar3"></i>
+                      <span>{{ r.fecha ? formatDate(r.fecha) : (r.dia || '-') }}</span>
                     </div>
-                    <div class="reservation-actions">
-                      <button class="btn-action primary">
-                        <i class="bi bi-eye"></i>
-                        Ver detalles
-                      </button>
+                    <div class="detail-row">
+                      <i class="bi bi-clock"></i>
+                      <span>{{ r.hora || r.horario || '-' }}</span>
                     </div>
+                  </div>
+                  <div class="reservation-actions">
+                    <button class="btn-action primary">
+                      <i class="bi bi-eye"></i>
+                      Ver detalles
+                    </button>
                   </div>
                 </div>
               }
