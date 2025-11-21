@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReservationService } from '../../../services/reservation.service';
 import { CalendarComponent } from '../../calendar/calendar';
@@ -20,7 +20,11 @@ export class Agenda implements OnInit {
   Math = Math;
   tutorId: number = 0; // Debe obtenerse del perfil del usuario actual
 
-  constructor(private reservationService: ReservationService) {}
+  constructor(
+    private reservationService: ReservationService,
+    private cdr: ChangeDetectorRef,
+    private ngZone: NgZone
+  ) {}
 
   ngOnInit(): void {
     // Aquí deberías obtener el id del tutor desde el servicio de autenticación
@@ -32,23 +36,32 @@ export class Agenda implements OnInit {
   loadReservations(): void {
     this.loading = true;
     this.error = null;
-    this.reservationService.getPendingReservations().subscribe(
-      (res: any[]) => {
-        this.reservations = res || [];
-        this.loading = false;
-        this.applyPaging();
+    
+    this.reservationService.getPendingReservations().subscribe({
+      next: (res: any[]) => {
+        setTimeout(() => {
+          console.log('Reservas recibidas:', res);
+          this.reservations = res || [];
+          this.loading = false;
+          this.applyPaging();
+          this.cdr.markForCheck();
+        }, 0);
       },
-      (err: any) => {
-        console.error('Error cargando reservas:', err);
-        this.error = 'No se pudieron cargar las reservas.';
-        this.loading = false;
+      error: (err: any) => {
+        setTimeout(() => {
+          console.error('Error cargando reservas:', err);
+          this.error = 'No se pudieron cargar las reservas.';
+          this.loading = false;
+          this.cdr.markForCheck();
+        }, 0);
       }
-    );
+    });
   }
 
   applyPaging(): void {
     const start = this.currentPage * this.pageSize;
     this.pagedReservations = this.reservations.slice(start, start + this.pageSize);
+    console.log('Paginación aplicada:', this.pagedReservations);
   }
 
   nextPage(): void {
