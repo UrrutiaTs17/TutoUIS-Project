@@ -29,18 +29,82 @@ public class TutoriaService {
 
     /**
      * Obtiene todas las tutorías con información completa (nombre tutor, nombre asignatura)
+     * Optimizado con JOIN FETCH para evitar N+1 queries
      */
     public List<TutoriaResponseDto> obtenerTodasLasTutorias() {
-        System.out.println("🔵 TutoriaService: Iniciando obtenerTodasLasTutorias()");
-        List<Tutoria> tutorias = tutoriaRepository.findAll();
-        System.out.println("📊 TutoriaService: Se encontraron " + tutorias.size() + " tutorías en la BD");
+        long inicio = System.currentTimeMillis();
+        System.out.println("🔵 TutoriaService: Iniciando obtenerTodasLasTutorias() con JOIN FETCH optimizado");
         
+        // Query a la BD
+        List<Tutoria> tutorias = tutoriaRepository.findAllWithDetails();
+        long tiempoQuery = System.currentTimeMillis() - inicio;
+        System.out.println("📊 TutoriaService: Se encontraron " + tutorias.size() + " tutorías en la BD");
+        System.out.println("⏱️ Tiempo query: " + tiempoQuery + " ms");
+        
+        // Conversión a DTO
+        long inicioConversion = System.currentTimeMillis();
         List<TutoriaResponseDto> resultado = tutorias.stream()
-                .map(this::convertirATutoriaResponseDto)
+                .map(this::convertirATutoriaResponseDtoOptimizado)
                 .collect(Collectors.toList());
+        long tiempoConversion = System.currentTimeMillis() - inicioConversion;
         
         System.out.println("✅ TutoriaService: Se convirtieron " + resultado.size() + " tutorías a DTO");
+        System.out.println("⏱️ Tiempo conversión: " + tiempoConversion + " ms");
+        System.out.println("⏱️ Tiempo TOTAL: " + (System.currentTimeMillis() - inicio) + " ms");
+        
+        if (tiempoConversion > 1000) {
+            System.out.println("⚠️ WARNING: Conversión a DTO muy lenta (>" + tiempoConversion + "ms)");
+        }
+        
         return resultado;
+    }
+
+    /**
+     * Convierte una entidad Tutoria a TutoriaResponseDto usando relaciones ya cargadas por JOIN FETCH
+     * NO hace consultas adicionales a la base de datos - Evita N+1 queries
+     */
+    private TutoriaResponseDto convertirATutoriaResponseDtoOptimizado(Tutoria tutoria) {
+        long inicio = System.currentTimeMillis();
+        
+        TutoriaResponseDto dto = new TutoriaResponseDto();
+        
+        dto.setIdTutoria(tutoria.getIdTutoria());
+        dto.setIdTutor(tutoria.getIdTutor());
+        dto.setIdCarrera(tutoria.getIdAsignatura());
+        dto.setDescripcion(tutoria.getDescripcion());
+        dto.setCapacidadMaxima(tutoria.getCapacidadMaxima());
+        dto.setUbicacion(tutoria.getLugar());
+        dto.setModalidad(tutoria.getModalidad());
+        dto.setLugar(tutoria.getLugar());
+        dto.setEstado(tutoria.getEstado());
+        dto.setFechaCreacion(tutoria.getFechaCreacion());
+        dto.setFechaUltimaModificacion(tutoria.getFechaUltimaModificacion());
+        
+        // Usar tutor ya cargado por JOIN FETCH (no hace query adicional)
+        if (tutoria.getTutor() != null) {
+            String nombreCompleto = (tutoria.getTutor().getNombre() != null ? tutoria.getTutor().getNombre() : "") + 
+                                   " " + 
+                                   (tutoria.getTutor().getApellido() != null ? tutoria.getTutor().getApellido() : "");
+            dto.setNombreTutor(nombreCompleto.trim());
+            
+            // Usar carrera ya cargada por JOIN FETCH (no hace query adicional)
+            if (tutoria.getTutor().getCarrera() != null) {
+                dto.setNombreCarrera(tutoria.getTutor().getCarrera().getNombre());
+            }
+        }
+        
+        // Usar asignatura ya cargada por JOIN FETCH (no hace query adicional)
+        if (tutoria.getAsignatura() != null) {
+            dto.setNombre(tutoria.getAsignatura().getNombre());
+            dto.setNombreAsignatura(tutoria.getAsignatura().getNombre());
+        }
+        
+        long tiempo = System.currentTimeMillis() - inicio;
+        if (tiempo > 100) {
+            System.out.println("⚠️ DTO lento (" + tiempo + "ms) para tutoría ID: " + tutoria.getIdTutoria());
+        }
+        
+        return dto;
     }
 
     /**

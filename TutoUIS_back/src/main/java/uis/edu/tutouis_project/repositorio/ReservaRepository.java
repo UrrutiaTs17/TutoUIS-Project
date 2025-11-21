@@ -23,9 +23,29 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
     @Query("SELECT DISTINCT r FROM Reserva r " +
            "LEFT JOIN FETCH r.estudiante " +
            "LEFT JOIN FETCH r.estadoReserva " +
+           "LEFT JOIN FETCH r.disponibilidad d " +
+           "LEFT JOIN FETCH d.tutoria t " +
+           "LEFT JOIN FETCH t.asignatura " +
+           "LEFT JOIN FETCH t.tutor tutor " +
+           "LEFT JOIN FETCH tutor.carrera " +
            "WHERE r.idEstudiante = :idEstudiante " +
            "ORDER BY r.fechaCreacion DESC")
     List<Reserva> findByIdEstudianteWithDetails(@Param("idEstudiante") Integer idEstudiante);
+    
+    /**
+     * Obtiene todas las reservas con todas las relaciones precargadas
+     * Soluciona el problema N+1 queries al cargar disponibilidad, tutoría, asignatura, tutor, etc.
+     */
+    @Query("SELECT DISTINCT r FROM Reserva r " +
+           "LEFT JOIN FETCH r.estudiante " +
+           "LEFT JOIN FETCH r.estadoReserva " +
+           "LEFT JOIN FETCH r.disponibilidad d " +
+           "LEFT JOIN FETCH d.tutoria t " +
+           "LEFT JOIN FETCH t.asignatura " +
+           "LEFT JOIN FETCH t.tutor tutor " +
+           "LEFT JOIN FETCH tutor.carrera " +
+           "ORDER BY r.fechaCreacion DESC")
+    List<Reserva> findAllWithDetails();
     
     /**
      * Encuentra todas las reservas de una disponibilidad

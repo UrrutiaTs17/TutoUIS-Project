@@ -42,10 +42,25 @@ public class ReservaService implements IReservaService {
 
     @Override
     public List<ReservaResponseDto> listarTodasLasReservas() {
-        List<Reserva> reservas = reservaRepository.findAll();
-        return reservas.stream()
-                .map(this::convertirAResponseDto)
+        long inicio = System.currentTimeMillis();
+        System.out.println("📊 Consultando todas las reservas con JOIN FETCH optimizado");
+        
+        List<Reserva> reservas = reservaRepository.findAllWithDetails();
+        long tiempoQuery = System.currentTimeMillis() - inicio;
+        
+        System.out.println("✅ Reservas obtenidas: " + reservas.size());
+        System.out.println("⏱️ Tiempo query: " + tiempoQuery + " ms");
+        
+        long inicioConversion = System.currentTimeMillis();
+        List<ReservaResponseDto> resultado = reservas.stream()
+                .map(this::convertirAResponseDtoOptimizado)
                 .collect(java.util.stream.Collectors.toList());
+        long tiempoConversion = System.currentTimeMillis() - inicioConversion;
+        
+        System.out.println("⏱️ Tiempo conversión: " + tiempoConversion + " ms");
+        System.out.println("⏱️ Tiempo TOTAL: " + (System.currentTimeMillis() - inicio) + " ms");
+        
+        return resultado;
     }
 
     @Override
@@ -71,13 +86,25 @@ public class ReservaService implements IReservaService {
             throw new IllegalArgumentException("El ID del estudiante debe ser un número positivo");
         }
         
+        long inicio = System.currentTimeMillis();
         System.out.println("📊 Consultando reservas con JOIN FETCH optimizado para estudiante: " + idEstudiante);
-        List<Reserva> reservas = reservaRepository.findByIdEstudianteWithDetails(idEstudiante);
-        System.out.println("✅ Reservas obtenidas: " + reservas.size());
         
-        return reservas.stream()
+        List<Reserva> reservas = reservaRepository.findByIdEstudianteWithDetails(idEstudiante);
+        long tiempoQuery = System.currentTimeMillis() - inicio;
+        
+        System.out.println("✅ Reservas obtenidas: " + reservas.size());
+        System.out.println("⏱️ Tiempo query: " + tiempoQuery + " ms");
+        
+        long inicioConversion = System.currentTimeMillis();
+        List<ReservaResponseDto> resultado = reservas.stream()
                 .map(this::convertirAResponseDtoOptimizado)
                 .collect(java.util.stream.Collectors.toList());
+        long tiempoConversion = System.currentTimeMillis() - inicioConversion;
+        
+        System.out.println("⏱️ Tiempo conversión: " + tiempoConversion + " ms");
+        System.out.println("⏱️ Tiempo TOTAL: " + (System.currentTimeMillis() - inicio) + " ms");
+        
+        return resultado;
     }
 
     @Override
@@ -391,9 +418,11 @@ public class ReservaService implements IReservaService {
 
     /**
      * Versión optimizada que usa las relaciones ya cargadas por JOIN FETCH
-     * Evita N+1 queries
+     * Evita N+1 queries completamente - NO hace consultas adicionales a la BD
      */
     private ReservaResponseDto convertirAResponseDtoOptimizado(Reserva reserva) {
+        long inicio = System.currentTimeMillis();
+        
         ReservaResponseDto dto = new ReservaResponseDto();
         dto.setIdReserva(reserva.getIdReserva());
         dto.setIdDisponibilidad(reserva.getIdDisponibilidad());
@@ -406,7 +435,7 @@ public class ReservaService implements IReservaService {
         dto.setHoraInicio(reserva.getHoraInicio());
         dto.setHoraFin(reserva.getHoraFin());
 
-        // Usar relaciones ya cargadas (no hace queries adicionales)
+        // Usar relaciones ya cargadas por JOIN FETCH (no hace queries adicionales)
         if (reserva.getEstudiante() != null) {
             String nombreCompleto = (reserva.getEstudiante().getNombre() + " " + reserva.getEstudiante().getApellido()).trim();
             dto.setNombreEstudiante(nombreCompleto);
@@ -416,24 +445,33 @@ public class ReservaService implements IReservaService {
             dto.setNombreEstado(reserva.getEstadoReserva().getNombre());
         }
 
-        // Obtener disponibilidad con sus relaciones
-        disponibilidadRepository.findById(reserva.getIdDisponibilidad()).ifPresent(disponibilidad -> {
+        // Usar disponibilidad ya cargada por JOIN FETCH
+        if (reserva.getDisponibilidad() != null) {
+            Disponibilidad disponibilidad = reserva.getDisponibilidad();
             dto.setDisponibilidadHoraInicio(disponibilidad.getHoraInicio().toLocalTime());
             dto.setDisponibilidadHoraFin(disponibilidad.getHoraFin().toLocalTime());
             
-            // Obtener tutoría con sus relaciones
-            if (disponibilidad.getIdTutoria() != null) {
-                tutoriaRepository.findById(disponibilidad.getIdTutoria()).ifPresent(tutoria -> {
-                    if (tutoria.getAsignatura() != null) {
-                        dto.setNombreAsignatura(tutoria.getAsignatura().getNombre());
-                    }
-                    if (tutoria.getTutor() != null) {
-                        String nombreTutor = (tutoria.getTutor().getNombre() + " " + tutoria.getTutor().getApellido()).trim();
-                        dto.setNombreTutor(nombreTutor);
-                    }
-                });
+            // Usar tutoría ya cargada por JOIN FETCH
+            if (disponibilidad.getTutoria() != null) {
+                Tutoria tutoria = disponibilidad.getTutoria();
+                
+                // Usar asignatura ya cargada por JOIN FETCH
+                if (tutoria.getAsignatura() != null) {
+                    dto.setNombreAsignatura(tutoria.getAsignatura().getNombre());
+                }
+                
+                // Usar tutor ya cargado por JOIN FETCH
+                if (tutoria.getTutor() != null) {
+                    String nombreTutor = (tutoria.getTutor().getNombre() + " " + tutoria.getTutor().getApellido()).trim();
+                    dto.setNombreTutor(nombreTutor);
+                }
             }
-        });
+        }
+
+        long tiempo = System.currentTimeMillis() - inicio;
+        if (tiempo > 100) {
+            System.out.println("⚠️ DTO lento (" + tiempo + "ms) para reserva ID: " + reserva.getIdReserva());
+        }
 
         return dto;
     }
