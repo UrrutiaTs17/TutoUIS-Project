@@ -42,10 +42,17 @@ public class ReservaService implements IReservaService {
 
     @Override
     public List<ReservaResponseDto> listarTodasLasReservas() {
-        List<Reserva> reservas = reservaRepository.findAll();
-        return reservas.stream()
-                .map(this::convertirAResponseDto)
-                .collect(java.util.stream.Collectors.toList());
+        System.out.println("🔵 ReservaService: Listando todas las reservas [VERSIÓN OPTIMIZADA]");
+        long inicio = System.currentTimeMillis();
+        
+        // Una sola consulta con JOINs - evita el problema N+1
+        List<ReservaResponseDto> reservas = reservaRepository.findAllReservasConDetalles();
+        
+        long fin = System.currentTimeMillis();
+        System.out.println("✅ ReservaService: Se obtuvieron " + reservas.size() + 
+                           " reservas en " + (fin - inicio) + "ms con UNA sola query SQL");
+        
+        return reservas;
     }
 
     @Override
@@ -71,13 +78,17 @@ public class ReservaService implements IReservaService {
             throw new IllegalArgumentException("El ID del estudiante debe ser un número positivo");
         }
         
-        System.out.println("📊 Consultando reservas con JOIN FETCH optimizado para estudiante: " + idEstudiante);
-        List<Reserva> reservas = reservaRepository.findByIdEstudianteWithDetails(idEstudiante);
-        System.out.println("✅ Reservas obtenidas: " + reservas.size());
+        System.out.println("� ReservaService: Obteniendo reservas del estudiante " + idEstudiante + " [VERSIÓN OPTIMIZADA]");
+        long inicio = System.currentTimeMillis();
         
-        return reservas.stream()
-                .map(this::convertirAResponseDtoOptimizado)
-                .collect(java.util.stream.Collectors.toList());
+        // Una sola consulta con JOINs - evita el problema N+1
+        List<ReservaResponseDto> reservas = reservaRepository.findReservasConDetallesPorEstudiante(idEstudiante);
+        
+        long fin = System.currentTimeMillis();
+        System.out.println("✅ ReservaService: Se obtuvieron " + reservas.size() + 
+                           " reservas en " + (fin - inicio) + "ms con UNA sola query SQL");
+        
+        return reservas;
     }
 
     @Override
@@ -334,8 +345,10 @@ public class ReservaService implements IReservaService {
     }
 
     /**
+     * DEPRECADO - Método con problema N+1
      * Convierte una entidad Reserva a su DTO de respuesta
      */
+    @Deprecated
     private ReservaResponseDto convertirAResponseDto(Reserva reserva) {
         ReservaResponseDto dto = new ReservaResponseDto();
         dto.setIdReserva(reserva.getIdReserva());
@@ -390,9 +403,11 @@ public class ReservaService implements IReservaService {
     }
 
     /**
+     * DEPRECADO - Ya no se usa, reemplazado por query directo a DTO
      * Versión optimizada que usa las relaciones ya cargadas por JOIN FETCH
      * Evita N+1 queries
      */
+    @Deprecated
     private ReservaResponseDto convertirAResponseDtoOptimizado(Reserva reserva) {
         ReservaResponseDto dto = new ReservaResponseDto();
         dto.setIdReserva(reserva.getIdReserva());

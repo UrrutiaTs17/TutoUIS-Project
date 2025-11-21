@@ -58,6 +58,7 @@ public class ReservaResponseDto {
     public ReservaResponseDto() {
     }
 
+    // Constructor simple (mantenido por compatibilidad)
     public ReservaResponseDto(Integer idReserva, Integer idDisponibilidad, Integer idEstudiante, 
                               Integer idEstado, String nombreEstado, String observaciones, 
                               Timestamp fechaCreacion) {
@@ -68,6 +69,42 @@ public class ReservaResponseDto {
         this.nombreEstado = nombreEstado;
         this.observaciones = observaciones;
         this.fechaCreacion = fechaCreacion;
+    }
+    
+    // Constructor completo para optimización con JOINs
+    public ReservaResponseDto(
+            Integer idReserva,
+            Integer idDisponibilidad,
+            LocalTime disponibilidadHoraInicio,
+            LocalTime disponibilidadHoraFin,
+            Integer idEstudiante,
+            String nombreEstudiante,
+            Integer idEstado,
+            String nombreEstado,
+            String observaciones,
+            Timestamp fechaCreacion,
+            Timestamp fechaCancelacion,
+            String razonCancelacion,
+            LocalTime horaInicio,
+            LocalTime horaFin,
+            String nombreAsignatura,
+            String nombreTutor) {
+        this.idReserva = idReserva;
+        this.idDisponibilidad = idDisponibilidad;
+        this.disponibilidadHoraInicio = disponibilidadHoraInicio;
+        this.disponibilidadHoraFin = disponibilidadHoraFin;
+        this.idEstudiante = idEstudiante;
+        this.nombreEstudiante = nombreEstudiante;
+        this.idEstado = idEstado;
+        this.nombreEstado = nombreEstado;
+        this.observaciones = observaciones;
+        this.fechaCreacion = fechaCreacion;
+        this.fechaCancelacion = fechaCancelacion;
+        this.razonCancelacion = razonCancelacion;
+        this.horaInicio = horaInicio;
+        this.horaFin = horaFin;
+        this.nombreAsignatura = nombreAsignatura;
+        this.nombreTutor = nombreTutor;
     }
 
     // Getters and Setters

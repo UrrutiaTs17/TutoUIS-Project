@@ -55,7 +55,7 @@ public class TutoriaResponseDto {
     public TutoriaResponseDto() {
     }
     
-    // Constructor completo
+    // Constructor completo (original - mantenido por compatibilidad)
     public TutoriaResponseDto(Integer idTutoria, Integer idTutor, String nombreTutor, 
                              Integer idCarrera, String nombreCarrera, String nombre,
                              String descripcion, Integer capacidadMaxima, String ubicacion,
@@ -67,6 +67,7 @@ public class TutoriaResponseDto {
         this.idCarrera = idCarrera;
         this.nombreCarrera = nombreCarrera;
         this.nombre = nombre;
+        this.nombreAsignatura = nombre; // Asignar también a nombreAsignatura
         this.descripcion = descripcion;
         this.capacidadMaxima = capacidadMaxima;
         this.ubicacion = ubicacion;

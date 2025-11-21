@@ -10,7 +10,6 @@ import uis.edu.tutouis_project.repositorio.TutoriaRepository;
 import uis.edu.tutouis_project.repositorio.UsuarioRepository;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class TutoriaService {
@@ -29,24 +28,28 @@ public class TutoriaService {
 
     /**
      * Obtiene todas las tutorías con información completa (nombre tutor, nombre asignatura)
+     * OPTIMIZADO: Usa una sola query con JOINs para evitar el problema N+1
      */
     public List<TutoriaResponseDto> obtenerTodasLasTutorias() {
-        System.out.println("🔵 TutoriaService: Iniciando obtenerTodasLasTutorias()");
-        List<Tutoria> tutorias = tutoriaRepository.findAll();
-        System.out.println("📊 TutoriaService: Se encontraron " + tutorias.size() + " tutorías en la BD");
+        System.out.println("🔵 TutoriaService: Iniciando obtenerTodasLasTutorias() [VERSIÓN OPTIMIZADA]");
+        long inicio = System.currentTimeMillis();
         
-        List<TutoriaResponseDto> resultado = tutorias.stream()
-                .map(this::convertirATutoriaResponseDto)
-                .collect(Collectors.toList());
+        // Una sola consulta con JOINs - evita el problema N+1
+        List<TutoriaResponseDto> resultado = tutoriaRepository.findAllTutoriasWithDetails();
         
-        System.out.println("✅ TutoriaService: Se convirtieron " + resultado.size() + " tutorías a DTO");
+        long fin = System.currentTimeMillis();
+        System.out.println("✅ TutoriaService: Se obtuvieron " + resultado.size() + " tutorías en " + (fin - inicio) + "ms con UNA sola query SQL");
+        
         return resultado;
     }
-
+    
     /**
-     * Convierte una entidad Tutoria a TutoriaResponseDto con información completa
+     * MÉTODO DEPRECADO - Mantenido solo por compatibilidad
+     * Convertía entidades a DTO con múltiples queries (problema N+1)
      */
+    @Deprecated
     private TutoriaResponseDto convertirATutoriaResponseDto(Tutoria tutoria) {
+        System.out.println("⚠️ ADVERTENCIA: Usando método DEPRECADO con problema N+1");
         System.out.println("🔄 TutoriaService: Convirtiendo tutoría ID=" + tutoria.getIdTutoria());
         
         TutoriaResponseDto dto = new TutoriaResponseDto();
