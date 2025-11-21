@@ -10,7 +10,6 @@ import uis.edu.tutouis_project.repositorio.TutoriaRepository;
 import uis.edu.tutouis_project.repositorio.UsuarioRepository;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class TutoriaService {
@@ -29,88 +28,28 @@ public class TutoriaService {
 
     /**
      * Obtiene todas las tutorías con información completa (nombre tutor, nombre asignatura)
-     * Optimizado con JOIN FETCH para evitar N+1 queries
+     * OPTIMIZADO: Usa una sola query con JOINs para evitar el problema N+1
      */
     public List<TutoriaResponseDto> obtenerTodasLasTutorias() {
+        System.out.println("🔵 TutoriaService: Iniciando obtenerTodasLasTutorias() [VERSIÓN OPTIMIZADA]");
         long inicio = System.currentTimeMillis();
-        System.out.println("🔵 TutoriaService: Iniciando obtenerTodasLasTutorias() con JOIN FETCH optimizado");
         
-        // Query a la BD
-        List<Tutoria> tutorias = tutoriaRepository.findAllWithDetails();
-        long tiempoQuery = System.currentTimeMillis() - inicio;
-        System.out.println("📊 TutoriaService: Se encontraron " + tutorias.size() + " tutorías en la BD");
-        System.out.println("⏱️ Tiempo query: " + tiempoQuery + " ms");
+        // Una sola consulta con JOINs - evita el problema N+1
+        List<TutoriaResponseDto> resultado = tutoriaRepository.findAllTutoriasWithDetails();
         
-        // Conversión a DTO
-        long inicioConversion = System.currentTimeMillis();
-        List<TutoriaResponseDto> resultado = tutorias.stream()
-                .map(this::convertirATutoriaResponseDtoOptimizado)
-                .collect(Collectors.toList());
-        long tiempoConversion = System.currentTimeMillis() - inicioConversion;
-        
-        System.out.println("✅ TutoriaService: Se convirtieron " + resultado.size() + " tutorías a DTO");
-        System.out.println("⏱️ Tiempo conversión: " + tiempoConversion + " ms");
-        System.out.println("⏱️ Tiempo TOTAL: " + (System.currentTimeMillis() - inicio) + " ms");
-        
-        if (tiempoConversion > 1000) {
-            System.out.println("⚠️ WARNING: Conversión a DTO muy lenta (>" + tiempoConversion + "ms)");
-        }
+        long fin = System.currentTimeMillis();
+        System.out.println("✅ TutoriaService: Se obtuvieron " + resultado.size() + " tutorías en " + (fin - inicio) + "ms con UNA sola query SQL");
         
         return resultado;
     }
-
+    
     /**
-     * Convierte una entidad Tutoria a TutoriaResponseDto usando relaciones ya cargadas por JOIN FETCH
-     * NO hace consultas adicionales a la base de datos - Evita N+1 queries
+     * MÉTODO DEPRECADO - Mantenido solo por compatibilidad
+     * Convertía entidades a DTO con múltiples queries (problema N+1)
      */
-    private TutoriaResponseDto convertirATutoriaResponseDtoOptimizado(Tutoria tutoria) {
-        long inicio = System.currentTimeMillis();
-        
-        TutoriaResponseDto dto = new TutoriaResponseDto();
-        
-        dto.setIdTutoria(tutoria.getIdTutoria());
-        dto.setIdTutor(tutoria.getIdTutor());
-        dto.setIdCarrera(tutoria.getIdAsignatura());
-        dto.setDescripcion(tutoria.getDescripcion());
-        dto.setCapacidadMaxima(tutoria.getCapacidadMaxima());
-        dto.setUbicacion(tutoria.getLugar());
-        dto.setModalidad(tutoria.getModalidad());
-        dto.setLugar(tutoria.getLugar());
-        dto.setEstado(tutoria.getEstado());
-        dto.setFechaCreacion(tutoria.getFechaCreacion());
-        dto.setFechaUltimaModificacion(tutoria.getFechaUltimaModificacion());
-        
-        // Usar tutor ya cargado por JOIN FETCH (no hace query adicional)
-        if (tutoria.getTutor() != null) {
-            String nombreCompleto = (tutoria.getTutor().getNombre() != null ? tutoria.getTutor().getNombre() : "") + 
-                                   " " + 
-                                   (tutoria.getTutor().getApellido() != null ? tutoria.getTutor().getApellido() : "");
-            dto.setNombreTutor(nombreCompleto.trim());
-            
-            // Usar carrera ya cargada por JOIN FETCH (no hace query adicional)
-            if (tutoria.getTutor().getCarrera() != null) {
-                dto.setNombreCarrera(tutoria.getTutor().getCarrera().getNombre());
-            }
-        }
-        
-        // Usar asignatura ya cargada por JOIN FETCH (no hace query adicional)
-        if (tutoria.getAsignatura() != null) {
-            dto.setNombre(tutoria.getAsignatura().getNombre());
-            dto.setNombreAsignatura(tutoria.getAsignatura().getNombre());
-        }
-        
-        long tiempo = System.currentTimeMillis() - inicio;
-        if (tiempo > 100) {
-            System.out.println("⚠️ DTO lento (" + tiempo + "ms) para tutoría ID: " + tutoria.getIdTutoria());
-        }
-        
-        return dto;
-    }
-
-    /**
-     * Convierte una entidad Tutoria a TutoriaResponseDto con información completa
-     */
+    @Deprecated
     private TutoriaResponseDto convertirATutoriaResponseDto(Tutoria tutoria) {
+        System.out.println("⚠️ ADVERTENCIA: Usando método DEPRECADO con problema N+1");
         System.out.println("🔄 TutoriaService: Convirtiendo tutoría ID=" + tutoria.getIdTutoria());
         
         TutoriaResponseDto dto = new TutoriaResponseDto();

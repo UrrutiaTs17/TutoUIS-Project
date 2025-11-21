@@ -1,21 +1,28 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ReservationService, Reserva } from '../../../services/reservation.service';
+import { ReservaDetailModalComponent } from '../../../components/reserva-detail-modal/reserva-detail-modal';
 
 @Component({
   selector: 'app-admin-reservations',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, RouterLink, FormsModule, ReservaDetailModalComponent],
   templateUrl: './admin-reservations.html',
   styleUrl: './admin-reservations.css'
 })
 export class AdminReservations implements OnInit {
+  @ViewChild(ReservaDetailModalComponent) modalComponent!: ReservaDetailModalComponent;
+  
   reservas: Reserva[] = [];
   reservasFiltradas: Reserva[] = [];
   loading = false;
   error: string | null = null;
+  
+  // Modal data
+  selectedReserva: Reserva | null = null;
+  isEditMode = false;
   
   // Filtros
   searchTerm = '';
@@ -114,6 +121,77 @@ export class AdminReservations implements OnInit {
 
   getReservasPorEstado(estado: string): number {
     return this.reservas.filter(r => r.nombreEstado === estado).length;
+  }
+
+  /**
+   * Ver detalles de una reserva en modal
+   */
+  verDetalles(reserva: Reserva) {
+    this.selectedReserva = reserva;
+    this.isEditMode = false;
+    setTimeout(() => {
+      this.modalComponent.showModal();
+    }, 100);
+  }
+
+  /**
+   * Editar una reserva en modal
+   */
+  editarReserva(reserva: Reserva) {
+    if (reserva.nombreEstado === 'Cancelada') {
+      alert('❌ No se puede editar una reserva cancelada');
+      return;
+    }
+
+    this.selectedReserva = reserva;
+    this.isEditMode = true;
+    setTimeout(() => {
+      this.modalComponent.showModal();
+    }, 100);
+  }
+
+  /**
+   * Handler cuando se guarda una reserva editada
+   */
+  onReservaSaved() {
+    this.loadReservations();
+  }
+
+  /**
+   * Handler cuando se cancela una reserva desde el modal
+   */
+  onReservaCancelled() {
+    this.loadReservations();
+  }
+
+  /**
+   * Eliminar una reserva permanentemente
+   */
+  eliminarReserva(reserva: Reserva) {
+    const confirmar = confirm(
+      `⚠️ ¿Estás seguro de que deseas ELIMINAR PERMANENTEMENTE la reserva #${reserva.idReserva} de ${reserva.nombreEstudiante}?\n\n` +
+      `Esta acción NO se puede deshacer.\n\n` +
+      `Si solo deseas cancelarla, usa el botón de editar.`
+    );
+    
+    if (!confirmar) return;
+
+    // Doble confirmación para operaciones destructivas
+    const confirmar2 = confirm('⚠️ Confirma nuevamente que deseas ELIMINAR esta reserva permanentemente.');
+    if (!confirmar2) return;
+
+    this.loading = true;
+    this.reservationService.deleteReservation(reserva.idReserva).subscribe({
+      next: () => {
+        alert('✅ Reserva eliminada exitosamente');
+        this.loadReservations();
+      },
+      error: (error) => {
+        console.error('Error al eliminar reserva:', error);
+        alert('❌ Error al eliminar la reserva: ' + (error.error?.mensaje || error.message || 'Error desconocido'));
+        this.loading = false;
+      }
+    });
   }
 }
 

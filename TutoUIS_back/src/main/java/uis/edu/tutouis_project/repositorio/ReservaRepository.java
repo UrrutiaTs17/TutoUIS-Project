@@ -12,40 +12,94 @@ import java.util.Optional;
 public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
     
     /**
+     * OPTIMIZADO: Query con JOINs que retorna todas las reservas como DTOs
+     * Evita el problema N+1 al traer todos los datos en una sola consulta SQL
+     */
+    @Query("""
+        SELECT new uis.edu.tutouis_project.modelo.dto.ReservaResponseDto(
+            r.idReserva,
+            r.idDisponibilidad,
+            CAST(d.horaInicio AS LocalTime),
+            CAST(d.horaFin AS LocalTime),
+            r.idEstudiante,
+            CONCAT(COALESCE(est.nombre, ''), ' ', COALESCE(est.apellido, '')),
+            r.idEstado,
+            er.nombre,
+            r.observaciones,
+            r.fechaCreacion,
+            r.fechaCancelacion,
+            r.razonCancelacion,
+            r.horaInicio,
+            r.horaFin,
+            a.nombre,
+            CONCAT(COALESCE(tut.nombre, ''), ' ', COALESCE(tut.apellido, ''))
+        )
+        FROM Reserva r
+        INNER JOIN Disponibilidad d ON r.idDisponibilidad = d.idDisponibilidad
+        INNER JOIN Tutoria t ON d.idTutoria = t.idTutoria
+        INNER JOIN Asignatura a ON t.idAsignatura = a.idAsignatura
+        INNER JOIN Usuario tut ON t.idTutor = tut.id_usuario
+        INNER JOIN Usuario est ON r.idEstudiante = est.id_usuario
+        INNER JOIN EstadoReserva er ON r.idEstado = er.idEstado
+        ORDER BY r.fechaCreacion DESC
+    """)
+    List<uis.edu.tutouis_project.modelo.dto.ReservaResponseDto> findAllReservasConDetalles();
+    
+    /**
      * Encuentra todas las reservas de un estudiante
      */
     List<Reserva> findByIdEstudiante(Integer idEstudiante);
     
     /**
+     * DEPRECADO - Usa findReservasConDetallesPorEstudiante en su lugar
      * Encuentra todas las reservas de un estudiante con JOIN FETCH optimizado
      * Carga en una sola consulta: reserva + disponibilidad + tutoría + asignatura + tutor + estudiante + estado
      */
+    @Deprecated
     @Query("SELECT DISTINCT r FROM Reserva r " +
            "LEFT JOIN FETCH r.estudiante " +
            "LEFT JOIN FETCH r.estadoReserva " +
-           "LEFT JOIN FETCH r.disponibilidad d " +
-           "LEFT JOIN FETCH d.tutoria t " +
-           "LEFT JOIN FETCH t.asignatura " +
-           "LEFT JOIN FETCH t.tutor tutor " +
-           "LEFT JOIN FETCH tutor.carrera " +
            "WHERE r.idEstudiante = :idEstudiante " +
            "ORDER BY r.fechaCreacion DESC")
     List<Reserva> findByIdEstudianteWithDetails(@Param("idEstudiante") Integer idEstudiante);
     
     /**
-     * Obtiene todas las reservas con todas las relaciones precargadas
-     * Soluciona el problema N+1 queries al cargar disponibilidad, tutoría, asignatura, tutor, etc.
+     * OPTIMIZADO: Query con JOINs que retorna directamente DTOs
+     * Evita el problema N+1 al traer todos los datos en una sola consulta SQL
+     * Incluye: Reserva + Disponibilidad + Tutoría + Asignatura + Tutor + Estudiante + Estado
      */
-    @Query("SELECT DISTINCT r FROM Reserva r " +
-           "LEFT JOIN FETCH r.estudiante " +
-           "LEFT JOIN FETCH r.estadoReserva " +
-           "LEFT JOIN FETCH r.disponibilidad d " +
-           "LEFT JOIN FETCH d.tutoria t " +
-           "LEFT JOIN FETCH t.asignatura " +
-           "LEFT JOIN FETCH t.tutor tutor " +
-           "LEFT JOIN FETCH tutor.carrera " +
-           "ORDER BY r.fechaCreacion DESC")
-    List<Reserva> findAllWithDetails();
+    @Query("""
+        SELECT new uis.edu.tutouis_project.modelo.dto.ReservaResponseDto(
+            r.idReserva,
+            r.idDisponibilidad,
+            CAST(d.horaInicio AS LocalTime),
+            CAST(d.horaFin AS LocalTime),
+            r.idEstudiante,
+            CONCAT(COALESCE(est.nombre, ''), ' ', COALESCE(est.apellido, '')),
+            r.idEstado,
+            er.nombre,
+            r.observaciones,
+            r.fechaCreacion,
+            r.fechaCancelacion,
+            r.razonCancelacion,
+            r.horaInicio,
+            r.horaFin,
+            a.nombre,
+            CONCAT(COALESCE(tut.nombre, ''), ' ', COALESCE(tut.apellido, ''))
+        )
+        FROM Reserva r
+        INNER JOIN Disponibilidad d ON r.idDisponibilidad = d.idDisponibilidad
+        INNER JOIN Tutoria t ON d.idTutoria = t.idTutoria
+        INNER JOIN Asignatura a ON t.idAsignatura = a.idAsignatura
+        INNER JOIN Usuario tut ON t.idTutor = tut.id_usuario
+        INNER JOIN Usuario est ON r.idEstudiante = est.id_usuario
+        INNER JOIN EstadoReserva er ON r.idEstado = er.idEstado
+        WHERE r.idEstudiante = :idEstudiante
+        ORDER BY r.fechaCreacion DESC
+    """)
+    List<uis.edu.tutouis_project.modelo.dto.ReservaResponseDto> findReservasConDetallesPorEstudiante(
+        @Param("idEstudiante") Integer idEstudiante
+    );
     
     /**
      * Encuentra todas las reservas de una disponibilidad
