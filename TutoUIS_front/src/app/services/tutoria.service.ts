@@ -151,11 +151,43 @@ export class TutoriaService {
   }
 
   /**
+   * Crea una nueva tutoría con sus disponibilidades
+   */
+  createTutoriaConDisponibilidades(dto: any): Observable<Tutoria> {
+    console.log('🌐 TutoriaService.createTutoriaConDisponibilidades - DTO recibido:', dto);
+    const headers = this.authService.getAuthHeaders();
+    
+    console.log('📤 TutoriaService.createTutoriaConDisponibilidades - Payload enviado:', dto);
+    console.log('🌐 URL:', `${this.apiUrl}/con-disponibilidades`);
+    
+    return this.http.post<Tutoria>(`${this.apiUrl}/con-disponibilidades`, dto, { headers }).pipe(
+      tap(response => {
+        console.log('✅ TutoriaService.createTutoriaConDisponibilidades - Respuesta exitosa:', response);
+      }),
+      catchError(error => {
+        console.error('❌ TutoriaService.createTutoriaConDisponibilidades - Error:', error);
+        console.error('❌ Status:', error.status);
+        console.error('❌ Error body:', error.error);
+        console.error('❌ URL que falló:', error.url);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
    * Actualiza una tutoría existente
    */
   updateTutoria(id: number, tutoria: UpdateTutoriaDto): Observable<Tutoria> {
     const headers = this.authService.getAuthHeaders();
     return this.http.put<Tutoria>(`${this.apiUrl}/${id}`, tutoria, { headers });
+  }
+
+  /**
+   * Actualiza solo los campos editables de una tutoría (descripción, ubicación y disponibilidades)
+   */
+  updateTutoriaEditable(id: number, data: any): Observable<Tutoria> {
+    const headers = this.authService.getAuthHeaders();
+    return this.http.put<Tutoria>(`${this.apiUrl}/${id}/editable`, data, { headers });
   }
 
   /**

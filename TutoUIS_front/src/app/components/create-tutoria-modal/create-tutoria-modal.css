@@ -237,3 +237,45 @@ i.bi {
   background-color: #6c757d;
   border-color: #6c757d;
 }
+
+/* ===============================================
+   SECCIÓN DE DISPONIBILIDADES
+   =============================================== */
+.disponibilidades-section {
+  border-top: 2px solid #e9ecef;
+  padding-top: 20px;
+}
+
+.disponibilidades-section h5 {
+  color: #155724;
+  font-weight: 600;
+}
+
+.disponibilidad-item {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 12px;
+  transition: all 0.2s ease;
+}
+
+.disponibilidad-item:hover {
+  border-color: #28a745;
+  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.1);
+}
+
+.disponibilidad-item .form-label {
+  font-size: 0.85rem;
+  margin-bottom: 4px;
+  color: #495057;
+}
+
+.disponibilidad-item .form-control,
+.disponibilidad-item .form-select {
+  font-size: 0.9rem;
+}
+
+.disponibilidad-item .btn-danger {
+  font-size: 0.85rem;
+}

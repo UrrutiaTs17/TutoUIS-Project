@@ -1,407 +1,268 @@
 /* ===============================================
-   PAGE HEADER
+   CONTENEDOR PRINCIPAL
    =============================================== */
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
-  flex-wrap: wrap;
-  gap: 15px;
+.admin-tutorias-container {
+  padding: 20px;
 }
 
+/* ===============================================
+   ENCABEZADO
+   =============================================== */
 .section-header h2 {
   color: #155724;
   font-weight: 700;
-  margin: 0;
   display: flex;
   align-items: center;
-  font-size: 2rem;
+  margin-bottom: 0;
 }
 
 .section-header h2 i {
-  font-size: 1.8rem;
+  margin-right: 10px;
 }
 
 /* ===============================================
-   CARD
+   BARRA DE BÚSQUEDA
    =============================================== */
-
-.card {
-  border: none;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
-}
-
-.card-body {
-  padding: 25px;
-}
-
-/* ===============================================
-   SEARCH AND FILTER BAR
-   =============================================== */
-
-.search-bar {
-  display: flex;
-  gap: 15px;
-  margin-bottom: 25px;
-  flex-wrap: wrap;
-}
-
-.search-bar .input-group {
-  flex: 1;
-  min-width: 250px;
-  position: relative;
-}
-
-.search-bar .input-group-text {
-  background: white;
-  border: 1px solid #ced4da;
-  border-right: none;
-  border-radius: 8px 0 0 8px;
-  color: #6c757d;
-}
-
 .search-bar .form-control {
-  border-radius: 0 8px 8px 0;
-  border: 1px solid #ced4da;
-  border-left: none;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
   padding: 10px 15px;
-  transition: all 0.3s ease;
 }
 
 .search-bar .form-control:focus {
-  border-color: #20c953;
-  box-shadow: 0 0 0 0.2rem rgba(32, 201, 83, 0.25);
+  border-color: #28a745;
+  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.15);
 }
 
-.search-bar .col-md-3 .form-control {
-  border-radius: 8px;
-  border: 1px solid #ced4da;
-  padding: 10px 15px;
-  transition: all 0.3s ease;
+.search-bar .input-group-text {
+  background-color: white;
+  border: 1px solid #dee2e6;
+  border-right: none;
+  color: #28a745;
 }
 
-.search-bar .col-md-3 .form-control:focus {
-  border-color: #20c953;
-  box-shadow: 0 0 0 0.2rem rgba(32, 201, 83, 0.25);
+.search-bar .input-group .form-control {
+  border-left: none;
 }
 
 /* ===============================================
-   ACTION BUTTONS
+   BOTONES DE ACCIÓN
    =============================================== */
-
-.action-buttons {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 25px;
-  flex-wrap: wrap;
-}
-
-.action-buttons .btn {
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-weight: 500;
-  font-size: 14px;
-  transition: all 0.3s ease;
-  border: none;
-}
-
 .action-buttons .btn-primary {
-  background-color: #20c953;
-  color: white;
+  background-color: #28a745;
+  border: none;
+  font-weight: 500;
+  padding: 10px 20px;
+  border-radius: 6px;
 }
 
 .action-buttons .btn-primary:hover {
-  background-color: #17a344;
-  box-shadow: 0 4px 8px rgba(32, 201, 83, 0.3);
+  background-color: #218838;
 }
 
 .action-buttons .btn-secondary {
-  background-color: #6c757d;
-  color: white;
-}
-
-.action-buttons .btn-secondary:hover {
-  background-color: #5a6268;
+  font-weight: 500;
+  padding: 10px 20px;
+  border-radius: 6px;
 }
 
 /* ===============================================
-   LOADING SPINNER
+   LISTA DE TUTORÍAS
    =============================================== */
-
-.text-center.py-5 {
-  padding: 60px 0;
+.tutorias-list {
+  margin-top: 20px;
 }
 
-.spinner-border {
-  width: 3rem;
-  height: 3rem;
-  border-width: 0.3rem;
+.tutoria-item {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  transition: all 0.3s ease;
 }
 
-/* ===============================================
-   TABLE
-   =============================================== */
-
-.table-responsive {
-  background-color: white;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+.tutoria-item:hover {
+  border-color: #28a745;
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.15);
+  transform: translateY(-2px);
 }
 
-.table {
-  margin-bottom: 0;
-  font-size: 14px;
+.tutoria-content {
+  flex: 1;
+  min-width: 0;
 }
 
-.table thead.table-success {
-  background-color: #20c953 !important;
+.tutoria-main {
+  margin-bottom: 15px;
 }
 
-.table thead th {
-  border: none;
-  padding: 15px 12px;
-  color: white;
+.tutoria-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.tutoria-id {
+  color: #6c757d;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background-color: #f8f9fa;
+  padding: 4px 10px;
+  border-radius: 4px;
+}
+
+.tutoria-title h4 {
+  margin: 0;
+  color: #155724;
+  font-size: 1.25rem;
+  font-weight: 600;
+  flex: 1;
+  min-width: 0;
+}
+
+.estado-badge {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
-  font-size: 12px;
-  letter-spacing: 0.5px;
 }
 
-.table tbody tr {
-  transition: background-color 0.2s ease;
-  border-bottom: 1px solid #e9ecef;
-}
-
-.table tbody tr:hover {
-  background-color: #f8f9fa;
-}
-
-.table tbody td {
-  padding: 12px;
-  vertical-align: middle;
-  border: none;
-}
-
-.table tbody .text-muted.small {
-  color: #6c757d !important;
-  font-size: 13px;
-}
-
-.table tbody .fw-bold {
-  color: #212529;
-  font-weight: 600;
-}
-
-/* ===============================================
-   BADGES
-   =============================================== */
-
-.badge {
-  padding: 6px 12px;
-  font-weight: 500;
-  font-size: 12px;
-  border-radius: 6px;
-}
-
-.badge.bg-success {
+.estado-badge.badge.bg-success {
   background-color: #28a745 !important;
+  color: white;
 }
 
-.badge.bg-secondary {
+.estado-badge.badge.bg-secondary {
   background-color: #6c757d !important;
+  color: white;
 }
 
-/* ===============================================
-   TABLE ACTION BUTTONS
-   =============================================== */
+.tutoria-descripcion {
+  color: #6c757d;
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
 
-.table .btn-sm {
-  padding: 6px 12px;
-  font-size: 13px;
+.tutoria-details {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #495057;
+  font-size: 0.9rem;
+}
+
+.detail-item i {
+  color: #28a745;
+  font-size: 1.1rem;
+}
+
+.tutoria-actions {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.tutoria-actions .btn {
+  padding: 8px 12px;
   border-radius: 6px;
+  font-weight: 500;
   transition: all 0.2s ease;
 }
 
-.table .btn-warning {
+.tutoria-actions .btn i {
+  font-size: 1rem;
+}
+
+.tutoria-actions .btn-warning {
   background-color: #ffc107;
   border-color: #ffc107;
-  color: #212529;
+  color: #000;
 }
 
-.table .btn-warning:hover:not(:disabled) {
+.tutoria-actions .btn-warning:hover {
   background-color: #e0a800;
+  border-color: #d39e00;
+  transform: scale(1.05);
 }
 
-.table .btn-danger {
+.tutoria-actions .btn-danger {
   background-color: #dc3545;
   border-color: #dc3545;
 }
 
-.table .btn-danger:hover:not(:disabled) {
+.tutoria-actions .btn-danger:hover {
   background-color: #c82333;
-}
-
-.table .btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+  border-color: #bd2130;
+  transform: scale(1.05);
 }
 
 /* ===============================================
-   ALERTS
+   ALERTAS
    =============================================== */
-
 .alert {
-  border: none;
   border-radius: 8px;
-  padding: 15px 20px;
-  margin-bottom: 20px;
-}
-
-.alert-danger {
-  background-color: #f8d7da;
-  color: #721c24;
-  border-left: 4px solid #dc3545;
-}
-
-.alert-success {
-  background-color: #d4edda;
-  color: #155724;
-  border-left: 4px solid #28a745;
+  border: none;
 }
 
 /* ===============================================
-   EMPTY STATE
+   SPINNER
    =============================================== */
-
-.text-center.text-muted {
-  padding: 40px 20px;
-  color: #6c757d;
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
 }
 
 /* ===============================================
    RESPONSIVE
    =============================================== */
-
 @media (max-width: 768px) {
-  .section-header h2 {
-    font-size: 1.5rem;
-  }
-  
-  .section-header h2 i {
-    font-size: 1.5rem;
-  }
-  
-  .search-bar {
+  .tutoria-item {
     flex-direction: column;
+    align-items: flex-start;
   }
   
-  .search-bar .input-group,
-  .search-bar .col-md-3 {
+  .tutoria-actions {
     width: 100%;
+    justify-content: flex-end;
   }
   
-  .action-buttons {
-    flex-direction: column;
+  .tutoria-details {
+    gap: 12px;
   }
   
-  .action-buttons .btn {
-    width: 100%;
-  }
-  
-  .table {
-    font-size: 12px;
-  }
-  
-  .table thead th,
-  .table tbody td {
-    padding: 8px;
-  }
-}
-
-.alert-danger {
-  background-color: #f8d7da;
-  color: #721c24;
-  border-left: 4px solid #dc3545;
-}
-
-.alert-success {
-  background-color: #d4edda;
-  color: #155724;
-  border-left: 4px solid #28a745;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .admin-tutorias-container {
-    padding: 15px;
-  }
-
-  .section-header h2 {
-    font-size: 1.4rem;
-  }
-
-  .action-buttons {
-    flex-direction: column;
-  }
-
-  .action-buttons .btn {
-    width: 100%;
-  }
-
-  .table {
-    font-size: 0.9rem;
-  }
-
-  .table thead th {
-    padding: 10px 8px;
-  }
-
-  .table tbody td {
-    padding: 10px 8px;
-  }
-
-  .table .btn-sm {
-    padding: 4px 8px;
-    font-size: 0.75rem;
+  .detail-item {
+    font-size: 0.85rem;
   }
 }
 
 @media (max-width: 576px) {
-  .search-bar .row {
-    row-gap: 10px;
+  .tutoria-title {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
   }
-
-  .search-bar .col-md-6,
-  .search-bar .col-md-3 {
-    width: 100%;
+  
+  .tutoria-title h4 {
+    font-size: 1.1rem;
   }
-
-  .table-responsive {
-    font-size: 0.85rem;
+  
+  .tutoria-details {
+    flex-direction: column;
+    gap: 8px;
   }
-
-  .section-header h2 {
-    font-size: 1.2rem;
-  }
-}
-
-/* Animaciones */
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.admin-tutorias-container {
-  animation: slideIn 0.3s ease;
 }

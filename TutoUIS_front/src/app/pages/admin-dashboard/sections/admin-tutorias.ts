@@ -2,18 +2,20 @@ import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CreateTutoriaModal } from '../../../components/create-tutoria-modal/create-tutoria-modal';
+import { EditTutoriaModal } from '../../../components/edit-tutoria-modal/edit-tutoria-modal';
 import { TutoriaService, Tutoria } from '../../../services/tutoria.service';
 
 @Component({
   selector: 'app-admin-tutorias',
   standalone: true,
-  imports: [CommonModule, FormsModule, CreateTutoriaModal],
+  imports: [CommonModule, FormsModule, CreateTutoriaModal, EditTutoriaModal],
   templateUrl: './admin-tutorias.html',
   styleUrl: './admin-tutorias.css'
 })
 export class AdminTutorias implements OnInit {
   
   @ViewChild('createModal') createTutoriaModal?: CreateTutoriaModal;
+  @ViewChild('editModal') editTutoriaModal?: EditTutoriaModal;
   
   // Listas
   tutorias: Tutoria[] = [];
@@ -149,11 +151,14 @@ export class AdminTutorias implements OnInit {
   }
   
   /**
-   * Edita una tutoría
+   * Edita una tutoría (abre el modal de edición)
    */
   editarTutoria(tutoria: Tutoria): void {
-    if (this.createTutoriaModal) {
-      this.createTutoriaModal.openForEdit(tutoria);
+    console.log('📝 Abriendo modal de edición para:', tutoria);
+    if (this.editTutoriaModal) {
+      this.editTutoriaModal.open(tutoria);
+    } else {
+      console.error('❌ EditTutoriaModal no está disponible');
     }
   }
 

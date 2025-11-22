@@ -76,58 +76,62 @@
     <p class="mt-2 text-muted">Cargando tutorías...</p>
   </div>
 
-  <!-- Tabla de Tutorías -->
-  <div *ngIf="!loading && !error" class="table-responsive">
-    <table class="table table-hover table-striped">
-      <thead class="table-success">
-        <tr>
-          <th>ID</th>
-          <th>Asignatura</th>
-          <th>Descripción</th>
-          <th>Tutor</th>
-          <th>Carrera</th>
-          <th>Capacidad</th>
-          <th>Ubicación</th>
-          <th>Estado</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let tutoria of tutoriasFiltradas">
-          <td class="text-muted small">{{ tutoria.idTutoria }}</td>
-          <td class="fw-bold">{{ tutoria.nombreAsignatura }}</td>
-          <td>{{ tutoria.descripcion || 'N/A' }}</td>
-          <td>{{ tutoria.nombreTutor }}</td>
-          <td>{{ tutoria.nombreCarrera }}</td>
-          <td class="text-center">{{ tutoria.capacidadMaxima }}</td>
-          <td>{{ tutoria.ubicacion || 'N/A' }}</td>
-          <td>
-            <span [ngClass]="getClaseEstado(tutoria.estado)">
+  <!-- Lista de Tutorías -->
+  <div *ngIf="!loading && !error" class="tutorias-list">
+    <div class="tutoria-item" *ngFor="let tutoria of tutoriasFiltradas">
+      <div class="tutoria-content">
+        <div class="tutoria-main">
+          <div class="tutoria-title">
+            <span class="tutoria-id">#{{ tutoria.idTutoria }}</span>
+            <h4>{{ tutoria.nombreAsignatura }}</h4>
+            <span class="estado-badge" [ngClass]="getClaseEstado(tutoria.estado)">
               {{ getNombreEstado(tutoria.estado) }}
             </span>
-          </td>
-          <td>
-            <button 
-              class="btn btn-sm btn-warning me-2"
-              title="Editar"
-              (click)="editarTutoria(tutoria)">
-              <i class="bi bi-pencil"></i>
-            </button>
-            <button 
-              class="btn btn-sm btn-danger"
-              title="Eliminar"
-              (click)="eliminarTutoria(tutoria.idTutoria, tutoria.nombreAsignatura || tutoria.descripcion || 'Tutoría')">
-              <i class="bi bi-trash"></i>
-            </button>
-          </td>
-        </tr>
-        <tr *ngIf="tutoriasFiltradas.length === 0 && !loading">
-          <td colspan="9" class="text-center text-muted py-4">
-            <i class="bi bi-inbox"></i> No hay tutorías disponibles
-          </td>
-        </tr>
-      </tbody>
-    </table>
+          </div>
+          <p class="tutoria-descripcion">{{ tutoria.descripcion || 'Sin descripción' }}</p>
+        </div>
+        
+        <div class="tutoria-details">
+          <div class="detail-item">
+            <i class="bi bi-person-circle"></i>
+            <span>{{ tutoria.nombreTutor }}</span>
+          </div>
+          <div class="detail-item">
+            <i class="bi bi-mortarboard-fill"></i>
+            <span>{{ tutoria.nombreCarrera }}</span>
+          </div>
+          <div class="detail-item">
+            <i class="bi bi-people-fill"></i>
+            <span>{{ tutoria.capacidadMaxima }} estudiantes</span>
+          </div>
+          <div class="detail-item" *ngIf="tutoria.ubicacion">
+            <i class="bi bi-geo-alt-fill"></i>
+            <span>{{ tutoria.ubicacion }}</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="tutoria-actions">
+        <button 
+          class="btn btn-warning btn-sm"
+          title="Editar"
+          (click)="editarTutoria(tutoria)">
+          <i class="bi bi-pencil-fill"></i>
+        </button>
+        <button 
+          class="btn btn-danger btn-sm"
+          title="Eliminar"
+          (click)="eliminarTutoria(tutoria.idTutoria, tutoria.nombreAsignatura || 'Tutoría')">
+          <i class="bi bi-trash-fill"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mensaje cuando no hay tutorías -->
+    <div *ngIf="tutoriasFiltradas.length === 0" class="text-center py-5 text-muted">
+      <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+      <p class="mt-3">No hay tutorías disponibles</p>
+    </div>
   </div>
 
   <!-- Información -->
@@ -142,3 +146,9 @@
   #createModal
   (tutoriaCreated)="onTutoriaCreated($event)">
 </app-create-tutoria-modal>
+
+<!-- Modal para Editar Tutoría -->
+<app-edit-tutoria-modal 
+  #editModal
+  (tutoriaUpdated)="onTutoriaCreated($event)">
+</app-edit-tutoria-modal>

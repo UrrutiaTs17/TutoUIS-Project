@@ -4,6 +4,15 @@ import { FormsModule } from '@angular/forms';
 import { TutoriaService, Carrera, TutorInfo, CreateTutoriaDto } from '../../services/tutoria.service';
 import { AdminService, Usuario } from '../../services/admin.service';
 import { AsignaturaService, Asignatura } from '../../services/asignatura.service';
+import { DisponibilidadService } from '../../services/disponibilidad.service';
+
+// Interfaz para Disponibilidad
+interface Disponibilidad {
+  diaSemana: string;
+  fecha: string;
+  horaInicio: string;
+  horaFin: string;
+}
 
 @Component({
   selector: 'app-create-tutoria-modal',
@@ -31,6 +40,9 @@ export class CreateTutoriaModal implements OnInit {
     ubicacion: ''
   };
 
+  // Disponibilidades de la tutoría
+  disponibilidades: Disponibilidad[] = [];
+
   // Modo de edición
   isEditMode: boolean = false;
   tutoriaIdEditar: number | null = null;
@@ -47,6 +59,7 @@ export class CreateTutoriaModal implements OnInit {
   submitting: boolean = false;
   errorMessage: string = '';
   successMessage: string = '';
+  datosIntentadosCargar: boolean = false; // Para saber si ya se intentó cargar datos
   
   // Contador de peticiones pendientes
   private pendingRequests: number = 0;
@@ -54,7 +67,8 @@ export class CreateTutoriaModal implements OnInit {
   constructor(
     private tutoriaService: TutoriaService,
     private adminService: AdminService,
-    private asignaturaService: AsignaturaService
+    private asignaturaService: AsignaturaService,
+    private disponibilidadService: DisponibilidadService
   ) {}
 
   ngOnInit(): void {
@@ -198,19 +212,16 @@ export class CreateTutoriaModal implements OnInit {
     this.tutoriaIdEditar = null;
     this.resetForm();
     
-    // Mostrar el modal primero
+    // Mostrar el modal inmediatamente
     if (this.bootstrapModal) {
       this.bootstrapModal.show();
     }
     
-    // Luego cargar datos en el siguiente ciclo
+    // Cargar datos en segundo plano sin mostrar loading
     setTimeout(() => {
-      // Solo recargar si no hay datos o si queremos forzar la recarga
+      // Solo recargar si no hay datos
       if (this.tutores.length === 0 || this.carreras.length === 0 || this.asignaturas.length === 0) {
-        this.recargarDatos();
-      } else {
-        // Si ya hay datos, marcar como no cargando
-        this.loading = false;
+        this.recargarDatosSilencioso();
       }
     }, 0);
   }
@@ -219,6 +230,7 @@ export class CreateTutoriaModal implements OnInit {
    * Abre el modal en modo edición
    */
   openForEdit(tutoria: any): void {
+    console.log('📝 Abriendo modal en modo EDICIÓN para tutoría:', tutoria);
     this.isEditMode = true;
     this.tutoriaIdEditar = tutoria.idTutoria;
     
@@ -237,13 +249,32 @@ export class CreateTutoriaModal implements OnInit {
         nombre: tutoria.nombre || tutoria.nombreAsignatura || '',
         descripcion: tutoria.descripcion || '',
         capacidadMaxima: tutoria.capacidadMaxima || 30,
-        ubicacion: tutoria.ubicacion || ''
+        ubicacion: tutoria.ubicacion || tutoria.lugar || ''
       };
       
       // Si hay carrera, actualizar asignaturas filtradas
       if (this.form.idCarrera) {
         this.actualizarAsignaturasFiltradas();
       }
+      
+      // Cargar disponibilidades existentes
+      console.log('🔍 Cargando disponibilidades existentes para tutoría:', tutoria.idTutoria);
+      this.disponibilidadService.getDisponibilidadesByTutoria(tutoria.idTutoria).subscribe({
+        next: (disponibilidades: any) => {
+          console.log('✅ Disponibilidades cargadas:', disponibilidades);
+          this.disponibilidades = disponibilidades.map((disp: any) => ({
+            diaSemana: disp.diaSemana,
+            fecha: disp.fecha,
+            horaInicio: disp.horaInicio.substring(0, 5), // HH:mm
+            horaFin: disp.horaFin.substring(0, 5) // HH:mm
+          }));
+          console.log('📋 Disponibilidades mapeadas:', this.disponibilidades);
+        },
+        error: (error: any) => {
+          console.error('❌ Error cargando disponibilidades:', error);
+          this.disponibilidades = [];
+        }
+      });
     }, 500);
     
     if (this.bootstrapModal) {
@@ -252,7 +283,7 @@ export class CreateTutoriaModal implements OnInit {
   }
 
   /**
-   * Recarga los datos de tutores y carreras
+   * Recarga los datos de tutores y carreras (con loading visible)
    */
   recargarDatos(): void {
     console.log('🔄 Recargando datos de tutores y carreras...');
@@ -260,8 +291,25 @@ export class CreateTutoriaModal implements OnInit {
     this.pendingRequests = 3; // Tutores, carreras, asignaturas
     this.errorMessage = '';
     this.successMessage = '';
+    this.datosIntentadosCargar = true;
     
     // Iniciar las cargas
+    this.loadTutores();
+    this.loadCarreras();
+    this.loadAsignaturas();
+  }
+
+  /**
+   * Recarga los datos sin mostrar el spinner de carga
+   */
+  recargarDatosSilencioso(): void {
+    console.log('🔄 Cargando datos en segundo plano...');
+    this.pendingRequests = 3; // Tutores, carreras, asignaturas
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.datosIntentadosCargar = true;
+    
+    // Iniciar las cargas sin activar loading
     this.loadTutores();
     this.loadCarreras();
     this.loadAsignaturas();
@@ -377,9 +425,10 @@ export class CreateTutoriaModal implements OnInit {
   submitForm(): void {
     console.log('📝 submitForm - Iniciando validación y envío');
     console.log('📋 Datos del formulario:', this.form);
-    console.log('🔧 Modo:', this.isEditMode ? 'EDICIÓN' : 'CREACIÓN');
+    console.log('� Disponibilidades:', this.disponibilidades);
+    console.log('�🔧 Modo:', this.isEditMode ? 'EDICIÓN' : 'CREACIÓN');
     
-    // Validaciones
+    // Validaciones básicas
     if (!this.form.idTutor) {
       this.errorMessage = 'Por favor selecciona un tutor';
       return;
@@ -401,21 +450,48 @@ export class CreateTutoriaModal implements OnInit {
       return;
     }
 
+    // Validar disponibilidades
+    if (this.disponibilidades.length === 0) {
+      this.errorMessage = 'Por favor agrega al menos una disponibilidad horaria';
+      return;
+    }
+
+    // Validar que todas las disponibilidades estén completas
+    for (let i = 0; i < this.disponibilidades.length; i++) {
+      const disp = this.disponibilidades[i];
+      if (!disp.diaSemana || !disp.fecha || !disp.horaInicio || !disp.horaFin) {
+        this.errorMessage = `La disponibilidad ${i + 1} tiene campos incompletos`;
+        return;
+      }
+      // Validar que hora fin sea mayor que hora inicio
+      if (disp.horaInicio >= disp.horaFin) {
+        this.errorMessage = `La disponibilidad ${i + 1}: la hora de fin debe ser mayor que la hora de inicio`;
+        return;
+      }
+    }
+
     console.log('✅ Validaciones pasadas');
     this.submitting = true;
     this.errorMessage = '';
 
-    const tutoriaDto: CreateTutoriaDto = {
+    const tutoriaDto: any = {
       idTutor: parseInt(this.form.idTutor),
       idCarrera: parseInt(this.form.idCarrera),
       idAsignatura: parseInt(this.form.idAsignatura),
       modalidad: this.form.modalidad,
       descripcion: this.form.descripcion.trim() || undefined,
       capacidadMaxima: this.form.capacidadMaxima,
-      ubicacion: this.form.ubicacion.trim() || undefined
+      ubicacion: this.form.ubicacion.trim() || undefined,
+      disponibilidades: this.disponibilidades.map(disp => ({
+        diaSemana: disp.diaSemana,
+        fecha: disp.fecha,
+        horaInicio: disp.horaInicio + ':00', // Agregar segundos
+        horaFin: disp.horaFin + ':00', // Agregar segundos
+        aforoMaximo: this.form.capacidadMaxima
+      }))
     };
 
-    console.log('📦 DTO creado:', tutoriaDto);
+    console.log('📦 DTO creado con disponibilidades:', tutoriaDto);
 
     if (this.isEditMode && this.tutoriaIdEditar) {
       // MODO EDICIÓN
@@ -443,12 +519,12 @@ export class CreateTutoriaModal implements OnInit {
         }
       });
     } else {
-      // MODO CREACIÓN
-      console.log('🚀 Llamando a tutoriaService.createTutoria...');
-      this.tutoriaService.createTutoria(tutoriaDto).subscribe({
+      // MODO CREACIÓN (con disponibilidades)
+      console.log('🚀 Llamando a tutoriaService.createTutoriaConDisponibilidades...');
+      this.tutoriaService.createTutoriaConDisponibilidades(tutoriaDto).subscribe({
         next: (tutoria) => {
-          console.log('✅ Tutoría creada exitosamente:', tutoria);
-          this.successMessage = '✓ Tutoría creada exitosamente';
+          console.log('✅ Tutoría con disponibilidades creada exitosamente:', tutoria);
+          this.successMessage = '✓ Tutoría creada exitosamente con sus disponibilidades';
           this.submitting = false;
           
           // Emitir evento para que el componente padre actualice la lista
@@ -456,13 +532,13 @@ export class CreateTutoriaModal implements OnInit {
           
           // Mostrar alert y cerrar modal
           setTimeout(() => {
-            alert('✓ Tutoría creada exitosamente');
+            alert('✓ Tutoría creada exitosamente con sus disponibilidades');
             this.close();
             this.successMessage = '';
           }, 100);
         },
         error: (error) => {
-          console.error('❌ Error creando tutoría:', error);
+          console.error('❌ Error creando tutoría con disponibilidades:', error);
         console.error('❌ Detalles completos:', {
           status: error.status,
           statusText: error.statusText,
@@ -494,6 +570,26 @@ export class CreateTutoriaModal implements OnInit {
   /**
    * Resetea el formulario
    */
+  /**
+   * Agregar una nueva disponibilidad
+   */
+  agregarDisponibilidad(): void {
+    const nuevaDisponibilidad: Disponibilidad = {
+      diaSemana: '',
+      fecha: '',
+      horaInicio: '',
+      horaFin: ''
+    };
+    this.disponibilidades.push(nuevaDisponibilidad);
+  }
+
+  /**
+   * Eliminar una disponibilidad por índice
+   */
+  eliminarDisponibilidad(index: number): void {
+    this.disponibilidades.splice(index, 1);
+  }
+
   resetForm(): void {
     this.form = {
       idTutor: '',
@@ -505,6 +601,7 @@ export class CreateTutoriaModal implements OnInit {
       capacidadMaxima: 30,
       ubicacion: ''
     };
+    this.disponibilidades = [];
     this.isEditMode = false;
     this.tutoriaIdEditar = null;
     this.carreraSeleccionadaNombre = '';

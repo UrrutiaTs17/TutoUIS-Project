@@ -102,6 +102,26 @@ public class TutoriaController {
         }
     }
 
+    @Operation(summary = "Crear tutoría con disponibilidades", description = "Crea una tutoría y sus disponibilidades en una transacción. Requiere autenticación")
+    @SecurityRequirement(name = "bearer-jwt")
+    @PostMapping("/con-disponibilidades")
+    public ResponseEntity<?> crearTutoriaConDisponibilidades(@RequestBody uis.edu.tutouis_project.dto.CrearTutoriaConDisponibilidadDto dto) {
+        try {
+            System.out.println("🔵 TutoriaController.crearTutoriaConDisponibilidades - Datos recibidos:");
+            System.out.println("   idTutor: " + dto.getIdTutor());
+            System.out.println("   idAsignatura: " + dto.getIdAsignatura());
+            System.out.println("   disponibilidades: " + (dto.getDisponibilidades() != null ? dto.getDisponibilidades().size() : 0));
+            
+            Tutoria tutoriaCreada = tutoriaService.crearTutoriaConDisponibilidades(dto);
+            System.out.println("✅ Tutoría con disponibilidades guardada exitosamente con ID: " + tutoriaCreada.getIdTutoria());
+            return ResponseEntity.ok(tutoriaCreada);
+        } catch (Exception e) {
+            System.err.println("❌ Error guardando tutoría con disponibilidades: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
+    }
+
     @Operation(summary = "Actualizar tutoría", description = "Requiere autenticación")
     @SecurityRequirement(name = "bearer-jwt")
     @PutMapping("/{id}")
@@ -120,15 +140,35 @@ public class TutoriaController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @Operation(summary = "Eliminar tutoría", description = "Requiere autenticación")
+    @Operation(summary = "Actualizar campos editables de tutoría", description = "Actualiza solo descripción, ubicación y disponibilidades. Requiere autenticación")
+    @SecurityRequirement(name = "bearer-jwt")
+    @PutMapping("/{id}/editable")
+    public ResponseEntity<?> actualizarTutoriaEditable(@PathVariable Integer id, @RequestBody java.util.Map<String, Object> datos) {
+        try {
+            System.out.println("📝 TutoriaController.actualizarTutoriaEditable - ID: " + id);
+            System.out.println("   Datos recibidos: " + datos);
+            
+            Tutoria tutoriaActualizada = tutoriaService.actualizarTutoriaEditable(id, datos);
+            System.out.println("✅ Tutoría actualizada exitosamente");
+            return ResponseEntity.ok(tutoriaActualizada);
+        } catch (RuntimeException e) {
+            System.err.println("❌ Error actualizando tutoría: " + e.getMessage());
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
+    }
+
+    @Operation(summary = "Eliminar tutoría", description = "Elimina una tutoría junto con sus disponibilidades y reservas asociadas. Requiere autenticación")
     @SecurityRequirement(name = "bearer-jwt")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> eliminarTutoria(@PathVariable Integer id) {
-        return tutoriaRepository.findById(id)
-                .map(tutoria -> {
-                    tutoriaRepository.deleteById(id);
-                    return ResponseEntity.ok().body("Tutoría eliminada");
-                })
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        try {
+            System.out.println("🗑️ TutoriaController.eliminarTutoria - Eliminando tutoría ID: " + id);
+            tutoriaService.eliminarTutoriaConDependencias(id);
+            System.out.println("✅ Tutoría eliminada exitosamente con todas sus dependencias");
+            return ResponseEntity.ok().body("Tutoría eliminada junto con sus disponibilidades y reservas");
+        } catch (RuntimeException e) {
+            System.err.println("❌ Error eliminando tutoría: " + e.getMessage());
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
     }
 }

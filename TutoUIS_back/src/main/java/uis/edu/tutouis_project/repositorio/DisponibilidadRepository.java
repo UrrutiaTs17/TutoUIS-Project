@@ -53,5 +53,24 @@ public interface DisponibilidadRepository extends JpaRepository<Disponibilidad, 
            "WHERE d.idTutoria = :idTutoria " +
            "ORDER BY d.fecha DESC, d.horaInicio ASC")
     List<Disponibilidad> findByIdTutoriaWithDetails(@Param("idTutoria") Integer idTutoria);
+    
+    /**
+     * Busca disponibilidades de un tutor específico que se solapen con un rango de fecha/hora dado
+     * Útil para validar conflictos de horario al crear nuevas disponibilidades
+     */
+    @Query("SELECT d FROM Disponibilidad d " +
+           "JOIN d.tutoria t " +
+           "WHERE t.idTutor = :idTutor " +
+           "AND d.fecha = :fecha " +
+           "AND d.idEstado = 1 " +  // Solo disponibilidades activas
+           "AND (" +
+           "  (d.horaInicio < :horaFin AND d.horaFin > :horaInicio) " +  // Hay solapamiento
+           ")")
+    List<Disponibilidad> findConflictosHorario(
+        @Param("idTutor") Integer idTutor,
+        @Param("fecha") java.sql.Date fecha,
+        @Param("horaInicio") java.sql.Time horaInicio,
+        @Param("horaFin") java.sql.Time horaFin
+    );
 }
 

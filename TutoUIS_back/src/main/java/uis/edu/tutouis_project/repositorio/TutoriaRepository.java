@@ -41,4 +41,17 @@ public interface TutoriaRepository extends JpaRepository<Tutoria, Integer> {
         ORDER BY t.idTutoria
     """)
     List<TutoriaResponseDto> findAllTutoriasWithDetails();
+    
+    /**
+     * Cuenta las reservas asociadas a una disponibilidad
+     */
+    @Query("SELECT COUNT(r) FROM Reserva r WHERE r.idDisponibilidad = :idDisponibilidad")
+    long countReservasByDisponibilidad(@org.springframework.data.repository.query.Param("idDisponibilidad") Integer idDisponibilidad);
+    
+    /**
+     * Elimina todas las reservas asociadas a una disponibilidad
+     */
+    @org.springframework.data.jpa.repository.Modifying
+    @Query("DELETE FROM Reserva r WHERE r.idDisponibilidad = :idDisponibilidad")
+    void deleteReservasByDisponibilidad(@org.springframework.data.repository.query.Param("idDisponibilidad") Integer idDisponibilidad);
 }
