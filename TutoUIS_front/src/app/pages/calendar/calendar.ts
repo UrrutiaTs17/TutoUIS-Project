@@ -6,7 +6,7 @@ import { debounceTime, distinctUntilChanged, map, startWith, catchError, finaliz
 import { ModalService } from '../../services/modal.service';
 import { TutoriaService, Tutoria } from '../../services/tutoria.service';
 import { DisponibilidadService, Disponibilidad } from '../../services/disponibilidad.service';
-import { ReservationService, CreateReservaDto } from '../../services/reservation.service';
+import { ReservationService, CreateReservaDto, Reserva } from '../../services/reservation.service';
 import { AuthService } from '../../services/auth.service';
 
 type MateriaCatalogo = {
@@ -77,8 +77,12 @@ export class CalendarComponent implements OnInit {
   
   // Modal de slots de 15 minutos
   showSlotModal = false;
+  showReservationsModal = false;
   selectedDisponibilidad: Disponibilidad | null = null;
   selectedTutoria: Tutoria | null = null;
+  loadingReservations = false;
+  reservationsError = '';
+  reservationsForSlot: Reserva[] = [];
   availableSlots: { inicio: string; fin: string; display: string }[] = [];
   selectedSlot: { inicio: string; fin: string } | null = null;
   observaciones = '';
@@ -395,10 +399,40 @@ trackMateria = (_: number, m: MateriaCatalogo) => m.id; // o `${m.id}-${m.nombre
     this.selected = { hora, dia };
     this.selectedDisponibilidad = disponibilidad;
     this.selectedTutoria = tutoria;
+
+    // Si estamos en modo tutor (tutorId definido y buscador oculto), mostrar lista de reservas
+    if (this.tutorId && !this.showSearch) {
+      this.loadReservationsForDisponibilidad(disponibilidad.idDisponibilidad);
+      return;
+    }
+
+    // Modo estudiante: creación de reserva
     this.generateTimeSlots(disponibilidad);
     this.showSlotModal = true;
     this.errorMessage = '';
     this.cdr.detectChanges();
+  }
+
+  private loadReservationsForDisponibilidad(idDisponibilidad: number) {
+    this.loadingReservations = true;
+    this.reservationsError = '';
+    this.reservationsForSlot = [];
+
+    this.reservationService.getReservationsByDisponibilidad(idDisponibilidad).subscribe({
+      next: (list) => {
+        this.reservationsForSlot = list || [];
+        this.loadingReservations = false;
+        this.showReservationsModal = true;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('❌ Error cargando reservas de la disponibilidad:', err);
+        this.reservationsError = err?.error?.message || 'No se pudieron cargar las reservas de esta franja.';
+        this.loadingReservations = false;
+        this.showReservationsModal = true;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   /**
@@ -445,6 +479,14 @@ trackMateria = (_: number, m: MateriaCatalogo) => m.id; // o `${m.id}-${m.nombre
     this.observaciones = '';
     this.errorMessage = '';
     this.creandoReserva = false;
+    this.cdr.detectChanges();
+  }
+
+  closeReservationsModal(): void {
+    this.showReservationsModal = false;
+    this.reservationsForSlot = [];
+    this.reservationsError = '';
+    this.loadingReservations = false;
     this.cdr.detectChanges();
   }
 
