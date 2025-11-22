@@ -18,11 +18,15 @@
   <!-- Buscador y Calendario (se muestra incluso si hay error) -->
   <div *ngIf="!loading" class="card search-card mb-4" style="max-width: 100%; margin-left: auto; margin-right: auto; box-shadow: 0 8px 32px rgba(102,187,45,0.08); border-radius: 24px; background: #f8fafc; border: 1.5px solid #e0e7ef; padding: 2.5rem 2rem;">
   <div class="card-body position-relative" style="padding:0;">
-      <h2 class="h4 mb-4 text-success" style="font-weight:1200; letter-spacing:1px;">
+      <h2 *ngIf="showSearch" class="h4 mb-4 text-success" style="font-weight:1200; letter-spacing:1px;">
         Buscar Materia
       </h2>
+      <h2 *ngIf="!showSearch" class="h4 mb-4 text-success" style="font-weight:1200; letter-spacing:1px;">
+        Horario Disponible
+      </h2>
 
-  <div class="position-relative w-100" style="max-width:100%; margin:0 auto 1.5rem auto;">
+  <!-- Sección del Buscador (solo si showSearch es true) -->
+  <div *ngIf="showSearch" class="position-relative w-100" style="max-width:100%; margin:0 auto 1.5rem auto;">
   <!-- Ícono de lupa eliminado para evitar duplicado -->
   <div class="d-flex align-items-center position-relative flex-row w-100" style="gap:0.5rem;">
           <div style="position:relative; width:100%; display:flex; align-items:center;">
@@ -126,6 +130,61 @@
           </ng-container>
         </ng-container>
       </div>
+
+      <!-- Calendario directo (cuando showSearch es false - Modo Tutor) -->
+      <div *ngIf="!showSearch" style="margin-top:0;" class="card calendar-card">
+        <div class="card-header bg-light d-flex align-items-center gap-2">
+          <i class="bi bi-calendar3" aria-hidden="true"></i>
+          <h3 class="mb-0">Mis Horarios de Tutoría</h3>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive calendar-scroll">
+            <table class="table calendar-table align-middle" role="grid" aria-label="Horario semanal">
+              <caption class="visually-hidden">Calendario semanal de tutorías</caption>
+              <thead>
+                <tr>
+                  <th class="time-col" scope="col">Hora</th>
+                  <th scope="col" *ngFor="let d of dias; trackBy: trackDia">
+                    {{ d }}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let h of horas; trackBy: trackHora">
+                  <th class="time-col" scope="row">
+                    <span class="time-badge">
+                      <i class="bi bi-clock me-1" aria-hidden="true"></i>
+                      {{ h }}
+                    </span>
+                  </th>
+                  <td *ngFor="let d of dias; trackBy: trackDia"
+                      class="schedule-cell"
+                      tabindex="0" role="button"
+                      [attr.data-hora]="h" [attr.data-dia]="d"
+                      (click)="selectCell(h,d)"
+                      (keydown.enter)="selectCell(h,d)"
+                      [class.is-selected]="isSelected(h,d)">
+                    <!-- tarjeta si hay materia colocada en esa celda -->
+                    <ng-container *ngIf="getMateria(h,d) as m; else emptyCell">
+                      <article class="curso-card" [ngClass]="m.clase" [title]="m.tooltip || ''">
+                        <h4 class="curso-title">{{ m.nombre }}</h4>
+                        <p class="curso-meta">{{ m.detalle }}</p>
+                        <div class="curso-badges">
+                          <span class="badge-cap">Cupos: {{ m.cupos }}</span>
+                        </div>
+                      </article>
+                    </ng-container>
+                    <!-- celda vacía accesible -->
+                    <ng-template #emptyCell>
+                      <span class="visually-hidden">Sin asignación</span>
+                    </ng-template>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -208,6 +267,81 @@
           <span *ngIf="creandoReserva" class="spinner-border spinner-border-sm me-2"></span>
           <i *ngIf="!creandoReserva" class="bi bi-check-circle me-2"></i>
           {{ creandoReserva ? 'Creando...' : 'Confirmar Reserva' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Lista de Reservas de la Disponibilidad (Modo Tutor) -->
+<div *ngIf="showReservationsModal" class="modal-overlay" (click)="closeReservationsModal()">
+  <div class="modal-dialog" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+      <!-- Header -->
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-people me-2"></i>Reservas de la franja
+        </h5>
+        <button type="button" class="btn-close" (click)="closeReservationsModal()"></button>
+      </div>
+
+      <!-- Body -->
+      <div class="modal-body">
+        <div class="tutoria-info mb-3">
+          <h6 class="text-success mb-1">
+            <i class="bi bi-book me-2"></i>{{ selectedTutoria?.nombre || 'Tutoría' }}
+          </h6>
+          <p class="text-muted mb-1">
+            <i class="bi bi-person me-2"></i>{{ selectedTutoria?.nombreTutor || 'Tutor' }}
+          </p>
+          <p class="text-muted mb-0">
+            <i class="bi bi-calendar-week me-2"></i>{{ selectedDisponibilidad?.diaSemana }}
+            <span class="ms-2">
+              <i class="bi bi-clock me-1"></i>{{ selectedDisponibilidad?.horaInicio }} - {{ selectedDisponibilidad?.horaFin }}
+            </span>
+          </p>
+        </div>
+
+        <div *ngIf="loadingReservations" class="text-center py-4">
+          <div class="spinner-border text-success" role="status"></div>
+          <p class="mt-2 text-muted">Cargando reservas...</p>
+        </div>
+
+        <div *ngIf="!loadingReservations && reservationsError" class="alert alert-danger">
+          <i class="bi bi-exclamation-triangle me-2"></i>{{ reservationsError }}
+        </div>
+
+        <div *ngIf="!loadingReservations && !reservationsError">
+          <div *ngIf="reservationsForSlot.length === 0" class="alert alert-info mb-0">
+            <i class="bi bi-info-circle me-2"></i>No hay reservas para esta franja.
+          </div>
+
+          <ul *ngIf="reservationsForSlot.length > 0" class="list-group">
+            <li class="list-group-item d-flex justify-content-between align-items-start" *ngFor="let r of reservationsForSlot">
+              <div class="ms-2 me-auto">
+                <div class="fw-semibold">
+                  <i class="bi bi-person-fill me-1"></i>{{ r.nombreEstudiante || ('Estudiante #' + r.idEstudiante) }}
+                </div>
+                <small class="text-muted">
+                  <i class="bi bi-clock me-1"></i>{{ r.horaInicio?.substring(0,5) }} - {{ r.horaFin?.substring(0,5) }}
+                </small>
+                <div *ngIf="r.observaciones" class="text-muted small mt-1">
+                  <i class="bi bi-chat-left-text me-1"></i>{{ r.observaciones }}
+                </div>
+              </div>
+              <span class="badge bg-success" *ngIf="(r.nombreEstado || '').toLowerCase() === 'confirmada'">{{ r.nombreEstado }}</span>
+              <span class="badge bg-secondary" *ngIf="!(r.nombreEstado || '').toLowerCase()">Pendiente</span>
+              <span class="badge bg-warning text-dark" *ngIf="(r.nombreEstado || '').toLowerCase() === 'pendiente'">Pendiente</span>
+              <span class="badge bg-danger" *ngIf="(r.nombreEstado || '').toLowerCase() === 'cancelada'">Cancelada</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" (click)="closeReservationsModal()">
+          <i class="bi bi-x-circle me-2"></i>Cerrar
         </button>
       </div>
     </div>

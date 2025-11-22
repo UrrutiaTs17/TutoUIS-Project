@@ -6,7 +6,7 @@ import { debounceTime, distinctUntilChanged, map, startWith, catchError, finaliz
 import { ModalService } from '../../services/modal.service';
 import { TutoriaService, Tutoria } from '../../services/tutoria.service';
 import { DisponibilidadService, Disponibilidad } from '../../services/disponibilidad.service';
-import { ReservationService, CreateReservaDto } from '../../services/reservation.service';
+import { ReservationService, CreateReservaDto, Reserva } from '../../services/reservation.service';
 import { AuthService } from '../../services/auth.service';
 
 type MateriaCatalogo = {
@@ -46,6 +46,9 @@ export class CalendarComponent implements OnInit {
   /** Cuando es false, ocultamos el buscador y mostramos directamente el calendario */
   @Input() showSearch: boolean = true;
 
+  /** ID del tutor para filtrar solo sus disponibilidades (opcional) */
+  @Input() tutorId?: number;
+
   /** Emite las estadísticas cuando los datos se cargan */
   @Output() statsLoaded = new EventEmitter<CalendarStats>();
 
@@ -74,8 +77,12 @@ export class CalendarComponent implements OnInit {
   
   // Modal de slots de 15 minutos
   showSlotModal = false;
+  showReservationsModal = false;
   selectedDisponibilidad: Disponibilidad | null = null;
   selectedTutoria: Tutoria | null = null;
+  loadingReservations = false;
+  reservationsError = '';
+  reservationsForSlot: Reserva[] = [];
   availableSlots: { inicio: string; fin: string; display: string }[] = [];
   selectedSlot: { inicio: string; fin: string } | null = null;
   observaciones = '';
@@ -96,6 +103,7 @@ export class CalendarComponent implements OnInit {
   ngOnInit(): void {
     console.log('📅 CalendarComponent: Inicializando...');
     console.log('📅 CalendarComponent: showSearch =', this.showSearch);
+    console.log('📅 CalendarComponent: tutorId =', this.tutorId);
     console.log('📅 CalendarComponent: ¿statsLoaded tiene observers?', this.statsLoaded.observers.length);
     
     this.loading = true;
@@ -214,9 +222,62 @@ export class CalendarComponent implements OnInit {
    */
   private construirHorario(): void {
     console.log('🔨 CalendarComponent: Construyendo horario...');
+    console.log('🔨 CalendarComponent: Total disponibilidades:', this.disponibilidades.length);
+    console.log('🔨 CalendarComponent: Total tutorías:', this.tutorias.length);
+    console.log('🔨 CalendarComponent: tutorId para filtrar:', this.tutorId);
     this.schedule.clear();
 
-    this.disponibilidades.forEach(disp => {
+    // Filtrar disponibilidades por tutorId si está presente
+    let disponibilidadesFiltradas = this.disponibilidades;
+    if (this.tutorId) {
+      console.log('🔍 CalendarComponent: Filtrando disponibilidades por tutorId:', this.tutorId);
+      console.log('🔍 CalendarComponent: Listado completo de tutorías:');
+      this.tutorias.forEach(t => {
+        console.log(`  - Tutoría ID: ${t.idTutoria}, Nombre: ${t.nombre || t.nombreAsignatura}, Tutor: ${t.nombreTutor}, idTutor: ${t.idTutor}`);
+      });
+      
+      // Primero, filtrar las tutorías del tutor
+      const tutoriasDelTutor = this.tutorias.filter(t => {
+        const idTutorNum = Number(t.idTutor);
+        const tutorIdNum = Number(this.tutorId);
+        const coincide = idTutorNum === tutorIdNum;
+        console.log(`  🔍 Comparando Tutoría ${t.idTutoria} "${t.nombre || t.nombreAsignatura}" del tutor "${t.nombreTutor}"`);
+        console.log(`     idTutor: ${t.idTutor} (${idTutorNum}) === tutorId: ${this.tutorId} (${tutorIdNum}) ? ${coincide}`);
+        return coincide;
+      });
+      
+      console.log('✅ CalendarComponent: Tutorías del tutor logueado:', tutoriasDelTutor.length);
+      if (tutoriasDelTutor.length === 0) {
+        console.warn('⚠️ CalendarComponent: NO SE ENCONTRARON TUTORÍAS para el tutor con ID:', this.tutorId);
+        console.warn('⚠️ Verifica que el id_usuario del tutor logueado coincida con el id_tutor en la tabla Tutoria');
+      } else {
+        tutoriasDelTutor.forEach(t => {
+          console.log(`  ✓ Tutoría: ${t.nombre || t.nombreAsignatura} (ID: ${t.idTutoria})`);
+        });
+      }
+      
+      const idsTutoriasDelTutor = new Set(tutoriasDelTutor.map(t => t.idTutoria));
+      
+      // Filtrar disponibilidades que corresponden a esas tutorías
+      disponibilidadesFiltradas = this.disponibilidades.filter(disp => {
+        const perteneceAlTutor = idsTutoriasDelTutor.has(disp.idTutoria);
+        if (perteneceAlTutor) {
+          const tutoria = this.tutorias.find(t => t.idTutoria === disp.idTutoria);
+          console.log(`  ✓ Disponibilidad ${disp.idDisponibilidad} - ${disp.diaSemana} ${disp.horaInicio}-${disp.horaFin} para "${tutoria?.nombre || tutoria?.nombreAsignatura}"`);
+        }
+        return perteneceAlTutor;
+      });
+      
+      console.log('🔨 CalendarComponent: Disponibilidades filtradas:', disponibilidadesFiltradas.length);
+      
+      // Si no hay disponibilidades para este tutor, mostrar mensaje y salir
+      if (disponibilidadesFiltradas.length === 0) {
+        console.warn('⚠️ CalendarComponent: No hay disponibilidades para este tutor. No se construirá el horario.');
+        return;
+      }
+    }
+
+    disponibilidadesFiltradas.forEach(disp => {
       const tutoria = this.tutorias.find(t => t.idTutoria === disp.idTutoria);
       if (!tutoria) {
         console.warn('⚠️ CalendarComponent: No se encontró tutoría para disponibilidad', disp.idDisponibilidad);
@@ -338,10 +399,40 @@ trackMateria = (_: number, m: MateriaCatalogo) => m.id; // o `${m.id}-${m.nombre
     this.selected = { hora, dia };
     this.selectedDisponibilidad = disponibilidad;
     this.selectedTutoria = tutoria;
+
+    // Si estamos en modo tutor (tutorId definido y buscador oculto), mostrar lista de reservas
+    if (this.tutorId && !this.showSearch) {
+      this.loadReservationsForDisponibilidad(disponibilidad.idDisponibilidad);
+      return;
+    }
+
+    // Modo estudiante: creación de reserva
     this.generateTimeSlots(disponibilidad);
     this.showSlotModal = true;
     this.errorMessage = '';
     this.cdr.detectChanges();
+  }
+
+  private loadReservationsForDisponibilidad(idDisponibilidad: number) {
+    this.loadingReservations = true;
+    this.reservationsError = '';
+    this.reservationsForSlot = [];
+
+    this.reservationService.getReservationsByDisponibilidad(idDisponibilidad).subscribe({
+      next: (list) => {
+        this.reservationsForSlot = list || [];
+        this.loadingReservations = false;
+        this.showReservationsModal = true;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('❌ Error cargando reservas de la disponibilidad:', err);
+        this.reservationsError = err?.error?.message || 'No se pudieron cargar las reservas de esta franja.';
+        this.loadingReservations = false;
+        this.showReservationsModal = true;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   /**
@@ -388,6 +479,14 @@ trackMateria = (_: number, m: MateriaCatalogo) => m.id; // o `${m.id}-${m.nombre
     this.observaciones = '';
     this.errorMessage = '';
     this.creandoReserva = false;
+    this.cdr.detectChanges();
+  }
+
+  closeReservationsModal(): void {
+    this.showReservationsModal = false;
+    this.reservationsForSlot = [];
+    this.reservationsError = '';
+    this.loadingReservations = false;
     this.cdr.detectChanges();
   }
 

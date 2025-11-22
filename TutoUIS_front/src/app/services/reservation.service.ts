@@ -145,4 +145,23 @@ export class ReservationService {
       })
     );
   }
+
+  /**
+   * Obtiene todas las reservas asociadas a una disponibilidad específica
+   * @param idDisponibilidad ID de la disponibilidad
+   */
+  getReservationsByDisponibilidad(idDisponibilidad: number): Observable<Reserva[]> {
+    console.log('ReservationService - Obteniendo reservas por disponibilidad:', idDisponibilidad);
+    const headers = this.authService.getAuthHeaders();
+
+    // Endpoint esperado en backend: /api/reservas/disponibilidad/{id}
+    // Si el backend usa otro path, ajustar aquí.
+    return this.http.get<Reserva[]>(`${this.API_URL}/disponibilidad/${idDisponibilidad}`, { headers }).pipe(
+      tap(list => console.log('ReservationService - Reservas encontradas para disponibilidad', idDisponibilidad, ':', list.length)),
+      catchError(err => {
+        console.error('ReservationService - Error al obtener reservas por disponibilidad:', err);
+        return throwError(() => err);
+      })
+    );
+  }
 }
