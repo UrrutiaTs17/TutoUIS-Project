@@ -538,7 +538,26 @@ trackMateria = (_: number, m: MateriaCatalogo) => m.id; // o `${m.id}-${m.nombre
       },
       error: (error) => {
         console.error('❌ Error al crear reserva:', error);
-        this.errorMessage = error.message || 'Error al crear la reserva. Inténtalo de nuevo.';
+        
+        // Manejar el error de conflicto de horario
+        let mensajeError = 'Error al crear la reserva. Inténtalo de nuevo.';
+        
+        if (error.error && error.error.mensaje) {
+          const mensaje = error.error.mensaje;
+          
+          // Detectar si es un error de conflicto de horario
+          if (mensaje.includes('Ya existe una reserva en este horario')) {
+            mensajeError = '⚠️ Este horario ya está reservado. Por favor, selecciona otro espacio de tiempo disponible.';
+          } else if (mensaje.includes('No hay cupos disponibles')) {
+            mensajeError = '⚠️ No hay cupos disponibles en esta tutoría. Por favor, selecciona otro horario.';
+          } else {
+            mensajeError = mensaje;
+          }
+        } else if (error.message) {
+          mensajeError = error.message;
+        }
+        
+        this.errorMessage = mensajeError;
         this.creandoReserva = false;
         this.cdr.detectChanges();
       }

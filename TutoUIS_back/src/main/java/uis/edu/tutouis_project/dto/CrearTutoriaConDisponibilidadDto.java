@@ -11,7 +11,6 @@ public class CrearTutoriaConDisponibilidadDto {
     private String lugar;
     private String descripcion;
     private Integer capacidadMaxima;
-    private Integer estado;
     
     // Datos de las disponibilidades
     private List<DisponibilidadDto> disponibilidades;
@@ -113,14 +112,6 @@ public class CrearTutoriaConDisponibilidadDto {
     
     public void setCapacidadMaxima(Integer capacidadMaxima) {
         this.capacidadMaxima = capacidadMaxima;
-    }
-    
-    public Integer getEstado() {
-        return estado;
-    }
-    
-    public void setEstado(Integer estado) {
-        this.estado = estado;
     }
     
     public List<DisponibilidadDto> getDisponibilidades() {

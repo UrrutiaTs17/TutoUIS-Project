@@ -42,8 +42,14 @@ public class TutoriaResponseDto {
     @Schema(description = "Lugar", example = "Edificio C")
     private String lugar;
     
-    @Schema(description = "Estado (1=Activa, 0=Inactiva)", example = "1")
-    private Integer estado;
+    @Schema(description = "ID del estado del ciclo de vida de la tutoría", example = "2")
+    private Integer idEstadoTutoria;
+    
+    @Schema(description = "Nombre del estado de la tutoría", example = "Programada")
+    private String nombreEstadoTutoria;
+    
+    @Schema(description = "Descripción del estado de la tutoría", example = "Tutoría con disponibilidades programadas")
+    private String descripcionEstadoTutoria;
     
     @Schema(description = "Fecha de creación")
     private Timestamp fechaCreacion;
@@ -55,28 +61,8 @@ public class TutoriaResponseDto {
     public TutoriaResponseDto() {
     }
     
-    // Constructor completo (original - mantenido por compatibilidad)
-    public TutoriaResponseDto(Integer idTutoria, Integer idTutor, String nombreTutor, 
-                             Integer idCarrera, String nombreCarrera, String nombre,
-                             String descripcion, Integer capacidadMaxima, String ubicacion,
-                             String modalidad, String lugar, Integer estado,
-                             Timestamp fechaCreacion, Timestamp fechaUltimaModificacion) {
-        this.idTutoria = idTutoria;
-        this.idTutor = idTutor;
-        this.nombreTutor = nombreTutor;
-        this.idCarrera = idCarrera;
-        this.nombreCarrera = nombreCarrera;
-        this.nombre = nombre;
-        this.nombreAsignatura = nombre; // Asignar también a nombreAsignatura
-        this.descripcion = descripcion;
-        this.capacidadMaxima = capacidadMaxima;
-        this.ubicacion = ubicacion;
-        this.modalidad = modalidad;
-        this.lugar = lugar;
-        this.estado = estado;
-        this.fechaCreacion = fechaCreacion;
-        this.fechaUltimaModificacion = fechaUltimaModificacion;
-    }
+    // Constructor completo - DEPRECADO (la columna estado fue eliminada)
+    // Mantenido temporalmente por compatibilidad, pero ya no debe usarse
     
     // Getters y Setters
     public Integer getIdTutoria() {
@@ -167,14 +153,6 @@ public class TutoriaResponseDto {
         this.lugar = lugar;
     }
     
-    public Integer getEstado() {
-        return estado;
-    }
-    
-    public void setEstado(Integer estado) {
-        this.estado = estado;
-    }
-    
     public Timestamp getFechaCreacion() {
         return fechaCreacion;
     }
@@ -197,5 +175,29 @@ public class TutoriaResponseDto {
     
     public void setNombreAsignatura(String nombreAsignatura) {
         this.nombreAsignatura = nombreAsignatura;
+    }
+    
+    public Integer getIdEstadoTutoria() {
+        return idEstadoTutoria;
+    }
+    
+    public void setIdEstadoTutoria(Integer idEstadoTutoria) {
+        this.idEstadoTutoria = idEstadoTutoria;
+    }
+    
+    public String getNombreEstadoTutoria() {
+        return nombreEstadoTutoria;
+    }
+    
+    public void setNombreEstadoTutoria(String nombreEstadoTutoria) {
+        this.nombreEstadoTutoria = nombreEstadoTutoria;
+    }
+    
+    public String getDescripcionEstadoTutoria() {
+        return descripcionEstadoTutoria;
+    }
+    
+    public void setDescripcionEstadoTutoria(String descripcionEstadoTutoria) {
+        this.descripcionEstadoTutoria = descripcionEstadoTutoria;
     }
 }

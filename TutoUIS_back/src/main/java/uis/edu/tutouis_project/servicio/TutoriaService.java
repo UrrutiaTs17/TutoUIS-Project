@@ -15,8 +15,6 @@ import uis.edu.tutouis_project.repositorio.UsuarioRepository;
 
 import java.sql.Date;
 import java.sql.Time;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -40,20 +38,72 @@ public class TutoriaService {
     private DisponibilidadRepository disponibilidadRepository;
 
     /**
-     * Obtiene todas las tutorías con información completa (nombre tutor, nombre asignatura)
+     * Obtiene todas las tutorías con información completa (nombre tutor, nombre asignatura, estado)
      * OPTIMIZADO: Usa una sola query con JOINs para evitar el problema N+1
      */
     public List<TutoriaResponseDto> obtenerTodasLasTutorias() {
-        System.out.println("🔵 TutoriaService: Iniciando obtenerTodasLasTutorias() [VERSIÓN OPTIMIZADA]");
+        System.out.println("🔵 TutoriaService: Iniciando obtenerTodasLasTutorias() [VERSIÓN OPTIMIZADA CON ESTADO]");
         long inicio = System.currentTimeMillis();
         
         // Una sola consulta con JOINs - evita el problema N+1
-        List<TutoriaResponseDto> resultado = tutoriaRepository.findAllTutoriasWithDetails();
+        List<Tutoria> tutorias = tutoriaRepository.findAllTutoriasWithDetails();
+        
+        // Convertir las entidades a DTOs
+        List<TutoriaResponseDto> resultado = tutorias.stream()
+                .map(this::convertirEntidadADto)
+                .toList();
         
         long fin = System.currentTimeMillis();
         System.out.println("✅ TutoriaService: Se obtuvieron " + resultado.size() + " tutorías en " + (fin - inicio) + "ms con UNA sola query SQL");
         
         return resultado;
+    }
+    
+    /**
+     * Convierte una entidad Tutoria a TutoriaResponseDto
+     * Incluye información del estado del ciclo de vida
+     */
+    private TutoriaResponseDto convertirEntidadADto(Tutoria tutoria) {
+        TutoriaResponseDto dto = new TutoriaResponseDto();
+        
+        dto.setIdTutoria(tutoria.getIdTutoria());
+        dto.setIdTutor(tutoria.getIdTutor());
+        dto.setIdCarrera(tutoria.getIdAsignatura());
+        dto.setDescripcion(tutoria.getDescripcion());
+        dto.setCapacidadMaxima(tutoria.getCapacidadMaxima());
+        dto.setUbicacion(tutoria.getLugar());
+        dto.setModalidad(tutoria.getModalidad());
+        dto.setLugar(tutoria.getLugar());
+        dto.setFechaCreacion(tutoria.getFechaCreacion());
+        dto.setFechaUltimaModificacion(tutoria.getFechaUltimaModificacion());
+        
+        // Información del estado de tutoría
+        dto.setIdEstadoTutoria(tutoria.getIdEstadoTutoria());
+        if (tutoria.getEstadoTutoria() != null) {
+            dto.setNombreEstadoTutoria(tutoria.getEstadoTutoria().getNombre());
+            dto.setDescripcionEstadoTutoria(tutoria.getEstadoTutoria().getDescripcion());
+        }
+        
+        // Información del tutor (ya cargado con FETCH JOIN)
+        if (tutoria.getTutor() != null) {
+            String nombreCompleto = (tutoria.getTutor().getNombre() != null ? tutoria.getTutor().getNombre() : "") + 
+                                   " " + 
+                                   (tutoria.getTutor().getApellido() != null ? tutoria.getTutor().getApellido() : "");
+            dto.setNombreTutor(nombreCompleto.trim());
+            
+            // Carrera del tutor
+            if (tutoria.getTutor().getCarrera() != null) {
+                dto.setNombreCarrera(tutoria.getTutor().getCarrera().getNombre());
+            }
+        }
+        
+        // Información de la asignatura (ya cargada con FETCH JOIN)
+        if (tutoria.getAsignatura() != null) {
+            dto.setNombre(tutoria.getAsignatura().getNombre());
+            dto.setNombreAsignatura(tutoria.getAsignatura().getNombre());
+        }
+        
+        return dto;
     }
     
     /**
@@ -75,9 +125,15 @@ public class TutoriaService {
         dto.setUbicacion(tutoria.getLugar());
         dto.setModalidad(tutoria.getModalidad());
         dto.setLugar(tutoria.getLugar());
-        dto.setEstado(tutoria.getEstado());
         dto.setFechaCreacion(tutoria.getFechaCreacion());
         dto.setFechaUltimaModificacion(tutoria.getFechaUltimaModificacion());
+        
+        // Agregar información del estado de tutoría
+        dto.setIdEstadoTutoria(tutoria.getIdEstadoTutoria());
+        if (tutoria.getEstadoTutoria() != null) {
+            dto.setNombreEstadoTutoria(tutoria.getEstadoTutoria().getNombre());
+            dto.setDescripcionEstadoTutoria(tutoria.getEstadoTutoria().getDescripcion());
+        }
         
         System.out.println("  📝 Datos básicos: capacidad=" + dto.getCapacidadMaxima());
         
@@ -200,7 +256,6 @@ public class TutoriaService {
         tutoria.setLugar(dto.getLugar());
         tutoria.setDescripcion(dto.getDescripcion());
         tutoria.setCapacidadMaxima(dto.getCapacidadMaxima());
-        tutoria.setEstado(dto.getEstado() != null ? dto.getEstado() : 1); // Por defecto activa
         
         Tutoria tutoriaGuardada = tutoriaRepository.save(tutoria);
         System.out.println("✅ Tutoría guardada con ID: " + tutoriaGuardada.getIdTutoria());
@@ -311,8 +366,15 @@ public class TutoriaService {
                 // Convertir horas de String a java.sql.Time
                 String horaInicioStr = (String) dispData.get("horaInicio");
                 String horaFinStr = (String) dispData.get("horaFin");
-                Time horaInicio = Time.valueOf(horaInicioStr + ":00");
-                Time horaFin = Time.valueOf(horaFinStr + ":00");
+                
+                // Si las horas ya incluyen segundos (HH:mm:ss), usarlas tal cual
+                // Si no tienen segundos (HH:mm), agregar :00
+                Time horaInicio = Time.valueOf(horaInicioStr.contains(":") && horaInicioStr.split(":").length == 2 
+                    ? horaInicioStr + ":00" 
+                    : horaInicioStr);
+                Time horaFin = Time.valueOf(horaFinStr.contains(":") && horaFinStr.split(":").length == 2 
+                    ? horaFinStr + ":00" 
+                    : horaFinStr);
                 
                 // Crear nueva disponibilidad usando el constructor
                 Disponibilidad nuevaDisp = new Disponibilidad(idTutoria, fecha, diaSemana, horaInicio, horaFin, capacidadMaxima);

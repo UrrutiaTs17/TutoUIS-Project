@@ -179,11 +179,18 @@ export class ReservationModal {
         if (error.status === 400 && errorMsg) {
           const errorMsgLower = errorMsg.toLowerCase();
           
-          // Detectar el mensaje específico de reserva duplicada
-          if (errorMsgLower.includes('ya existe')) {
-            this.errorMessage = '⚠️ Este horario ya está ocupado. Por favor selecciona otro espacio de tiempo disponible.';
+          // Detectar el mensaje específico de reserva duplicada/conflicto de horario
+          if (errorMsgLower.includes('ya existe una reserva en este horario')) {
+            this.errorMessage = '⚠️ Este horario ya está reservado. Por favor, selecciona otro espacio de tiempo disponible.';
             console.log('✅ Mensaje de horario ocupado establecido');
           } 
+          else if (errorMsgLower.includes('ya existe')) {
+            this.errorMessage = '⚠️ Este horario ya está ocupado. Por favor, selecciona otro espacio de tiempo disponible.';
+            console.log('✅ Mensaje de horario ocupado establecido');
+          } 
+          else if (errorMsgLower.includes('no hay cupos disponibles')) {
+            this.errorMessage = '⚠️ No hay cupos disponibles en esta tutoría. Por favor, selecciona otro horario.';
+          }
           else if (errorMsgLower.includes('cupo')) {
             this.errorMessage = '⚠️ No hay cupos disponibles para esta tutoría.';
           } 

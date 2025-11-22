@@ -10,9 +10,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.sql.Timestamp;
+import java.util.List;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
@@ -62,9 +64,14 @@ public class Tutoria {
     @Schema(description = "Capacidad máxima de estudiantes", example = "30")
     private Integer capacidadMaxima;
 
-    @Column(name = "estado", nullable = false)
-    @Schema(description = "Estado de la tutoría (1=Activa, 0=Inactiva)", example = "1")
-    private Integer estado;
+    @Column(name = "id_estado_tutoria")
+    @Schema(description = "ID del estado del ciclo de vida de la tutoría", example = "2")
+    private Integer idEstadoTutoria;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "id_estado_tutoria", insertable = false, updatable = false)
+    @Schema(description = "Estado actual del ciclo de vida de la tutoría")
+    private EstadoTutoria estadoTutoria;
 
     @Column(name = "fecha_creacion", insertable = false, updatable = false)
     @Schema(description = "Fecha de creación de la tutoría")
@@ -74,7 +81,13 @@ public class Tutoria {
     @Schema(description = "Fecha de última modificación")
     private Timestamp fechaUltimaModificacion;
 
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_tutoria", insertable = false, updatable = false)
+    @Schema(description = "Lista de disponibilidades asociadas a la tutoría")
+    private List<Disponibilidad> disponibilidades;
+
     public Tutoria() {
+        this.idEstadoTutoria = 1; // Pendiente por defecto
     }
 
     public Tutoria(Integer idTutor, Integer idAsignatura, String modalidad, String lugar, String descripcion, Integer capacidadMaxima) {
@@ -84,7 +97,7 @@ public class Tutoria {
         this.lugar = lugar;
         this.descripcion = descripcion;
         this.capacidadMaxima = capacidadMaxima;
-        this.estado = 1;
+        this.idEstadoTutoria = 1; // Pendiente por defecto
     }
 
     public Integer getIdTutoria() {
@@ -151,14 +164,6 @@ public class Tutoria {
         this.capacidadMaxima = capacidadMaxima;
     }
 
-    public Integer getEstado() {
-        return estado;
-    }
-
-    public void setEstado(Integer estado) {
-        this.estado = estado;
-    }
-
     public Timestamp getFechaCreacion() {
         return fechaCreacion;
     }
@@ -183,6 +188,30 @@ public class Tutoria {
         this.tutor = tutor;
     }
 
+    public Integer getIdEstadoTutoria() {
+        return idEstadoTutoria;
+    }
+
+    public void setIdEstadoTutoria(Integer idEstadoTutoria) {
+        this.idEstadoTutoria = idEstadoTutoria;
+    }
+
+    public EstadoTutoria getEstadoTutoria() {
+        return estadoTutoria;
+    }
+
+    public void setEstadoTutoria(EstadoTutoria estadoTutoria) {
+        this.estadoTutoria = estadoTutoria;
+    }
+
+    public List<Disponibilidad> getDisponibilidades() {
+        return disponibilidades;
+    }
+
+    public void setDisponibilidades(List<Disponibilidad> disponibilidades) {
+        this.disponibilidades = disponibilidades;
+    }
+
     @Override
     public String toString() {
         return "Tutoria{" +
@@ -193,8 +222,7 @@ public class Tutoria {
                 ", lugar='" + lugar + '\'' +
                 ", descripcion='" + descripcion + '\'' +
                 ", capacidadMaxima=" + capacidadMaxima +
-                ", estado=" + estado +
-                ", fechaCreacion=" + fechaCreacion +
+                ", idEstadoTutoria=" + idEstadoTutoria +
                 ", fechaCreacion=" + fechaCreacion +
                 ", fechaUltimaModificacion=" + fechaUltimaModificacion +
                 '}';

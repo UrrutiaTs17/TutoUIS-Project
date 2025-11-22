@@ -13,9 +13,13 @@ export interface Tutoria {
   descripcion?: string;
   capacidadMaxima: number;
   ubicacion?: string;
-  estado: number;
+  estado: number; // DEPRECADO - Mantener por compatibilidad
   nombreTutor?: string;
   nombreCarrera?: string; // Carrera del tutor
+  // Nuevos campos para el estado del ciclo de vida
+  idEstadoTutoria?: number; // 1=Pendiente, 2=Programada, 3=En Curso, 4=Finalizada, 5=Cancelada
+  nombreEstadoTutoria?: string; // "Pendiente", "Programada", "En Curso", "Finalizada", "Cancelada"
+  descripcionEstadoTutoria?: string;
 }
 
 export interface CreateTutoriaDto {

@@ -20,6 +20,9 @@ public class DisponibilidadController {
 
     @Autowired
     private IDisponibilidadService disponibilidadService;
+    
+    @Autowired
+    private uis.edu.tutouis_project.servicio.TutoriaEstadoService tutoriaEstadoService;
 
     @Operation(summary = "Listar todas las disponibilidades", description = "Requiere autenticación")
     @SecurityRequirement(name = "bearer-jwt")
@@ -130,6 +133,22 @@ public class DisponibilidadController {
             return ResponseEntity.ok(Map.of("mensaje", "Disponibilidad eliminada exitosamente"));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+    
+    @Operation(summary = "Actualizar estados de tutorías manualmente", 
+               description = "Ejecuta la actualización de estados de tutorías según fecha/hora actual de sus disponibilidades. Requiere autenticación de administrador.")
+    @SecurityRequirement(name = "bearer-jwt")
+    @PostMapping("/actualizar-estados-tutorias")
+    public ResponseEntity<?> actualizarEstadosTutoriasManualmente() {
+        try {
+            tutoriaEstadoService.actualizarEstadosManualmente();
+            return ResponseEntity.ok(Map.of(
+                "mensaje", "Actualización de estados de tutorías completada",
+                "descripcion", "Los estados de las tutorías han sido actualizados según la fecha/hora actual de sus disponibilidades"
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));
         }
     }
 }

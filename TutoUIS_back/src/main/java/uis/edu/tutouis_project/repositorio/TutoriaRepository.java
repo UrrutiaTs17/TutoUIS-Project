@@ -3,7 +3,6 @@ package uis.edu.tutouis_project.repositorio;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-import uis.edu.tutouis_project.dto.TutoriaResponseDto;
 import uis.edu.tutouis_project.modelo.Tutoria;
 import java.util.List;
 
@@ -11,36 +10,35 @@ import java.util.List;
 public interface TutoriaRepository extends JpaRepository<Tutoria, Integer> {
     List<Tutoria> findByIdTutor(Integer idTutor);
     List<Tutoria> findByIdAsignatura(Integer idAsignatura);
-    List<Tutoria> findByEstado(Integer estado);
+    List<Tutoria> findByIdEstadoTutoria(Integer idEstadoTutoria);
     
     /**
-     * Optimización: Query con JOINs que retorna directamente DTOs
-     * Evita el problema N+1 al traer todos los datos en una sola consulta
+     * Query optimizada que incluye el estado de tutoría
+     * Retorna directamente DTOs con información completa incluyendo el estado del ciclo de vida
      */
     @Query("""
-        SELECT new uis.edu.tutouis_project.dto.TutoriaResponseDto(
-            t.idTutoria,
-            t.idTutor,
-            CONCAT(COALESCE(u.nombre, ''), ' ', COALESCE(u.apellido, '')),
-            t.idAsignatura,
-            c.nombre,
-            a.nombre,
-            t.descripcion,
-            t.capacidadMaxima,
-            t.lugar,
-            t.modalidad,
-            t.lugar,
-            t.estado,
-            t.fechaCreacion,
-            t.fechaUltimaModificacion
-        )
+        SELECT t
         FROM Tutoria t
-        INNER JOIN Usuario u ON t.idTutor = u.id_usuario
-        INNER JOIN Carrera c ON u.id_carrera = c.idCarrera
-        INNER JOIN Asignatura a ON t.idAsignatura = a.idAsignatura
+        LEFT JOIN FETCH t.tutor
+        LEFT JOIN FETCH t.asignatura
+        LEFT JOIN FETCH t.estadoTutoria
         ORDER BY t.idTutoria
     """)
-    List<TutoriaResponseDto> findAllTutoriasWithDetails();
+    List<Tutoria> findAllTutoriasWithDetails();
+    
+    /**
+     * Query optimizada para actualización de estados
+     * Carga tutorías con sus disponibilidades en una sola query (JOIN FETCH)
+     * Evita el problema N+1 al cargar las relaciones necesarias de una vez
+     */
+    @Query("""
+        SELECT DISTINCT t
+        FROM Tutoria t
+        LEFT JOIN FETCH t.disponibilidades
+        WHERE t.idEstadoTutoria != 5
+        ORDER BY t.idTutoria
+    """)
+    List<Tutoria> findAllTutoriasWithDisponibilidadesForEstadoUpdate();
     
     /**
      * Cuenta las reservas asociadas a una disponibilidad

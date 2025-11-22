@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TutoriaService } from '../../services/tutoria.service';
@@ -50,7 +50,8 @@ export class EditTutoriaModal implements OnInit, AfterViewInit {
 
   constructor(
     private tutoriaService: TutoriaService,
-    private disponibilidadService: DisponibilidadService
+    private disponibilidadService: DisponibilidadService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -105,41 +106,41 @@ export class EditTutoriaModal implements OnInit, AfterViewInit {
       console.error('❌ bootstrapModal no está disponible');
     }
     
-    // DESPUÉS cargar disponibilidades con pequeño delay para asegurar rendering
+    // DESPUÉS cargar disponibilidades
     console.log('🔍 Cargando disponibilidades para tutoría:', tutoria.idTutoria);
     
-    setTimeout(() => {
-      this.disponibilidadService.getDisponibilidadesByTutoria(tutoria.idTutoria).subscribe({
-        next: (disponibilidades: any) => {
-          console.log('✅ Disponibilidades recibidas del backend:', disponibilidades);
-          
-          if (Array.isArray(disponibilidades) && disponibilidades.length > 0) {
-            this.disponibilidades = disponibilidades.map((disp: any) => ({
-              idDisponibilidad: disp.idDisponibilidad,
-              diaSemana: disp.diaSemana,
-              fecha: disp.fecha,
-              horaInicio: disp.horaInicio ? disp.horaInicio.substring(0, 5) : '', // HH:mm
-              horaFin: disp.horaFin ? disp.horaFin.substring(0, 5) : '' // HH:mm
-            }));
-            console.log('📋 Disponibilidades mapeadas y asignadas:', this.disponibilidades);
-          } else {
-            console.warn('⚠️ No se encontraron disponibilidades');
-            this.disponibilidades = [];
-          }
-          
-          // Forzar detección de cambios
-          this.loading = false;
-          console.log('✅ Carga completada, loading=false, disponibilidades.length=', this.disponibilidades.length);
-        },
-        error: (error: any) => {
-          console.error('❌ Error cargando disponibilidades:', error);
-          this.errorMessage = 'Error al cargar las disponibilidades';
+    this.disponibilidadService.getDisponibilidadesByTutoria(tutoria.idTutoria).subscribe({
+      next: (disponibilidades: any) => {
+        console.log('✅ Disponibilidades recibidas del backend:', disponibilidades);
+        
+        if (Array.isArray(disponibilidades) && disponibilidades.length > 0) {
+          this.disponibilidades = disponibilidades.map((disp: any) => ({
+            idDisponibilidad: disp.idDisponibilidad,
+            diaSemana: disp.diaSemana,
+            fecha: disp.fecha,
+            horaInicio: disp.horaInicio ? disp.horaInicio.substring(0, 5) : '', // HH:mm
+            horaFin: disp.horaFin ? disp.horaFin.substring(0, 5) : '' // HH:mm
+          }));
+          console.log('📋 Disponibilidades mapeadas:', this.disponibilidades);
+        } else {
+          console.warn('⚠️ No se encontraron disponibilidades');
           this.disponibilidades = [];
-          this.loading = false;
-          console.log('❌ Error manejado, loading=false');
         }
-      });
-    }, 100); // Pequeño delay para asegurar que el DOM está listo
+        
+        // Completar carga y forzar detección de cambios
+        this.loading = false;
+        this.cdr.detectChanges();
+        console.log('✅ Carga completada, loading=false, disponibilidades.length=', this.disponibilidades.length);
+      },
+      error: (error: any) => {
+        console.error('❌ Error cargando disponibilidades:', error);
+        this.errorMessage = 'Error al cargar las disponibilidades';
+        this.disponibilidades = [];
+        this.loading = false;
+        this.cdr.detectChanges();
+        console.log('❌ Error manejado, loading=false');
+      }
+    });
   }
 
   /**

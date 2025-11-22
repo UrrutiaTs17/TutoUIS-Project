@@ -75,7 +75,7 @@ public class TutoriaController {
     @SecurityRequirement(name = "bearer-jwt")
     @GetMapping("/activas")
     public List<Tutoria> listarActivas() {
-        return tutoriaRepository.findByEstado(1);
+        return tutoriaRepository.findByIdEstadoTutoria(2); // Estado "Programada"
     }
 
     @Operation(summary = "Crear nueva tutoría", description = "Requiere autenticación")
@@ -90,7 +90,7 @@ public class TutoriaController {
             System.out.println("   lugar: " + tutoria.getLugar());
             System.out.println("   descripcion: " + tutoria.getDescripcion());
             System.out.println("   capacidadMaxima: " + tutoria.getCapacidadMaxima());
-            System.out.println("   estado: " + tutoria.getEstado());
+            System.out.println("   idEstadoTutoria: " + tutoria.getIdEstadoTutoria());
             
             Tutoria nueva = tutoriaRepository.save(tutoria);
             System.out.println("✅ Tutoría guardada exitosamente con ID: " + nueva.getIdTutoria());
@@ -133,7 +133,6 @@ public class TutoriaController {
                     tutoria.setLugar(tutoriaActualizada.getLugar());
                     tutoria.setDescripcion(tutoriaActualizada.getDescripcion());
                     tutoria.setCapacidadMaxima(tutoriaActualizada.getCapacidadMaxima());
-                    tutoria.setEstado(tutoriaActualizada.getEstado());
                     Tutoria actualizada = tutoriaRepository.save(tutoria);
                     return ResponseEntity.ok(actualizada);
                 })

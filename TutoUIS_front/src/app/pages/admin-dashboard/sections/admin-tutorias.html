@@ -84,8 +84,9 @@
           <div class="tutoria-title">
             <span class="tutoria-id">#{{ tutoria.idTutoria }}</span>
             <h4>{{ tutoria.nombreAsignatura }}</h4>
-            <span class="estado-badge" [ngClass]="getClaseEstado(tutoria.estado)">
-              {{ getNombreEstado(tutoria.estado) }}
+            <span class="estado-badge" [ngClass]="getClaseEstadoTutoria(tutoria)" 
+                  [title]="tutoria.descripcionEstadoTutoria || ''">
+              {{ getNombreEstadoTutoria(tutoria) }}
             </span>
           </div>
           <p class="tutoria-descripcion">{{ tutoria.descripcion || 'Sin descripción' }}</p>
@@ -113,16 +114,16 @@
       
       <div class="tutoria-actions">
         <button 
-          class="btn btn-warning btn-sm"
-          title="Editar"
+          class="btn btn-outline-success btn-sm me-1"
+          title="Editar tutoría"
           (click)="editarTutoria(tutoria)">
-          <i class="bi bi-pencil-fill"></i>
+          <i class="bi bi-pencil-fill me-1"></i>Editar
         </button>
         <button 
-          class="btn btn-danger btn-sm"
-          title="Eliminar"
+          class="btn btn-outline-danger btn-sm"
+          title="Eliminar tutoría"
           (click)="eliminarTutoria(tutoria.idTutoria, tutoria.nombreAsignatura || 'Tutoría')">
-          <i class="bi bi-trash-fill"></i>
+          <i class="bi bi-trash-fill me-1"></i>Eliminar
         </button>
       </div>
     </div>

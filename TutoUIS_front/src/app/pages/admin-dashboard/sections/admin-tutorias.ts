@@ -187,16 +187,50 @@ export class AdminTutorias implements OnInit {
   }
   
   /**
-   * Obtiene el nombre del estado como texto
+   * Obtiene el nombre del estado como texto (DEPRECADO)
    */
   getNombreEstado(estado: number): string {
     return estado === 1 ? 'Activa' : 'Inactiva';
   }
   
   /**
-   * Obtiene la clase CSS para el badge de estado
+   * Obtiene la clase CSS para el badge de estado (DEPRECADO)
    */
   getClaseEstado(estado: number): string {
     return estado === 1 ? 'badge bg-success' : 'badge bg-secondary';
+  }
+  
+  /**
+   * Obtiene el nombre del estado del ciclo de vida de la tutoría
+   */
+  getNombreEstadoTutoria(tutoria: Tutoria): string {
+    if (tutoria.nombreEstadoTutoria) {
+      return tutoria.nombreEstadoTutoria;
+    }
+    // Fallback al estado antiguo si no hay estado nuevo
+    return this.getNombreEstado(tutoria.estado);
+  }
+  
+  /**
+   * Obtiene la clase CSS para el badge de estado del ciclo de vida
+   */
+  getClaseEstadoTutoria(tutoria: Tutoria): string {
+    const idEstado = tutoria.idEstadoTutoria;
+    
+    switch (idEstado) {
+      case 1: // Pendiente
+        return 'badge bg-warning text-dark';
+      case 2: // Programada
+        return 'badge bg-info';
+      case 3: // En Curso
+        return 'badge bg-success';
+      case 4: // Finalizada
+        return 'badge bg-secondary';
+      case 5: // Cancelada
+        return 'badge bg-danger';
+      default:
+        // Fallback al estado antiguo
+        return this.getClaseEstado(tutoria.estado);
+    }
   }
 }
