@@ -165,6 +165,36 @@ export class AdminReservations implements OnInit {
   }
 
   /**
+   * Cancelar una reserva directamente
+   */
+  cancelarReserva(reserva: Reserva) {
+    if (reserva.nombreEstado === 'Cancelada') {
+      alert('❌ Esta reserva ya está cancelada');
+      return;
+    }
+
+    const razon = prompt(`⚠️ Cancelar reserva #${reserva.idReserva} de ${reserva.nombreEstudiante}\n\nIngresa la razón de la cancelación:`);
+    
+    if (!razon) {
+      alert('❌ Debes proporcionar una razón para la cancelación');
+      return;
+    }
+
+    this.loading = true;
+    this.reservationService.cancelReservation(reserva.idReserva, razon).subscribe({
+      next: () => {
+        alert('✅ Reserva cancelada exitosamente');
+        this.loadReservations();
+      },
+      error: (error) => {
+        console.error('Error al cancelar reserva:', error);
+        alert('❌ Error al cancelar la reserva: ' + (error.error?.mensaje || error.message || 'Error desconocido'));
+        this.loading = false;
+      }
+    });
+  }
+
+  /**
    * Eliminar una reserva permanentemente
    */
   eliminarReserva(reserva: Reserva) {
