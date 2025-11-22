@@ -198,14 +198,21 @@ export class CreateTutoriaModal implements OnInit {
     this.tutoriaIdEditar = null;
     this.resetForm();
     
-    // Solo recargar si no hay datos o si queremos forzar la recarga
-    if (this.tutores.length === 0 || this.carreras.length === 0) {
-      this.recargarDatos();
-    }
-    
+    // Mostrar el modal primero
     if (this.bootstrapModal) {
       this.bootstrapModal.show();
     }
+    
+    // Luego cargar datos en el siguiente ciclo
+    setTimeout(() => {
+      // Solo recargar si no hay datos o si queremos forzar la recarga
+      if (this.tutores.length === 0 || this.carreras.length === 0 || this.asignaturas.length === 0) {
+        this.recargarDatos();
+      } else {
+        // Si ya hay datos, marcar como no cargando
+        this.loading = false;
+      }
+    }, 0);
   }
 
   /**
@@ -252,7 +259,9 @@ export class CreateTutoriaModal implements OnInit {
     this.loading = true;
     this.pendingRequests = 3; // Tutores, carreras, asignaturas
     this.errorMessage = '';
+    this.successMessage = '';
     
+    // Iniciar las cargas
     this.loadTutores();
     this.loadCarreras();
     this.loadAsignaturas();
@@ -263,9 +272,13 @@ export class CreateTutoriaModal implements OnInit {
    */
   private markRequestComplete(): void {
     this.pendingRequests--;
+    console.log(`📊 Peticiones pendientes: ${this.pendingRequests}`);
+    
     if (this.pendingRequests <= 0) {
-      this.loading = false;
-      console.log('✅ Todas las peticiones completadas');
+      setTimeout(() => {
+        this.loading = false;
+        console.log('✅ Todas las peticiones completadas - loading = false');
+      }, 100);
     }
   }
 
