@@ -113,6 +113,33 @@ public class ReservaResponseDto {
         this.nombreTutor = nombreTutor;
     }
 
+    // Constructor extendido (incluye modalidad y meetLink)
+    public ReservaResponseDto(
+            Integer idReserva,
+            Integer idDisponibilidad,
+            LocalTime disponibilidadHoraInicio,
+            LocalTime disponibilidadHoraFin,
+            Integer idEstudiante,
+            String nombreEstudiante,
+            Integer idEstado,
+            String nombreEstado,
+            String observaciones,
+            Timestamp fechaCreacion,
+            Timestamp fechaCancelacion,
+            String razonCancelacion,
+            LocalTime horaInicio,
+            LocalTime horaFin,
+            String nombreAsignatura,
+            String nombreTutor,
+            String modalidad,
+            String meetLink) {
+        this(idReserva, idDisponibilidad, disponibilidadHoraInicio, disponibilidadHoraFin, idEstudiante,
+             nombreEstudiante, idEstado, nombreEstado, observaciones, fechaCreacion, fechaCancelacion,
+             razonCancelacion, horaInicio, horaFin, nombreAsignatura, nombreTutor);
+        this.modalidad = modalidad;
+        this.meetLink = meetLink;
+    }
+
     // Getters and Setters
     public Integer getIdReserva() {
         return idReserva;

@@ -52,6 +52,9 @@ export class CalendarComponent implements OnInit {
   /** Emite las estadísticas cuando los datos se cargan */
   @Output() statsLoaded = new EventEmitter<CalendarStats>();
 
+  /** Emite el evento cuando se hace clic en un slot (para tutores en vista agenda) */
+  @Output() slotClicked = new EventEmitter<Disponibilidad>();
+
   // ======== Cabeceras de tabla ========
   dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
   horas = ['6:00 - 8:00', '8:00 - 10:00', '10:00 - 12:00', '12:00 - 14:00', '14:00 - 16:00', '16:00 - 18:00', '18:00 - 20:00'];
@@ -383,6 +386,13 @@ trackMateria = (_: number, m: MateriaCatalogo) => m.id; // o `${m.id}-${m.nombre
     const disponibilidad = this.disponibilidades.find(d => d.idDisponibilidad === materia.idDisponibilidad);
     if (!disponibilidad) {
       console.error('❌ No se encontró la disponibilidad');
+      return;
+    }
+
+    // Si estamos en modo tutor (tutorId presente), emitir evento en lugar de abrir modal de reserva
+    if (this.tutorId) {
+      console.log('📅 CalendarComponent: Emitiendo evento slotClicked para tutor');
+      this.slotClicked.emit(disponibilidad);
       return;
     }
 

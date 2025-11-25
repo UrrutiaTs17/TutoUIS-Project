@@ -103,6 +103,24 @@ public class ReservaService implements IReservaService {
     }
 
     @Override
+    public List<ReservaResponseDto> obtenerReservasDtosPorDisponibilidad(Integer idDisponibilidad) {
+        if (idDisponibilidad == null || idDisponibilidad <= 0) {
+            throw new IllegalArgumentException("El ID de disponibilidad debe ser un número positivo");
+        }
+
+        System.out.println("📋 ReservaService: Obteniendo reservas de la disponibilidad " + idDisponibilidad + " [VERSIÓN OPTIMIZADA]");
+        long inicio = System.currentTimeMillis();
+
+        List<ReservaResponseDto> reservas = reservaRepository.findReservasConDetallesPorDisponibilidad(idDisponibilidad);
+
+        long fin = System.currentTimeMillis();
+        System.out.println("✅ ReservaService: Se obtuvieron " + reservas.size() +
+                           " reservas en " + (fin - inicio) + "ms con UNA sola query SQL");
+
+        return reservas;
+    }
+
+    @Override
     public List<Reserva> obtenerReservasPorUsuarioYEstado(Integer idEstudiante, Integer idEstado) {
         if (idEstudiante == null || idEstudiante <= 0) {
             throw new IllegalArgumentException("El ID del estudiante debe ser un número positivo");

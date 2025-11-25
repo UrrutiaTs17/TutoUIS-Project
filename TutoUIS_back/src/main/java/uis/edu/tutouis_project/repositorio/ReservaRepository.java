@@ -105,6 +105,45 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
      * Encuentra todas las reservas de una disponibilidad
      */
     List<Reserva> findByIdDisponibilidad(Integer idDisponibilidad);
+
+        /**
+         * OPTIMIZADO: Query que retorna reservas de una disponibilidad con todos los detalles como DTOs
+         * Evita el problema N+1
+         */
+        @Query("""
+            SELECT new uis.edu.tutouis_project.modelo.dto.ReservaResponseDto(
+                r.idReserva,
+                r.idDisponibilidad,
+                CAST(d.horaInicio AS LocalTime),
+                CAST(d.horaFin AS LocalTime),
+                r.idEstudiante,
+                CONCAT(COALESCE(est.nombre, ''), ' ', COALESCE(est.apellido, '')),
+                r.idEstado,
+                er.nombre,
+                r.observaciones,
+                r.fechaCreacion,
+                r.fechaCancelacion,
+                r.razonCancelacion,
+                r.horaInicio,
+                r.horaFin,
+                a.nombre,
+                CONCAT(COALESCE(tut.nombre, ''), ' ', COALESCE(tut.apellido, '')),
+                r.modalidad,
+                r.meetLink
+            )
+            FROM Reserva r
+            INNER JOIN Disponibilidad d ON r.idDisponibilidad = d.idDisponibilidad
+            INNER JOIN Tutoria t ON d.idTutoria = t.idTutoria
+            INNER JOIN Asignatura a ON t.idAsignatura = a.idAsignatura
+            INNER JOIN Usuario tut ON t.idTutor = tut.id_usuario
+            INNER JOIN Usuario est ON r.idEstudiante = est.id_usuario
+            INNER JOIN EstadoReserva er ON r.idEstado = er.idEstado
+            WHERE r.idDisponibilidad = :idDisponibilidad
+            ORDER BY r.horaInicio ASC
+        """)
+        List<uis.edu.tutouis_project.modelo.dto.ReservaResponseDto> findReservasConDetallesPorDisponibilidad(
+            @Param("idDisponibilidad") Integer idDisponibilidad
+        );
     
     /**
      * Encuentra todas las reservas con un estado específico

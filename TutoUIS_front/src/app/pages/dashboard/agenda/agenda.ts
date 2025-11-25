@@ -1,8 +1,9 @@
 import { Component, OnInit, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReservationService } from '../../../services/reservation.service';
+import { ReservationService, Reserva } from '../../../services/reservation.service';
 import { AuthService } from '../../../services/auth.service';
 import { CalendarComponent } from '../../calendar/calendar';
+import { Disponibilidad } from '../../../services/disponibilidad.service';
 
 @Component({
   selector: 'app-agenda',
@@ -20,6 +21,12 @@ export class Agenda implements OnInit {
   pagedReservations: any[] = [];
   Math = Math;
   tutorId: number = 0;
+
+  // Modal para mostrar reservas de un slot
+  showReservasModal: boolean = false;
+  reservasDelSlot: Reserva[] = [];
+  slotSeleccionado: Disponibilidad | null = null;
+  loadingReservas: boolean = false;
 
   constructor(
     private reservationService: ReservationService,
@@ -95,6 +102,63 @@ export class Agenda implements OnInit {
   formatDate(d: string) {
     if (!d) return '';
     try { const dt = new Date(d); return dt.toLocaleDateString(); } catch { return d; }
+  }
+
+  /**
+   * Manejador de evento cuando se selecciona un slot del calendario
+   * @param disponibilidad Disponibilidad seleccionada del calendario
+   */
+  onSlotSelected(disponibilidad: Disponibilidad): void {
+    console.log('📅 Agenda: Slot seleccionado:', disponibilidad);
+    this.slotSeleccionado = disponibilidad;
+    this.loadingReservas = true;
+    this.showReservasModal = true;
+    
+    // Cargar las reservas de esta disponibilidad
+    this.reservationService.getReservationsByDisponibilidad(disponibilidad.idDisponibilidad)
+      .subscribe({
+        next: (reservas) => {
+          console.log('✅ Agenda: Reservas cargadas:', reservas.length);
+          this.reservasDelSlot = reservas;
+          this.loadingReservas = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('❌ Agenda: Error al cargar reservas:', err);
+          this.reservasDelSlot = [];
+          this.loadingReservas = false;
+          this.cdr.detectChanges();
+        }
+      });
+  }
+
+  /**
+   * Cierra el modal de reservas del slot
+   */
+  closeReservasModal(): void {
+    this.showReservasModal = false;
+    this.reservasDelSlot = [];
+    this.slotSeleccionado = null;
+  }
+
+  /**
+   * Formatea la hora para mostrar (HH:mm)
+   */
+  formatTime(time: string): string {
+    if (!time) return '';
+    return time.substring(0, 5); // HH:mm:ss -> HH:mm
+  }
+
+  /**
+   * Obtiene la clase CSS para el estado de la reserva
+   */
+  getEstadoClass(estado: string): string {
+    const estadoLower = estado?.toLowerCase() || '';
+    if (estadoLower.includes('reservada') || estadoLower.includes('confirmada')) return 'estado-confirmada';
+    if (estadoLower.includes('cancelada')) return 'estado-cancelada';
+    if (estadoLower.includes('realizada')) return 'estado-realizada';
+    if (estadoLower.includes('no asistida')) return 'estado-no-asistida';
+    return 'estado-default';
   }
 
 }

@@ -148,4 +148,24 @@ export class ReservationService {
       })
     );
   }
+
+  /**
+   * Obtiene todas las reservas de una disponibilidad específica
+   * @param idDisponibilidad ID de la disponibilidad
+   * @returns Observable con array de reservas
+   */
+  getReservationsByDisponibilidad(idDisponibilidad: number): Observable<Reserva[]> {
+    console.log('ReservationService - Obteniendo reservas por disponibilidad:', idDisponibilidad);
+    const headers = this.authService.getAuthHeaders();
+    
+    return this.http.get<Reserva[]>(`${this.API_URL}/disponibilidad/${idDisponibilidad}`, { headers }).pipe(
+      tap((reservas: Reserva[]) => {
+        console.log('ReservationService - Reservas obtenidas:', reservas.length);
+      }),
+      catchError((error: any) => {
+        console.error('ReservationService - Error obteniendo reservas por disponibilidad:', error);
+        return of([]);
+      })
+    );
+  }
 }

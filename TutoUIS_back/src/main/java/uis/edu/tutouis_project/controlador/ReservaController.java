@@ -129,7 +129,7 @@ public class ReservaController {
     @GetMapping("/disponibilidad/{idDisponibilidad}")
     public ResponseEntity<?> listarPorDisponibilidad(@PathVariable Integer idDisponibilidad) {
         try {
-            List<Reserva> reservas = reservaService.obtenerReservasPorDisponibilidad(idDisponibilidad);
+            List<ReservaResponseDto> reservas = reservaService.obtenerReservasDtosPorDisponibilidad(idDisponibilidad);
             return ResponseEntity.ok(reservas);
         } catch (IllegalArgumentException e) {
             Map<String, String> error = new HashMap<>();

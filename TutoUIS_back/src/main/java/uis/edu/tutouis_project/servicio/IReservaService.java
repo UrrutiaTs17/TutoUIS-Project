@@ -37,6 +37,13 @@ public interface IReservaService {
      * Obtiene todas las reservas de una disponibilidad
      */
     List<Reserva> obtenerReservasPorDisponibilidad(Integer idDisponibilidad);
+
+        /**
+         * Obtiene todas las reservas de una disponibilidad con detalles completos
+         * @param idDisponibilidad ID de la disponibilidad
+         * @return Lista de reservas con detalles
+         */
+        List<ReservaResponseDto> obtenerReservasDtosPorDisponibilidad(Integer idDisponibilidad);
     
     /**
      * Obtiene las reservas de un estudiante filtradas por estado
