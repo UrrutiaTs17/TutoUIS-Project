@@ -556,4 +556,17 @@ public class ReservaService implements IReservaService {
 
         return dto;
     }
+
+    @Override
+    public List<ReservaResponseDto> obtenerReservasDeHoyPorTutor(Integer idTutor) {
+        if (idTutor == null || idTutor <= 0) {
+            throw new IllegalArgumentException("El ID del tutor debe ser un número positivo");
+        }
+        System.out.println("📅 ReservaService: Obteniendo reservas de HOY para tutor " + idTutor);
+        long inicio = System.currentTimeMillis();
+        List<ReservaResponseDto> reservas = reservaRepository.findReservasDeHoyPorTutor(idTutor);
+        long fin = System.currentTimeMillis();
+        System.out.println("✅ ReservaService: " + reservas.size() + " reservas encontradas para hoy en " + (fin - inicio) + "ms");
+        return reservas;
+    }
 }

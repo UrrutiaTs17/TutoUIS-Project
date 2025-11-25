@@ -84,4 +84,11 @@ public interface IReservaService {
      * Elimina una reserva
      */
     void eliminarReserva(Integer idReserva);
+
+    /**
+     * Obtiene las reservas del tutor para el día actual
+     * @param idTutor ID del tutor (usuario tutor)
+     * @return Lista de reservas (DTO) correspondientes a hoy
+     */
+    List<ReservaResponseDto> obtenerReservasDeHoyPorTutor(Integer idTutor);
 }

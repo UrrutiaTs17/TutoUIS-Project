@@ -39,7 +39,7 @@
         <div class="card-header-custom">
           <div class="header-info">
             <i class="bi bi-clock-history"></i>
-            <h3>Reservas Recientes</h3>
+            <h3>Reservas de Hoy</h3>
           </div>
           <span class="badge-count">{{ reservations.length }}</span>
         </div>
@@ -62,35 +62,33 @@
             </div>
           } @else {
             <div class="reservations-list">
-              @for (r of pagedReservations; track trackReservation($index, r)) {
+              @for (r of pagedReservations; track trackReservaReal($index, r)) {
                 <div class="reservation-item">
                   <div class="reservation-header">
-                    <h4>{{ r.materia || r.asignatura || r.nombre }}</h4>
-                    <span class="badge-cupos">
-                      <i class="bi bi-people"></i>
-                      {{ r.cupos || r.cuposDisponibles || r.cupos_actuales || '0' }}
+                    <h4>{{ r.nombreAsignatura || 'Asignatura' }}</h4>
+                    <span class="badge-cupos" *ngIf="r.modalidad">
+                      <i class="bi" [ngClass]="r.modalidad === 'Virtual' ? 'bi-camera-video' : 'bi-geo-alt'"></i>
+                      {{ r.modalidad }}
                     </span>
                   </div>
                   <div class="reservation-details">
-                    @if (r.detalle || r.docente) {
-                      <div class="detail-row">
-                        <i class="bi bi-person"></i>
-                        <span>{{ r.detalle || r.docente }}</span>
-                      </div>
-                    }
-                    <div class="detail-row">
-                      <i class="bi bi-calendar3"></i>
-                      <span>{{ r.fecha ? formatDate(r.fecha) : (r.dia || '-') }}</span>
+                    <div class="detail-row" *ngIf="r.nombreTutor">
+                      <i class="bi bi-person"></i>
+                      <span>{{ r.nombreTutor }}</span>
                     </div>
                     <div class="detail-row">
                       <i class="bi bi-clock"></i>
-                      <span>{{ r.hora || r.horario || '-' }}</span>
+                      <span>{{ formatRange(r) }}</span>
+                    </div>
+                    <div class="detail-row" *ngIf="r.nombreEstudiante">
+                      <i class="bi bi-person-circle"></i>
+                      <span>{{ r.nombreEstudiante }}</span>
                     </div>
                   </div>
                   <div class="reservation-actions">
-                    <button class="btn-action primary">
+                    <button class="btn-action primary" (click)="onSlotSelected({idDisponibilidad: r.idDisponibilidad} as any)">
                       <i class="bi bi-eye"></i>
-                      Ver detalles
+                      Ver reservas slot
                     </button>
                   </div>
                 </div>

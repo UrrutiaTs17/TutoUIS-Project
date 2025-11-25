@@ -60,6 +60,22 @@ export class ReservationService {
     );
   }
 
+  /**
+   * Obtiene las reservas de HOY del tutor (día actual)
+   * @param idTutor ID del tutor
+   */
+  getTutorTodayReservations(idTutor: number): Observable<Reserva[]> {
+    console.log('ReservationService - Obteniendo reservas de HOY para tutor:', idTutor);
+    const headers = this.authService.getAuthHeaders();
+    return this.http.get<Reserva[]>(`${this.API_URL}/tutor/${idTutor}/hoy`, { headers }).pipe(
+      tap(reservas => console.log('ReservationService - Reservas de hoy recibidas:', reservas.length)),
+      catchError(err => {
+        console.error('ReservationService - Error obteniendo reservas de hoy:', err);
+        return of([]);
+      })
+    );
+  }
+
   getPendingReservations(): Observable<any[]> {
     // Método antiguo - mantener por compatibilidad
     const mockReservations = [

@@ -328,4 +328,28 @@ public class ReservaController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
+
+    // ===== NUEVO ENDPOINT: Reservas de hoy para el tutor =====
+    @Operation(summary = "Listar reservas de HOY del tutor", description = "Retorna las reservas del día actual para el tutor indicado")
+    @SecurityRequirement(name = "bearer-jwt")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Lista de reservas de hoy obtenida"),
+        @ApiResponse(responseCode = "400", description = "Parámetros inválidos"),
+        @ApiResponse(responseCode = "401", description = "No autorizado")
+    })
+    @GetMapping("/tutor/{idTutor}/hoy")
+    public ResponseEntity<?> listarReservasDeHoyPorTutor(@PathVariable Integer idTutor) {
+        try {
+            List<ReservaResponseDto> reservas = reservaService.obtenerReservasDeHoyPorTutor(idTutor);
+            return ResponseEntity.ok(reservas);
+        } catch (IllegalArgumentException e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("mensaje", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("mensaje", "Error interno del servidor");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
+    }
 }
