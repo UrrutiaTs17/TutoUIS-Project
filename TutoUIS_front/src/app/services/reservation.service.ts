@@ -21,6 +21,8 @@ export interface Reserva {
   horaFin: string;    // Format: "HH:mm:ss"
   nombreAsignatura?: string; // Nombre de la asignatura de la tutoría
   nombreTutor?: string; // Nombre completo del tutor
+  modalidad?: string; // Modalidad: Presencial o Virtual
+  meetLink?: string; // Enlace de Google Meet (solo para modalidad Virtual)
 }
 
 export interface CreateReservaDto {
@@ -29,6 +31,7 @@ export interface CreateReservaDto {
   observaciones?: string;
   horaInicio: string; // Format: "HH:mm:ss"
   horaFin: string;    // Format: "HH:mm:ss"
+  modalidad: 'Presencial' | 'Virtual';
 }
 
 @Injectable({ providedIn: 'root' })
@@ -142,25 +145,6 @@ export class ReservationService {
     return this.http.delete<void>(`${this.API_URL}/${id}`, { headers }).pipe(
       tap(() => {
         console.log('ReservationService - Reserva eliminada exitosamente');
-      })
-    );
-  }
-
-  /**
-   * Obtiene todas las reservas asociadas a una disponibilidad específica
-   * @param idDisponibilidad ID de la disponibilidad
-   */
-  getReservationsByDisponibilidad(idDisponibilidad: number): Observable<Reserva[]> {
-    console.log('ReservationService - Obteniendo reservas por disponibilidad:', idDisponibilidad);
-    const headers = this.authService.getAuthHeaders();
-
-    // Endpoint esperado en backend: /api/reservas/disponibilidad/{id}
-    // Si el backend usa otro path, ajustar aquí.
-    return this.http.get<Reserva[]>(`${this.API_URL}/disponibilidad/${idDisponibilidad}`, { headers }).pipe(
-      tap(list => console.log('ReservationService - Reservas encontradas para disponibilidad', idDisponibilidad, ':', list.length)),
-      catchError(err => {
-        console.error('ReservationService - Error al obtener reservas por disponibilidad:', err);
-        return throwError(() => err);
       })
     );
   }

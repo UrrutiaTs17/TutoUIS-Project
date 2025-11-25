@@ -6,7 +6,7 @@ import { debounceTime, distinctUntilChanged, map, startWith, catchError, finaliz
 import { ModalService } from '../../services/modal.service';
 import { TutoriaService, Tutoria } from '../../services/tutoria.service';
 import { DisponibilidadService, Disponibilidad } from '../../services/disponibilidad.service';
-import { ReservationService, CreateReservaDto, Reserva } from '../../services/reservation.service';
+import { ReservationService, CreateReservaDto } from '../../services/reservation.service';
 import { AuthService } from '../../services/auth.service';
 
 type MateriaCatalogo = {
@@ -77,15 +77,12 @@ export class CalendarComponent implements OnInit {
   
   // Modal de slots de 15 minutos
   showSlotModal = false;
-  showReservationsModal = false;
   selectedDisponibilidad: Disponibilidad | null = null;
   selectedTutoria: Tutoria | null = null;
-  loadingReservations = false;
-  reservationsError = '';
-  reservationsForSlot: Reserva[] = [];
   availableSlots: { inicio: string; fin: string; display: string }[] = [];
   selectedSlot: { inicio: string; fin: string } | null = null;
   observaciones = '';
+  modalidad: 'Presencial' | 'Virtual' = 'Presencial';
   creandoReserva = false;
   errorMessage = '';
 
@@ -399,40 +396,10 @@ trackMateria = (_: number, m: MateriaCatalogo) => m.id; // o `${m.id}-${m.nombre
     this.selected = { hora, dia };
     this.selectedDisponibilidad = disponibilidad;
     this.selectedTutoria = tutoria;
-
-    // Si estamos en modo tutor (tutorId definido y buscador oculto), mostrar lista de reservas
-    if (this.tutorId && !this.showSearch) {
-      this.loadReservationsForDisponibilidad(disponibilidad.idDisponibilidad);
-      return;
-    }
-
-    // Modo estudiante: creación de reserva
     this.generateTimeSlots(disponibilidad);
     this.showSlotModal = true;
     this.errorMessage = '';
     this.cdr.detectChanges();
-  }
-
-  private loadReservationsForDisponibilidad(idDisponibilidad: number) {
-    this.loadingReservations = true;
-    this.reservationsError = '';
-    this.reservationsForSlot = [];
-
-    this.reservationService.getReservationsByDisponibilidad(idDisponibilidad).subscribe({
-      next: (list) => {
-        this.reservationsForSlot = list || [];
-        this.loadingReservations = false;
-        this.showReservationsModal = true;
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('❌ Error cargando reservas de la disponibilidad:', err);
-        this.reservationsError = err?.error?.message || 'No se pudieron cargar las reservas de esta franja.';
-        this.loadingReservations = false;
-        this.showReservationsModal = true;
-        this.cdr.detectChanges();
-      }
-    });
   }
 
   /**
@@ -470,6 +437,11 @@ trackMateria = (_: number, m: MateriaCatalogo) => m.id; // o `${m.id}-${m.nombre
     this.cdr.detectChanges();
   }
 
+  selectModalidad(modalidad: 'Presencial' | 'Virtual'): void {
+    this.modalidad = modalidad;
+    this.cdr.detectChanges();
+  }
+
   closeSlotModal(): void {
     this.showSlotModal = false;
     this.selectedDisponibilidad = null;
@@ -477,16 +449,9 @@ trackMateria = (_: number, m: MateriaCatalogo) => m.id; // o `${m.id}-${m.nombre
     this.availableSlots = [];
     this.selectedSlot = null;
     this.observaciones = '';
+    this.modalidad = 'Presencial';
     this.errorMessage = '';
     this.creandoReserva = false;
-    this.cdr.detectChanges();
-  }
-
-  closeReservationsModal(): void {
-    this.showReservationsModal = false;
-    this.reservationsForSlot = [];
-    this.reservationsError = '';
-    this.loadingReservations = false;
     this.cdr.detectChanges();
   }
 
@@ -522,6 +487,7 @@ trackMateria = (_: number, m: MateriaCatalogo) => m.id; // o `${m.id}-${m.nombre
       idEstudiante: idUsuario,
       horaInicio: this.selectedSlot.inicio,
       horaFin: this.selectedSlot.fin,
+      modalidad: this.modalidad,
       observaciones: this.observaciones.trim() || undefined
     };
 
@@ -538,26 +504,7 @@ trackMateria = (_: number, m: MateriaCatalogo) => m.id; // o `${m.id}-${m.nombre
       },
       error: (error) => {
         console.error('❌ Error al crear reserva:', error);
-        
-        // Manejar el error de conflicto de horario
-        let mensajeError = 'Error al crear la reserva. Inténtalo de nuevo.';
-        
-        if (error.error && error.error.mensaje) {
-          const mensaje = error.error.mensaje;
-          
-          // Detectar si es un error de conflicto de horario
-          if (mensaje.includes('Ya existe una reserva en este horario')) {
-            mensajeError = '⚠️ Este horario ya está reservado. Por favor, selecciona otro espacio de tiempo disponible.';
-          } else if (mensaje.includes('No hay cupos disponibles')) {
-            mensajeError = '⚠️ No hay cupos disponibles en esta tutoría. Por favor, selecciona otro horario.';
-          } else {
-            mensajeError = mensaje;
-          }
-        } else if (error.message) {
-          mensajeError = error.message;
-        }
-        
-        this.errorMessage = mensajeError;
+        this.errorMessage = error.message || 'Error al crear la reserva. Inténtalo de nuevo.';
         this.creandoReserva = false;
         this.cdr.detectChanges();
       }

@@ -42,7 +42,8 @@ export class ReservationModal {
   formData = {
     horaInicio: '',
     horaFin: '',
-    observaciones: ''
+    observaciones: '',
+    modalidad: 'Presencial' as 'Presencial' | 'Virtual'
   };
 
   isSubmitting = false;
@@ -55,6 +56,10 @@ export class ReservationModal {
       this.formData.horaInicio = this.slot.inicio;
       this.formData.horaFin = this.slot.fin;
     }
+  }
+
+  selectModalidad(modalidad: 'Presencial' | 'Virtual'): void {
+    this.formData.modalidad = modalidad;
   }
 
   calculateEndTime(): void {
@@ -125,6 +130,7 @@ export class ReservationModal {
       idEstudiante: idUsuario,
       horaInicio: this.formData.horaInicio + ':00',
       horaFin: this.formData.horaFin + ':00',
+      modalidad: this.formData.modalidad,
       observaciones: this.formData.observaciones.trim() || undefined
     };
 

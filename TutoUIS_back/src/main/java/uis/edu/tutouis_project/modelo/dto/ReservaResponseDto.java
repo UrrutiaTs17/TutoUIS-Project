@@ -55,6 +55,12 @@ public class ReservaResponseDto {
     @Schema(description = "Nombre del tutor", example = "Dr. Carlos Ramírez")
     private String nombreTutor;
 
+    @Schema(description = "Modalidad de la tutoría", example = "Presencial")
+    private String modalidad;
+
+    @Schema(description = "Enlace de Google Meet (solo para modalidad Virtual)", example = "https://meet.google.com/xxx-yyyy-zzz")
+    private String meetLink;
+
     public ReservaResponseDto() {
     }
 
@@ -234,5 +240,21 @@ public class ReservaResponseDto {
 
     public void setNombreTutor(String nombreTutor) {
         this.nombreTutor = nombreTutor;
+    }
+
+    public String getModalidad() {
+        return modalidad;
+    }
+
+    public void setModalidad(String modalidad) {
+        this.modalidad = modalidad;
+    }
+
+    public String getMeetLink() {
+        return meetLink;
+    }
+
+    public void setMeetLink(String meetLink) {
+        this.meetLink = meetLink;
     }
 }
