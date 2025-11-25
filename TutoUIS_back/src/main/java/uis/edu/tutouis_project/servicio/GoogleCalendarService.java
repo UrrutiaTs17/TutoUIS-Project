@@ -76,7 +76,7 @@ public class GoogleCalendarService {
     }
 
     /**
-     * Crea un evento de Google Meet para una tutoría virtual
+     * Crea un evento de Google Calendar para una tutoría
      * 
      * @param titulo Título de la tutoría
      * @param descripcion Descripción de la tutoría
@@ -85,18 +85,21 @@ public class GoogleCalendarService {
      * @param horaFin Hora de fin
      * @param correoEstudiante Correo del estudiante
      * @param correoTutor Correo del tutor
-     * @return URL del Google Meet creado
+     * @param incluirMeet Si es true, crea Google Meet; si es false, solo crea el evento
+     * @return URL del Google Meet creado (null si incluirMeet es false)
      */
-    public String crearEventoMeet(String titulo, String descripcion, LocalDate fecha, 
-                                   LocalTime horaInicio, LocalTime horaFin, 
-                                   String correoEstudiante, String correoTutor) {
+    public String crearEventoCalendar(String titulo, String descripcion, LocalDate fecha, 
+                                      LocalTime horaInicio, LocalTime horaFin, 
+                                      String correoEstudiante, String correoTutor,
+                                      boolean incluirMeet) {
         try {
-            System.out.println("🗓️  INICIANDO CREACIÓN DE EVENTO GOOGLE MEET");
+            System.out.println("🗓️  INICIANDO CREACIÓN DE EVENTO EN GOOGLE CALENDAR");
             System.out.println("  - Título: " + titulo);
             System.out.println("  - Fecha: " + fecha);
             System.out.println("  - Hora: " + horaInicio + " - " + horaFin);
             System.out.println("  - Estudiante: " + correoEstudiante);
             System.out.println("  - Tutor: " + correoTutor);
+            System.out.println("  - Incluir Google Meet: " + (incluirMeet ? "Sí" : "No"));
 
             Calendar service = getCalendarService();
 
@@ -129,38 +132,73 @@ public class GoogleCalendarService {
             };
             event.setAttendees(Arrays.asList(asistentes));
 
-            // Configurar Google Meet
-            ConferenceSolutionKey conferenceSolutionKey = new ConferenceSolutionKey();
-            conferenceSolutionKey.setType("hangoutsMeet");
-            
-            CreateConferenceRequest createConferenceRequest = new CreateConferenceRequest();
-            createConferenceRequest.setRequestId(UUID.randomUUID().toString());
-            createConferenceRequest.setConferenceSolutionKey(conferenceSolutionKey);
-            
-            ConferenceData conferenceData = new ConferenceData();
-            conferenceData.setCreateRequest(createConferenceRequest);
-            
-            event.setConferenceData(conferenceData);
+            // Configurar Google Meet solo si se solicita
+            if (incluirMeet) {
+                ConferenceSolutionKey conferenceSolutionKey = new ConferenceSolutionKey();
+                conferenceSolutionKey.setType("hangoutsMeet");
+                
+                CreateConferenceRequest createConferenceRequest = new CreateConferenceRequest();
+                createConferenceRequest.setRequestId(UUID.randomUUID().toString());
+                createConferenceRequest.setConferenceSolutionKey(conferenceSolutionKey);
+                
+                ConferenceData conferenceData = new ConferenceData();
+                conferenceData.setCreateRequest(createConferenceRequest);
+                
+                event.setConferenceData(conferenceData);
+            }
 
-            // Insertar evento en el calendario (conferenceDataVersion=1 para crear Meet)
+            // Insertar evento en el calendario
             String calendarId = "primary";
-            event = service.events().insert(calendarId, event)
-                    .setConferenceDataVersion(1)
-                    .setSendUpdates("all") // Enviar invitaciones a todos
-                    .execute();
+            if (incluirMeet) {
+                // conferenceDataVersion=1 es necesario para crear Meet
+                event = service.events().insert(calendarId, event)
+                        .setConferenceDataVersion(1)
+                        .setSendUpdates("all") // Enviar invitaciones a todos
+                        .execute();
+            } else {
+                // Sin Google Meet
+                event = service.events().insert(calendarId, event)
+                        .setSendUpdates("all") // Enviar invitaciones a todos
+                        .execute();
+            }
 
-            String meetLink = event.getHangoutLink();
+            String meetLink = incluirMeet ? event.getHangoutLink() : null;
             System.out.println("✅ Evento creado exitosamente");
             System.out.println("  - ID del evento: " + event.getId());
-            System.out.println("  - Enlace Meet: " + meetLink);
+            if (incluirMeet && meetLink != null) {
+                System.out.println("  - Enlace Meet: " + meetLink);
+            } else {
+                System.out.println("  - Evento presencial (sin Meet)");
+            }
 
             return meetLink;
 
         } catch (Exception e) {
-            System.err.println("❌ Error al crear evento de Google Meet: " + e.getMessage());
+            System.err.println("❌ Error al crear evento de Google Calendar: " + e.getMessage());
             e.printStackTrace();
-            throw new RuntimeException("Error al crear evento de Google Meet: " + e.getMessage(), e);
+            throw new RuntimeException("Error al crear evento de Google Calendar: " + e.getMessage(), e);
         }
+    }
+
+    /**
+     * Método de conveniencia para crear evento con Google Meet (modalidad Virtual)
+     */
+    public String crearEventoMeet(String titulo, String descripcion, LocalDate fecha, 
+                                   LocalTime horaInicio, LocalTime horaFin, 
+                                   String correoEstudiante, String correoTutor) {
+        return crearEventoCalendar(titulo, descripcion, fecha, horaInicio, horaFin, 
+                                   correoEstudiante, correoTutor, true);
+    }
+
+    /**
+     * Método de conveniencia para crear evento presencial (sin Google Meet)
+     */
+    public String crearEventoPresencial(String titulo, String descripcion, LocalDate fecha, 
+                                        LocalTime horaInicio, LocalTime horaFin, 
+                                        String correoEstudiante, String correoTutor) {
+        crearEventoCalendar(titulo, descripcion, fecha, horaInicio, horaFin, 
+                           correoEstudiante, correoTutor, false);
+        return null; // No hay enlace de Meet para eventos presenciales
     }
 
     /**

@@ -243,37 +243,49 @@ public class ReservaService implements IReservaService {
         Reserva reservaGuardada = reservaRepository.save(nuevaReserva);
         System.out.println("✅ Reserva guardada exitosamente con ID: " + reservaGuardada.getIdReserva());
 
-        // Si la modalidad es Virtual, crear evento de Google Meet
-        if ("Virtual".equalsIgnoreCase(createDto.getModalidad())) {
-            try {
-                System.out.println("🌐 Modalidad Virtual detectada - Creando evento de Google Meet...");
-                
-                // Obtener información de la tutoría
-                Tutoria tutoria = tutoriaRepository.findById(disponibilidad.getIdTutoria())
-                        .orElseThrow(() -> new RuntimeException("Tutoría no encontrada"));
-                
-                // Obtener correos del estudiante y tutor
-                String correoEstudiante = usuarioRepository.findById(createDto.getIdEstudiante())
-                        .map(u -> u.getCorreo())
-                        .orElseThrow(() -> new RuntimeException("Estudiante no encontrado"));
-                
-                String correoTutor = usuarioRepository.findById(tutoria.getIdTutor())
-                        .map(u -> u.getCorreo())
-                        .orElseThrow(() -> new RuntimeException("Tutor no encontrado"));
-                
-                // Obtener fecha de la disponibilidad
-                java.time.LocalDate fecha = disponibilidad.getFecha().toLocalDate();
-                
-                // Crear título y descripción
-                String nombreAsignatura = tutoria.getAsignatura() != null ? tutoria.getAsignatura().getNombre() : "Tutoría";
-                String titulo = "Tutoría: " + nombreAsignatura;
-                String descripcion = "Tutoría virtual de " + nombreAsignatura;
-                if (createDto.getObservaciones() != null && !createDto.getObservaciones().trim().isEmpty()) {
-                    descripcion += "\n\nObservaciones: " + createDto.getObservaciones();
+        // Crear evento en Google Calendar para ambas modalidades
+        try {
+            System.out.println("🗓️ Creando evento en Google Calendar...");
+            System.out.println("  - Modalidad: " + createDto.getModalidad());
+            
+            // Obtener información de la tutoría
+            Tutoria tutoria = tutoriaRepository.findById(disponibilidad.getIdTutoria())
+                    .orElseThrow(() -> new RuntimeException("Tutoría no encontrada"));
+            
+            // Obtener correos del estudiante y tutor
+            String correoEstudiante = usuarioRepository.findById(createDto.getIdEstudiante())
+                    .map(u -> u.getCorreo())
+                    .orElseThrow(() -> new RuntimeException("Estudiante no encontrado"));
+            
+            String correoTutor = usuarioRepository.findById(tutoria.getIdTutor())
+                    .map(u -> u.getCorreo())
+                    .orElseThrow(() -> new RuntimeException("Tutor no encontrado"));
+            
+            // Obtener fecha de la disponibilidad
+            java.time.LocalDate fecha = disponibilidad.getFecha().toLocalDate();
+            
+            // Crear título y descripción
+            String nombreAsignatura = tutoria.getAsignatura() != null ? tutoria.getAsignatura().getNombre() : "Tutoría";
+            String modalidadTexto = createDto.getModalidad();
+            String titulo = "Tutoría " + modalidadTexto + ": " + nombreAsignatura;
+            String descripcion = "Tutoría " + modalidadTexto.toLowerCase() + " de " + nombreAsignatura;
+            
+            // Agregar información del lugar si es presencial
+            if ("Presencial".equalsIgnoreCase(createDto.getModalidad())) {
+                if (tutoria.getLugar() != null && !tutoria.getLugar().trim().isEmpty()) {
+                    descripcion += "\n\n📍 Lugar: " + tutoria.getLugar();
                 }
-                
-                // Crear evento en Google Calendar
-                String meetLink = googleCalendarService.crearEventoMeet(
+            }
+            
+            if (createDto.getObservaciones() != null && !createDto.getObservaciones().trim().isEmpty()) {
+                descripcion += "\n\n📝 Observaciones: " + createDto.getObservaciones();
+            }
+            
+            // Crear evento según la modalidad
+            String meetLink = null;
+            if ("Virtual".equalsIgnoreCase(createDto.getModalidad())) {
+                // Modalidad Virtual: crear evento con Google Meet
+                meetLink = googleCalendarService.crearEventoMeet(
                     titulo,
                     descripcion,
                     fecha,
@@ -287,14 +299,27 @@ public class ReservaService implements IReservaService {
                 reservaGuardada.setMeetLink(meetLink);
                 reservaGuardada = reservaRepository.save(reservaGuardada);
                 
-                System.out.println("✅ Enlace de Google Meet creado y guardado: " + meetLink);
+                System.out.println("✅ Evento virtual creado con Google Meet: " + meetLink);
+            } else {
+                // Modalidad Presencial: crear evento sin Google Meet
+                googleCalendarService.crearEventoPresencial(
+                    titulo,
+                    descripcion,
+                    fecha,
+                    createDto.getHoraInicio(),
+                    createDto.getHoraFin(),
+                    correoEstudiante,
+                    correoTutor
+                );
                 
-            } catch (Exception e) {
-                System.err.println("⚠️ Error al crear evento de Google Meet: " + e.getMessage());
-                System.err.println("⚠️ La reserva se creó pero sin enlace de Meet");
-                e.printStackTrace();
-                // No lanzamos excepción para que la reserva se complete aunque falle el Meet
+                System.out.println("✅ Evento presencial creado en Google Calendar (sin Meet)");
             }
+            
+        } catch (Exception e) {
+            System.err.println("⚠️ Error al crear evento en Google Calendar: " + e.getMessage());
+            System.err.println("⚠️ La reserva se creó pero sin evento de calendario");
+            e.printStackTrace();
+            // No lanzamos excepción para que la reserva se complete aunque falle el calendario
         }
 
         // Actualizar aforo disponible
