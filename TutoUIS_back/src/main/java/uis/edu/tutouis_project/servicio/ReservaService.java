@@ -35,6 +35,9 @@ public class ReservaService implements IReservaService {
     @Autowired
     private TutoriaRepository tutoriaRepository;
 
+    @Autowired
+    private GoogleCalendarService googleCalendarService;
+
     @Override
     public List<Reserva> obtenerTodasLasReservas() {
         return reservaRepository.findAll();
@@ -100,6 +103,24 @@ public class ReservaService implements IReservaService {
     }
 
     @Override
+    public List<ReservaResponseDto> obtenerReservasDtosPorDisponibilidad(Integer idDisponibilidad) {
+        if (idDisponibilidad == null || idDisponibilidad <= 0) {
+            throw new IllegalArgumentException("El ID de disponibilidad debe ser un número positivo");
+        }
+
+        System.out.println("📋 ReservaService: Obteniendo reservas de la disponibilidad " + idDisponibilidad + " [VERSIÓN OPTIMIZADA]");
+        long inicio = System.currentTimeMillis();
+
+        List<ReservaResponseDto> reservas = reservaRepository.findReservasConDetallesPorDisponibilidad(idDisponibilidad);
+
+        long fin = System.currentTimeMillis();
+        System.out.println("✅ ReservaService: Se obtuvieron " + reservas.size() +
+                           " reservas en " + (fin - inicio) + "ms con UNA sola query SQL");
+
+        return reservas;
+    }
+
+    @Override
     public List<Reserva> obtenerReservasPorUsuarioYEstado(Integer idEstudiante, Integer idEstado) {
         if (idEstudiante == null || idEstudiante <= 0) {
             throw new IllegalArgumentException("El ID del estudiante debe ser un número positivo");
@@ -136,6 +157,7 @@ public class ReservaService implements IReservaService {
         System.out.println("  - ID Estudiante: " + createDto.getIdEstudiante());
         System.out.println("  - Hora Inicio: " + createDto.getHoraInicio());
         System.out.println("  - Hora Fin: " + createDto.getHoraFin());
+        System.out.println("  - Modalidad: " + (createDto.getModalidad() != null ? createDto.getModalidad() : "(ninguna)"));
         System.out.println("  - Observaciones: " + (createDto.getObservaciones() != null ? createDto.getObservaciones() : "(ninguna)"));
         
         if (createDto.getIdDisponibilidad() == null || createDto.getIdDisponibilidad() <= 0) {
@@ -232,11 +254,91 @@ public class ReservaService implements IReservaService {
         nuevaReserva.setObservaciones(createDto.getObservaciones());
         nuevaReserva.setHoraInicio(createDto.getHoraInicio());
         nuevaReserva.setHoraFin(createDto.getHoraFin());
+        nuevaReserva.setModalidad(createDto.getModalidad());
         nuevaReserva.setFechaCreacion(new java.sql.Timestamp(System.currentTimeMillis()));
 
         System.out.println("💾 Guardando reserva en la base de datos...");
         Reserva reservaGuardada = reservaRepository.save(nuevaReserva);
         System.out.println("✅ Reserva guardada exitosamente con ID: " + reservaGuardada.getIdReserva());
+
+        // Crear evento en Google Calendar para ambas modalidades
+        try {
+            System.out.println("🗓️ Creando evento en Google Calendar...");
+            System.out.println("  - Modalidad: " + createDto.getModalidad());
+            
+            // Obtener información de la tutoría
+            Tutoria tutoria = tutoriaRepository.findById(disponibilidad.getIdTutoria())
+                    .orElseThrow(() -> new RuntimeException("Tutoría no encontrada"));
+            
+            // Obtener correos del estudiante y tutor
+            String correoEstudiante = usuarioRepository.findById(createDto.getIdEstudiante())
+                    .map(u -> u.getCorreo())
+                    .orElseThrow(() -> new RuntimeException("Estudiante no encontrado"));
+            
+            String correoTutor = usuarioRepository.findById(tutoria.getIdTutor())
+                    .map(u -> u.getCorreo())
+                    .orElseThrow(() -> new RuntimeException("Tutor no encontrado"));
+            
+            // Obtener fecha de la disponibilidad
+            java.time.LocalDate fecha = disponibilidad.getFecha().toLocalDate();
+            
+            // Crear título y descripción
+            String nombreAsignatura = tutoria.getAsignatura() != null ? tutoria.getAsignatura().getNombre() : "Tutoría";
+            String modalidadTexto = createDto.getModalidad();
+            String titulo = "Tutoría " + modalidadTexto + ": " + nombreAsignatura;
+            String descripcion = "Tutoría " + modalidadTexto.toLowerCase() + " de " + nombreAsignatura;
+            
+            // Agregar información del lugar si es presencial
+            if ("Presencial".equalsIgnoreCase(createDto.getModalidad())) {
+                if (tutoria.getLugar() != null && !tutoria.getLugar().trim().isEmpty()) {
+                    descripcion += "\n\n📍 Lugar: " + tutoria.getLugar();
+                }
+            }
+            
+            if (createDto.getObservaciones() != null && !createDto.getObservaciones().trim().isEmpty()) {
+                descripcion += "\n\n📝 Observaciones: " + createDto.getObservaciones();
+            }
+            
+            // Crear evento según la modalidad
+            String meetLink = null;
+            if ("Virtual".equalsIgnoreCase(createDto.getModalidad())) {
+                // Modalidad Virtual: crear evento con Google Meet
+                meetLink = googleCalendarService.crearEventoMeet(
+                    titulo,
+                    descripcion,
+                    fecha,
+                    createDto.getHoraInicio(),
+                    createDto.getHoraFin(),
+                    correoEstudiante,
+                    correoTutor
+                );
+                
+                // Guardar el enlace de Meet en la reserva
+                reservaGuardada.setMeetLink(meetLink);
+                reservaGuardada = reservaRepository.save(reservaGuardada);
+                
+                System.out.println("✅ Evento virtual creado con Google Meet: " + meetLink);
+            } else {
+                // Modalidad Presencial: crear evento sin Google Meet
+                googleCalendarService.crearEventoPresencial(
+                    titulo,
+                    descripcion,
+                    fecha,
+                    createDto.getHoraInicio(),
+                    createDto.getHoraFin(),
+                    correoEstudiante,
+                    correoTutor
+                );
+                
+                System.out.println("✅ Evento presencial creado en Google Calendar (sin Meet)");
+            }
+            
+        } catch (Exception e) {
+            System.err.println("⚠️ Error al crear evento en Google Calendar: " + e.getMessage());
+            System.err.println("⚠️ La reserva se creó pero sin evento de calendario");
+            e.printStackTrace();
+            // No lanzamos excepción para que la reserva se complete aunque falle el calendario
+        }
 
         // Actualizar aforo disponible
         System.out.println("📊 Actualizando aforo disponible de " + disponibilidad.getAforoDisponible() + " a " + (disponibilidad.getAforoDisponible() - 1));
@@ -361,6 +463,8 @@ public class ReservaService implements IReservaService {
         dto.setRazonCancelacion(reserva.getRazonCancelacion());
         dto.setHoraInicio(reserva.getHoraInicio());
         dto.setHoraFin(reserva.getHoraFin());
+        dto.setModalidad(reserva.getModalidad());
+        dto.setMeetLink(reserva.getMeetLink());
 
         // Obtener información de la disponibilidad, tutoría y asignatura
         disponibilidadRepository.findById(reserva.getIdDisponibilidad()).ifPresent(disponibilidad -> {
@@ -451,5 +555,18 @@ public class ReservaService implements IReservaService {
         });
 
         return dto;
+    }
+
+    @Override
+    public List<ReservaResponseDto> obtenerReservasDeHoyPorTutor(Integer idTutor) {
+        if (idTutor == null || idTutor <= 0) {
+            throw new IllegalArgumentException("El ID del tutor debe ser un número positivo");
+        }
+        System.out.println("📅 ReservaService: Obteniendo reservas de HOY para tutor " + idTutor);
+        long inicio = System.currentTimeMillis();
+        List<ReservaResponseDto> reservas = reservaRepository.findReservasDeHoyPorTutor(idTutor);
+        long fin = System.currentTimeMillis();
+        System.out.println("✅ ReservaService: " + reservas.size() + " reservas encontradas para hoy en " + (fin - inicio) + "ms");
+        return reservas;
     }
 }

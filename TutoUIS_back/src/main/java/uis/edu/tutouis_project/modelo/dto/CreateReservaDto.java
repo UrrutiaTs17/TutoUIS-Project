@@ -32,6 +32,10 @@ public class CreateReservaDto {
     @Schema(description = "Hora de fin de la reserva (HH:mm:ss)", example = "08:15:00", required = true)
     private LocalTime horaFin;
 
+    @NotNull(message = "La modalidad no puede ser nula")
+    @Schema(description = "Modalidad de la tutoría (Presencial o Virtual)", example = "Presencial", required = true)
+    private String modalidad;
+
     public CreateReservaDto() {
     }
 
@@ -85,5 +89,13 @@ public class CreateReservaDto {
 
     public void setHoraFin(LocalTime horaFin) {
         this.horaFin = horaFin;
+    }
+
+    public String getModalidad() {
+        return modalidad;
+    }
+
+    public void setModalidad(String modalidad) {
+        this.modalidad = modalidad;
     }
 }

@@ -37,6 +37,13 @@ public interface IReservaService {
      * Obtiene todas las reservas de una disponibilidad
      */
     List<Reserva> obtenerReservasPorDisponibilidad(Integer idDisponibilidad);
+
+        /**
+         * Obtiene todas las reservas de una disponibilidad con detalles completos
+         * @param idDisponibilidad ID de la disponibilidad
+         * @return Lista de reservas con detalles
+         */
+        List<ReservaResponseDto> obtenerReservasDtosPorDisponibilidad(Integer idDisponibilidad);
     
     /**
      * Obtiene las reservas de un estudiante filtradas por estado
@@ -77,4 +84,11 @@ public interface IReservaService {
      * Elimina una reserva
      */
     void eliminarReserva(Integer idReserva);
+
+    /**
+     * Obtiene las reservas del tutor para el día actual
+     * @param idTutor ID del tutor (usuario tutor)
+     * @return Lista de reservas (DTO) correspondientes a hoy
+     */
+    List<ReservaResponseDto> obtenerReservasDeHoyPorTutor(Integer idTutor);
 }

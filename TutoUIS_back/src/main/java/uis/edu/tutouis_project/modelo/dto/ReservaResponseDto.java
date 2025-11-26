@@ -55,6 +55,12 @@ public class ReservaResponseDto {
     @Schema(description = "Nombre del tutor", example = "Dr. Carlos Ramírez")
     private String nombreTutor;
 
+    @Schema(description = "Modalidad de la tutoría", example = "Presencial")
+    private String modalidad;
+
+    @Schema(description = "Enlace de Google Meet (solo para modalidad Virtual)", example = "https://meet.google.com/xxx-yyyy-zzz")
+    private String meetLink;
+
     public ReservaResponseDto() {
     }
 
@@ -105,6 +111,33 @@ public class ReservaResponseDto {
         this.horaFin = horaFin;
         this.nombreAsignatura = nombreAsignatura;
         this.nombreTutor = nombreTutor;
+    }
+
+    // Constructor extendido (incluye modalidad y meetLink)
+    public ReservaResponseDto(
+            Integer idReserva,
+            Integer idDisponibilidad,
+            LocalTime disponibilidadHoraInicio,
+            LocalTime disponibilidadHoraFin,
+            Integer idEstudiante,
+            String nombreEstudiante,
+            Integer idEstado,
+            String nombreEstado,
+            String observaciones,
+            Timestamp fechaCreacion,
+            Timestamp fechaCancelacion,
+            String razonCancelacion,
+            LocalTime horaInicio,
+            LocalTime horaFin,
+            String nombreAsignatura,
+            String nombreTutor,
+            String modalidad,
+            String meetLink) {
+        this(idReserva, idDisponibilidad, disponibilidadHoraInicio, disponibilidadHoraFin, idEstudiante,
+             nombreEstudiante, idEstado, nombreEstado, observaciones, fechaCreacion, fechaCancelacion,
+             razonCancelacion, horaInicio, horaFin, nombreAsignatura, nombreTutor);
+        this.modalidad = modalidad;
+        this.meetLink = meetLink;
     }
 
     // Getters and Setters
@@ -234,5 +267,21 @@ public class ReservaResponseDto {
 
     public void setNombreTutor(String nombreTutor) {
         this.nombreTutor = nombreTutor;
+    }
+
+    public String getModalidad() {
+        return modalidad;
+    }
+
+    public void setModalidad(String modalidad) {
+        this.modalidad = modalidad;
+    }
+
+    public String getMeetLink() {
+        return meetLink;
+    }
+
+    public void setMeetLink(String meetLink) {
+        this.meetLink = meetLink;
     }
 }

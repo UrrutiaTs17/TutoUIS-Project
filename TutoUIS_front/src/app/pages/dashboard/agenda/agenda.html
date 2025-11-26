@@ -28,7 +28,7 @@
           <h3>Calendario</h3>
         </div>
         <div class="card-content">
-          <app-calendar [showSearch]="false" [tutorId]="tutorId"></app-calendar>
+          <app-calendar [showSearch]="false" [tutorId]="tutorId" (slotClicked)="onSlotSelected($event)"></app-calendar>
         </div>
       </div>
     </div>
@@ -39,7 +39,7 @@
         <div class="card-header-custom">
           <div class="header-info">
             <i class="bi bi-clock-history"></i>
-            <h3>Reservas Recientes</h3>
+            <h3>Reservas de Hoy</h3>
           </div>
           <span class="badge-count">{{ reservations.length }}</span>
         </div>
@@ -62,35 +62,33 @@
             </div>
           } @else {
             <div class="reservations-list">
-              @for (r of pagedReservations; track trackReservation($index, r)) {
+              @for (r of pagedReservations; track trackReservaReal($index, r)) {
                 <div class="reservation-item">
                   <div class="reservation-header">
-                    <h4>{{ r.materia || r.asignatura || r.nombre }}</h4>
-                    <span class="badge-cupos">
-                      <i class="bi bi-people"></i>
-                      {{ r.cupos || r.cuposDisponibles || r.cupos_actuales || '0' }}
+                    <h4>{{ r.nombreAsignatura || 'Asignatura' }}</h4>
+                    <span class="badge-cupos" *ngIf="r.modalidad">
+                      <i class="bi" [ngClass]="r.modalidad === 'Virtual' ? 'bi-camera-video' : 'bi-geo-alt'"></i>
+                      {{ r.modalidad }}
                     </span>
                   </div>
                   <div class="reservation-details">
-                    @if (r.detalle || r.docente) {
-                      <div class="detail-row">
-                        <i class="bi bi-person"></i>
-                        <span>{{ r.detalle || r.docente }}</span>
-                      </div>
-                    }
-                    <div class="detail-row">
-                      <i class="bi bi-calendar3"></i>
-                      <span>{{ r.fecha ? formatDate(r.fecha) : (r.dia || '-') }}</span>
+                    <div class="detail-row" *ngIf="r.nombreTutor">
+                      <i class="bi bi-person"></i>
+                      <span>{{ r.nombreTutor }}</span>
                     </div>
                     <div class="detail-row">
                       <i class="bi bi-clock"></i>
-                      <span>{{ r.hora || r.horario || '-' }}</span>
+                      <span>{{ formatRange(r) }}</span>
+                    </div>
+                    <div class="detail-row" *ngIf="r.nombreEstudiante">
+                      <i class="bi bi-person-circle"></i>
+                      <span>{{ r.nombreEstudiante }}</span>
                     </div>
                   </div>
                   <div class="reservation-actions">
                     <button class="btn-action primary" (click)="onSlotSelected(r.idDisponibilidad)">
                       <i class="bi bi-eye"></i>
-                      Ver detalles
+                      Ver reservas slot
                     </button>
                   </div>
                 </div>
@@ -125,3 +123,105 @@
     </div>
   </div>
 </div>
+
+<!-- Modal para mostrar reservas del slot -->
+@if (showReservasModal) {
+  <div class="modal-overlay" (click)="closeReservasModal()">
+    <div class="modal-reservas" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h3>
+            <i class="bi bi-calendar-check"></i>
+            Reservas del Slot
+          </h3>
+          @if (slotSeleccionado) {
+            <p class="slot-info">
+              {{ slotSeleccionado.diaSemana }} • {{ formatTime(slotSeleccionado.horaInicio) }} - {{ formatTime(slotSeleccionado.horaFin) }}
+            </p>
+          }
+        </div>
+        <button class="btn-close-modal" (click)="closeReservasModal()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        @if (loadingReservas) {
+          <div class="loading-state">
+            <div class="spinner"></div>
+            <p>Cargando reservas...</p>
+          </div>
+        } @else if (reservasDelSlot.length === 0) {
+          <div class="empty-state">
+            <i class="bi bi-inbox"></i>
+            <p>No hay reservas en este horario</p>
+          </div>
+        } @else {
+          <div class="reservas-list">
+            @for (reserva of reservasDelSlot; track reserva.idReserva) {
+              <div class="reserva-card">
+                <div class="reserva-header-row">
+                  <div class="estudiante-info">
+                    <i class="bi bi-person-circle"></i>
+                    <div>
+                      <h4>{{ reserva.nombreEstudiante || 'Estudiante' }}</h4>
+                      <span class="codigo">ID: {{ reserva.idEstudiante }}</span>
+                    </div>
+                  </div>
+                  <span class="badge-estado" [ngClass]="getEstadoClass(reserva.nombreEstado || '')">
+                    {{ reserva.nombreEstado || 'Pendiente' }}
+                  </span>
+                </div>
+
+                <div class="reserva-details">
+                  <div class="detail-item">
+                    <i class="bi bi-clock"></i>
+                    <span>{{ formatTime(reserva.horaInicio) }} - {{ formatTime(reserva.horaFin) }}</span>
+                  </div>
+                  
+                  @if (reserva.modalidad) {
+                    <div class="detail-item">
+                      <i class="bi" [ngClass]="reserva.modalidad === 'Virtual' ? 'bi-camera-video' : 'bi-geo-alt'"></i>
+                      <span>{{ reserva.modalidad }}</span>
+                    </div>
+                  }
+
+                  @if (reserva.modalidad === 'Virtual' && reserva.meetLink) {
+                    <div class="detail-item meet-link">
+                      <i class="bi bi-link-45deg"></i>
+                      <a [href]="reserva.meetLink" target="_blank" class="link-meet">
+                        Enlace de Meet
+                        <i class="bi bi-box-arrow-up-right"></i>
+                      </a>
+                    </div>
+                  }
+
+                  @if (reserva.observaciones) {
+                    <div class="detail-item observaciones">
+                      <i class="bi bi-chat-left-text"></i>
+                      <span>{{ reserva.observaciones }}</span>
+                    </div>
+                  }
+
+                  @if (reserva.fechaCreacion) {
+                    <div class="detail-item fecha-creacion">
+                      <i class="bi bi-calendar-plus"></i>
+                      <span class="text-muted">Creada: {{ formatDate(reserva.fechaCreacion) }}</span>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeReservasModal()">
+          <i class="bi bi-x-circle"></i>
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+}
