@@ -48,10 +48,6 @@ public class Tutoria {
     @Schema(description = "Asignatura relacionada con la tutoría")
     private Asignatura asignatura;
 
-    @Column(name = "modalidad", length = 50)
-    @Schema(description = "Modalidad de la tutoría", example = "Presencial")
-    private String modalidad;
-
     @Column(name = "lugar", length = 200)
     @Schema(description = "Lugar donde se realiza la tutoría", example = "Aula 101")
     private String lugar;
@@ -59,10 +55,6 @@ public class Tutoria {
     @Column(name = "descripcion", length = 500)
     @Schema(description = "Descripción de la tutoría", example = "Tutoría sobre programación en Java")
     private String descripcion;
-
-    @Column(name = "capacidad_maxima", nullable = false)
-    @Schema(description = "Capacidad máxima de estudiantes", example = "30")
-    private Integer capacidadMaxima;
 
     @Column(name = "id_estado_tutoria")
     @Schema(description = "ID del estado del ciclo de vida de la tutoría", example = "2")
@@ -90,13 +82,11 @@ public class Tutoria {
         this.idEstadoTutoria = 1; // Pendiente por defecto
     }
 
-    public Tutoria(Integer idTutor, Integer idAsignatura, String modalidad, String lugar, String descripcion, Integer capacidadMaxima) {
+    public Tutoria(Integer idTutor, Integer idAsignatura, String lugar, String descripcion) {
         this.idTutor = idTutor;
         this.idAsignatura = idAsignatura;
-        this.modalidad = modalidad;
         this.lugar = lugar;
         this.descripcion = descripcion;
-        this.capacidadMaxima = capacidadMaxima;
         this.idEstadoTutoria = 1; // Pendiente por defecto
     }
 
@@ -132,14 +122,6 @@ public class Tutoria {
         this.asignatura = asignatura;
     }
 
-    public String getModalidad() {
-        return modalidad;
-    }
-
-    public void setModalidad(String modalidad) {
-        this.modalidad = modalidad;
-    }
-
     public String getLugar() {
         return lugar;
     }
@@ -154,14 +136,6 @@ public class Tutoria {
 
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
-    }
-
-    public Integer getCapacidadMaxima() {
-        return capacidadMaxima;
-    }
-
-    public void setCapacidadMaxima(Integer capacidadMaxima) {
-        this.capacidadMaxima = capacidadMaxima;
     }
 
     public Timestamp getFechaCreacion() {
@@ -218,10 +192,8 @@ public class Tutoria {
                 "idTutoria=" + idTutoria +
                 ", idTutor=" + idTutor +
                 ", idAsignatura=" + idAsignatura +
-                ", modalidad='" + modalidad + '\'' +
                 ", lugar='" + lugar + '\'' +
                 ", descripcion='" + descripcion + '\'' +
-                ", capacidadMaxima=" + capacidadMaxima +
                 ", idEstadoTutoria=" + idEstadoTutoria +
                 ", fechaCreacion=" + fechaCreacion +
                 ", fechaUltimaModificacion=" + fechaUltimaModificacion +

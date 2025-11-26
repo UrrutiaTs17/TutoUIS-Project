@@ -131,10 +131,10 @@
             </div>
           </div>
 
-          <!-- Fila 2: Asignatura y Modalidad -->
+          <!-- Fila 2: Asignatura -->
           <div class="row mb-3">
             <!-- Asignatura -->
-            <div class="col-md-6">
+            <div class="col-12">
               <label class="form-label"><span class="text-danger">*</span> Asignatura</label>
               <select
                 class="form-select"
@@ -153,25 +153,6 @@
               </small>
               <small class="text-muted" *ngIf="isEditMode">
                 <i class="bi bi-lock-fill"></i> No editable
-              </small>
-            </div>
-
-            <!-- Modalidad -->
-            <div class="col-md-6">
-              <label class="form-label"><span class="text-danger">*</span> Modalidad</label>
-              <select
-                class="form-select"
-                [(ngModel)]="form.modalidad"
-                name="modalidad"
-                [disabled]="submitting"
-                required>
-                <option value="">Selecciona modalidad</option>
-                <option value="Presencial">Presencial</option>
-                <option value="Virtual">Virtual</option>
-                <option value="Híbrida">Híbrida</option>
-              </select>
-              <small class="text-muted">
-                <i class="bi bi-info-circle"></i> Formato en que se ofrece la tutoría
               </small>
             </div>
           </div>
@@ -194,31 +175,10 @@
             </small>
           </div>
 
-          <!-- Fila 4: Capacidad y Ubicación -->
+          <!-- Fila 4: Ubicación -->
           <div class="row mb-3">
-            <!-- Capacidad Máxima -->
-            <div class="col-md-6">
-              <label for="capacidadInput" class="form-label">
-                <span class="text-danger">*</span> Capacidad Máxima
-              </label>
-              <input
-                type="number"
-                id="capacidadInput"
-                class="form-control"
-                [(ngModel)]="form.capacidadMaxima"
-                name="capacidadMaxima"
-                placeholder="30"
-                [disabled]="submitting"
-                min="1"
-                max="100"
-                required>
-              <small class="text-muted">
-                <i class="bi bi-info-circle"></i> Entre 1 y 100 estudiantes
-              </small>
-            </div>
-
             <!-- Ubicación -->
-            <div class="col-md-6">
+            <div class="col-12">
               <label for="ubicacionInput" class="form-label">Ubicación</label>
               <input
                 type="text"
@@ -262,29 +222,7 @@
 
             <div class="disponibilidad-item" *ngFor="let disp of disponibilidades; let i = index">
               <div class="row g-3">
-                <!-- Día de la semana -->
-                <div class="col-md-3">
-                  <label class="form-label">
-                    <span class="text-danger">*</span> Día
-                  </label>
-                  <select
-                    class="form-select form-select-sm"
-                    [(ngModel)]="disp.diaSemana"
-                    [name]="'diaSemana' + i"
-                    [disabled]="submitting"
-                    required>
-                    <option value="">Selecciona</option>
-                    <option value="Lunes">Lunes</option>
-                    <option value="Martes">Martes</option>
-                    <option value="Miércoles">Miércoles</option>
-                    <option value="Jueves">Jueves</option>
-                    <option value="Viernes">Viernes</option>
-                    <option value="Sábado">Sábado</option>
-                    <option value="Domingo">Domingo</option>
-                  </select>
-                </div>
-
-                <!-- Fecha -->
+                <!-- Fecha (ahora primero) -->
                 <div class="col-md-3">
                   <label class="form-label">
                     <span class="text-danger">*</span> Fecha
@@ -293,9 +231,24 @@
                     type="date"
                     class="form-control form-control-sm"
                     [(ngModel)]="disp.fecha"
+                    (ngModelChange)="onFechaChange(i, $event)"
                     [name]="'fecha' + i"
                     [disabled]="submitting"
                     required>
+                </div>
+
+                <!-- Día de la semana (ahora segundo y readonly) -->
+                <div class="col-md-3">
+                  <label class="form-label">
+                    <span class="text-danger">*</span> Día
+                  </label>
+                  <input
+                    type="text"
+                    class="form-control form-control-sm dia-readonly"
+                    [(ngModel)]="disp.diaSemana"
+                    [name]="'diaSemana' + i"
+                    readonly
+                    placeholder="Auto">
                 </div>
 
                 <!-- Hora Inicio -->

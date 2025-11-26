@@ -9,6 +9,8 @@ export interface Reserva {
   idDisponibilidad: number;
   disponibilidadHoraInicio?: string; // Horario de inicio de la disponibilidad
   disponibilidadHoraFin?: string;    // Horario de fin de la disponibilidad
+  fechaDisponibilidad?: string; // Fecha de la disponibilidad
+  diaSemana?: string; // Día de la semana de la disponibilidad
   idEstudiante: number;
   nombreEstudiante?: string; // Nombre completo del estudiante
   idEstado: number;
@@ -21,6 +23,9 @@ export interface Reserva {
   horaFin: string;    // Format: "HH:mm:ss"
   nombreAsignatura?: string; // Nombre de la asignatura de la tutoría
   nombreTutor?: string; // Nombre completo del tutor
+  modalidad?: string; // Modalidad: Presencial o Virtual
+  meetLink?: string; // Enlace de Google Meet (solo para modalidad Virtual)
+  lugar?: string; // Lugar de la reserva
 }
 
 export interface CreateReservaDto {
@@ -29,6 +34,7 @@ export interface CreateReservaDto {
   observaciones?: string;
   horaInicio: string; // Format: "HH:mm:ss"
   horaFin: string;    // Format: "HH:mm:ss"
+  modalidad: 'Presencial' | 'Virtual';
 }
 
 @Injectable({ providedIn: 'root' })
@@ -53,6 +59,22 @@ export class ReservationService {
       catchError((error: any) => {
         console.error('ReservationService - Error en getAllReservations:', error);
         return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Obtiene las reservas de HOY del tutor (día actual)
+   * @param idTutor ID del tutor
+   */
+  getTutorTodayReservations(idTutor: number): Observable<Reserva[]> {
+    console.log('ReservationService - Obteniendo reservas de HOY para tutor:', idTutor);
+    const headers = this.authService.getAuthHeaders();
+    return this.http.get<Reserva[]>(`${this.API_URL}/tutor/${idTutor}/hoy`, { headers }).pipe(
+      tap(reservas => console.log('ReservationService - Reservas de hoy recibidas:', reservas.length)),
+      catchError(err => {
+        console.error('ReservationService - Error obteniendo reservas de hoy:', err);
+        return of([]);
       })
     );
   }
@@ -123,7 +145,8 @@ export class ReservationService {
     console.log('ReservationService - Cancelando reserva:', id);
     const headers = this.authService.getAuthHeaders();
     
-    return this.http.put<Reserva>(`${this.API_URL}/${id}/cancelar`, { razon }, { headers }).pipe(
+    // Enviar como 'razonCancelacion' para que coincida con el backend
+    return this.http.put<Reserva>(`${this.API_URL}/${id}/cancelar`, { razonCancelacion: razon }, { headers }).pipe(
       tap((reserva: Reserva) => {
         console.log('ReservationService - Reserva cancelada exitosamente:', reserva);
       })
@@ -147,20 +170,21 @@ export class ReservationService {
   }
 
   /**
-   * Obtiene todas las reservas asociadas a una disponibilidad específica
+   * Obtiene todas las reservas de una disponibilidad específica
    * @param idDisponibilidad ID de la disponibilidad
+   * @returns Observable con array de reservas
    */
   getReservationsByDisponibilidad(idDisponibilidad: number): Observable<Reserva[]> {
     console.log('ReservationService - Obteniendo reservas por disponibilidad:', idDisponibilidad);
     const headers = this.authService.getAuthHeaders();
-
-    // Endpoint esperado en backend: /api/reservas/disponibilidad/{id}
-    // Si el backend usa otro path, ajustar aquí.
+    
     return this.http.get<Reserva[]>(`${this.API_URL}/disponibilidad/${idDisponibilidad}`, { headers }).pipe(
-      tap(list => console.log('ReservationService - Reservas encontradas para disponibilidad', idDisponibilidad, ':', list.length)),
-      catchError(err => {
-        console.error('ReservationService - Error al obtener reservas por disponibilidad:', err);
-        return throwError(() => err);
+      tap((reservas: Reserva[]) => {
+        console.log('ReservationService - Reservas obtenidas:', reservas.length);
+      }),
+      catchError((error: any) => {
+        console.error('ReservationService - Error obteniendo reservas por disponibilidad:', error);
+        return of([]);
       })
     );
   }

@@ -35,6 +35,9 @@ public class ReservaService implements IReservaService {
     @Autowired
     private TutoriaRepository tutoriaRepository;
 
+    @Autowired
+    private GoogleCalendarService googleCalendarService;
+
     @Override
     public List<Reserva> obtenerTodasLasReservas() {
         return reservaRepository.findAll();
@@ -100,6 +103,24 @@ public class ReservaService implements IReservaService {
     }
 
     @Override
+    public List<ReservaResponseDto> obtenerReservasDtosPorDisponibilidad(Integer idDisponibilidad) {
+        if (idDisponibilidad == null || idDisponibilidad <= 0) {
+            throw new IllegalArgumentException("El ID de disponibilidad debe ser un número positivo");
+        }
+
+        System.out.println("📋 ReservaService: Obteniendo reservas de la disponibilidad " + idDisponibilidad + " [VERSIÓN OPTIMIZADA]");
+        long inicio = System.currentTimeMillis();
+
+        List<ReservaResponseDto> reservas = reservaRepository.findReservasConDetallesPorDisponibilidad(idDisponibilidad);
+
+        long fin = System.currentTimeMillis();
+        System.out.println("✅ ReservaService: Se obtuvieron " + reservas.size() +
+                           " reservas en " + (fin - inicio) + "ms con UNA sola query SQL");
+
+        return reservas;
+    }
+
+    @Override
     public List<Reserva> obtenerReservasPorUsuarioYEstado(Integer idEstudiante, Integer idEstado) {
         if (idEstudiante == null || idEstudiante <= 0) {
             throw new IllegalArgumentException("El ID del estudiante debe ser un número positivo");
@@ -136,6 +157,7 @@ public class ReservaService implements IReservaService {
         System.out.println("  - ID Estudiante: " + createDto.getIdEstudiante());
         System.out.println("  - Hora Inicio: " + createDto.getHoraInicio());
         System.out.println("  - Hora Fin: " + createDto.getHoraFin());
+        System.out.println("  - Modalidad: " + (createDto.getModalidad() != null ? createDto.getModalidad() : "(ninguna)"));
         System.out.println("  - Observaciones: " + (createDto.getObservaciones() != null ? createDto.getObservaciones() : "(ninguna)"));
         
         if (createDto.getIdDisponibilidad() == null || createDto.getIdDisponibilidad() <= 0) {
@@ -162,9 +184,9 @@ public class ReservaService implements IReservaService {
         System.out.println("🔍 Buscando disponibilidad...");
         Disponibilidad disponibilidad = disponibilidadRepository.findById(createDto.getIdDisponibilidad())
                 .orElseThrow(() -> new RuntimeException("Disponibilidad no encontrada con ID: " + createDto.getIdDisponibilidad()));
+        
         System.out.println("✅ Disponibilidad encontrada: ID=" + disponibilidad.getIdDisponibilidad() + 
-                         ", Rango=" + disponibilidad.getHoraInicio() + " - " + disponibilidad.getHoraFin() +
-                         ", Aforo disponible=" + disponibilidad.getAforoDisponible());
+                         ", Rango=" + disponibilidad.getHoraInicio() + " - " + disponibilidad.getHoraFin());
 
         // Validar que la hora de inicio esté dentro del rango de la disponibilidad
         java.time.LocalTime dispHoraInicio = disponibilidad.getHoraInicio().toLocalTime();
@@ -175,11 +197,6 @@ public class ReservaService implements IReservaService {
             throw new RuntimeException("El horario de la reserva (" + createDto.getHoraInicio() + " - " + createDto.getHoraFin() + 
                                      ") debe estar dentro del rango de la disponibilidad (" + 
                                      dispHoraInicio + " - " + dispHoraFin + ")");
-        }
-
-        // Verificar que hay cupos disponibles
-        if (disponibilidad.getAforoDisponible() <= 0) {
-            throw new RuntimeException("No hay cupos disponibles en esta tutoría");
         }
 
         // Verificar que el usuario (estudiante) existe
@@ -218,8 +235,8 @@ public class ReservaService implements IReservaService {
                 });
         
         if (yaReservado) {
-            System.out.println("  🚫 RECHAZANDO: Ya existe una reserva en este horario");
-            throw new RuntimeException("Ya existe una reserva en este horario (" + createDto.getHoraInicio() + " - " + createDto.getHoraFin() + ")");
+            System.out.println("  🚫 RECHAZANDO: El estudiante ya tiene una reserva en este horario");
+            throw new RuntimeException("Ya tienes una reserva activa en este horario (" + createDto.getHoraInicio() + " - " + createDto.getHoraFin() + ")");
         }
         
         System.out.println("  ✅ No hay conflictos, procediendo a crear la reserva...");
@@ -232,15 +249,108 @@ public class ReservaService implements IReservaService {
         nuevaReserva.setObservaciones(createDto.getObservaciones());
         nuevaReserva.setHoraInicio(createDto.getHoraInicio());
         nuevaReserva.setHoraFin(createDto.getHoraFin());
+        nuevaReserva.setModalidad(createDto.getModalidad());
         nuevaReserva.setFechaCreacion(new java.sql.Timestamp(System.currentTimeMillis()));
 
         System.out.println("💾 Guardando reserva en la base de datos...");
         Reserva reservaGuardada = reservaRepository.save(nuevaReserva);
         System.out.println("✅ Reserva guardada exitosamente con ID: " + reservaGuardada.getIdReserva());
 
-        // Actualizar aforo disponible
-        System.out.println("📊 Actualizando aforo disponible de " + disponibilidad.getAforoDisponible() + " a " + (disponibilidad.getAforoDisponible() - 1));
-        disponibilidad.setAforoDisponible(disponibilidad.getAforoDisponible() - 1);
+        // Crear evento en Google Calendar para ambas modalidades
+        try {
+            System.out.println("🗓️ Creando evento en Google Calendar...");
+            System.out.println("  - Modalidad: " + createDto.getModalidad());
+            
+            // Obtener información de la tutoría
+            Tutoria tutoria = tutoriaRepository.findById(disponibilidad.getIdTutoria())
+                    .orElseThrow(() -> new RuntimeException("Tutoría no encontrada"));
+            
+            // Obtener correos del estudiante y tutor
+            String correoEstudiante = usuarioRepository.findById(createDto.getIdEstudiante())
+                    .map(u -> u.getCorreo())
+                    .orElseThrow(() -> new RuntimeException("Estudiante no encontrado"));
+            
+            String correoTutor = usuarioRepository.findById(tutoria.getIdTutor())
+                    .map(u -> u.getCorreo())
+                    .orElseThrow(() -> new RuntimeException("Tutor no encontrado"));
+            
+            // Obtener fecha de la disponibilidad
+            java.time.LocalDate fecha = disponibilidad.getFecha().toLocalDate();
+            
+            // Crear título y descripción
+            String nombreAsignatura = tutoria.getAsignatura() != null ? tutoria.getAsignatura().getNombre() : "Tutoría";
+            String modalidadTexto = createDto.getModalidad();
+            String titulo = "Tutoría " + modalidadTexto + ": " + nombreAsignatura;
+            String descripcion = "Tutoría " + modalidadTexto.toLowerCase() + " de " + nombreAsignatura;
+            
+            // Agregar información del lugar si es presencial
+            if ("Presencial".equalsIgnoreCase(createDto.getModalidad())) {
+                if (tutoria.getLugar() != null && !tutoria.getLugar().trim().isEmpty()) {
+                    descripcion += "\n\n📍 Lugar: " + tutoria.getLugar();
+                }
+            }
+            
+            if (createDto.getObservaciones() != null && !createDto.getObservaciones().trim().isEmpty()) {
+                descripcion += "\n\n📝 Observaciones: " + createDto.getObservaciones();
+            }
+            
+            // Crear evento según la modalidad
+            String meetLink = null;
+            String googleEventId = null;
+            if ("Virtual".equalsIgnoreCase(createDto.getModalidad())) {
+                // Modalidad Virtual: crear evento con Google Meet
+                String[] resultado = googleCalendarService.crearEventoMeet(
+                    titulo,
+                    descripcion,
+                    fecha,
+                    createDto.getHoraInicio(),
+                    createDto.getHoraFin(),
+                    correoEstudiante,
+                    correoTutor
+                );
+                
+                googleEventId = resultado[0];
+                meetLink = resultado[1];
+                
+                // Guardar el enlace de Meet y el eventId en la reserva
+                reservaGuardada.setMeetLink(meetLink);
+                reservaGuardada.setGoogleEventId(googleEventId);
+                reservaGuardada = reservaRepository.save(reservaGuardada);
+                
+                System.out.println("✅ Evento virtual creado con Google Meet: " + meetLink);
+                System.out.println("  - Event ID: " + googleEventId);
+            } else {
+                // Modalidad Presencial: crear evento sin Google Meet
+                String[] resultado = googleCalendarService.crearEventoPresencial(
+                    titulo,
+                    descripcion,
+                    fecha,
+                    createDto.getHoraInicio(),
+                    createDto.getHoraFin(),
+                    correoEstudiante,
+                    correoTutor
+                );
+                
+                googleEventId = resultado[0];
+                
+                // Guardar solo el eventId en la reserva
+                reservaGuardada.setGoogleEventId(googleEventId);
+                reservaGuardada = reservaRepository.save(reservaGuardada);
+                
+                System.out.println("✅ Evento presencial creado en Google Calendar (sin Meet)");
+                System.out.println("  - Event ID: " + googleEventId);
+            }
+            
+        } catch (Exception e) {
+            System.err.println("⚠️ Error al crear evento en Google Calendar: " + e.getMessage());
+            System.err.println("⚠️ La reserva se creó pero sin evento de calendario");
+            e.printStackTrace();
+            // No lanzamos excepción para que la reserva se complete aunque falle el calendario
+        }
+
+        // Incrementar aforo (número de personas reservadas)
+        System.out.println("📊 Incrementando aforo de " + disponibilidad.getAforo() + " a " + (disponibilidad.getAforo() + 1));
+        disponibilidad.setAforo(disponibilidad.getAforo() + 1);
         disponibilidadRepository.save(disponibilidad);
 
         System.out.println("═══════════════════════════════════════════════════════");
@@ -285,11 +395,26 @@ public class ReservaService implements IReservaService {
 
         reserva.setIdEstado(2); // Cancelada
         reserva.setRazonCancelacion(razonCancelacion);
+        reserva.setFechaCancelacion(new java.sql.Timestamp(System.currentTimeMillis()));
 
-        // Incrementar el aforo disponible
+        // Eliminar evento de Google Calendar si existe
+        if (reserva.getGoogleEventId() != null && !reserva.getGoogleEventId().trim().isEmpty()) {
+            try {
+                System.out.println("🗑️  Cancelando evento de Google Calendar: " + reserva.getGoogleEventId());
+                googleCalendarService.eliminarEvento(reserva.getGoogleEventId());
+                System.out.println("✅ Evento de Google Calendar cancelado exitosamente");
+            } catch (Exception e) {
+                System.err.println("⚠️ Error al cancelar evento de Google Calendar: " + e.getMessage());
+                System.err.println("⚠️ La reserva se cancelará de todos modos");
+                e.printStackTrace();
+                // No lanzamos excepción para que la cancelación de la reserva se complete
+            }
+        }
+
+        // Decrementar el aforo (liberar el cupo)
         Disponibilidad disponibilidad = disponibilidadRepository.findById(reserva.getIdDisponibilidad())
                 .orElseThrow(() -> new RuntimeException("Disponibilidad no encontrada"));
-        disponibilidad.setAforoDisponible(disponibilidad.getAforoDisponible() + 1);
+        disponibilidad.setAforo(disponibilidad.getAforo() - 1);
         disponibilidadRepository.save(disponibilidad);
 
         Reserva reservaCancelada = reservaRepository.save(reserva);
@@ -337,7 +462,7 @@ public class ReservaService implements IReservaService {
         if (reserva.getIdEstado() == 1) {
             Disponibilidad disponibilidad = disponibilidadRepository.findById(reserva.getIdDisponibilidad())
                     .orElseThrow(() -> new RuntimeException("Disponibilidad no encontrada"));
-            disponibilidad.setAforoDisponible(disponibilidad.getAforoDisponible() + 1);
+            disponibilidad.setAforo(disponibilidad.getAforo() - 1);
             disponibilidadRepository.save(disponibilidad);
         }
 
@@ -361,6 +486,8 @@ public class ReservaService implements IReservaService {
         dto.setRazonCancelacion(reserva.getRazonCancelacion());
         dto.setHoraInicio(reserva.getHoraInicio());
         dto.setHoraFin(reserva.getHoraFin());
+        dto.setModalidad(reserva.getModalidad());
+        dto.setMeetLink(reserva.getMeetLink());
 
         // Obtener información de la disponibilidad, tutoría y asignatura
         disponibilidadRepository.findById(reserva.getIdDisponibilidad()).ifPresent(disponibilidad -> {
@@ -451,5 +578,18 @@ public class ReservaService implements IReservaService {
         });
 
         return dto;
+    }
+
+    @Override
+    public List<ReservaResponseDto> obtenerReservasDeHoyPorTutor(Integer idTutor) {
+        if (idTutor == null || idTutor <= 0) {
+            throw new IllegalArgumentException("El ID del tutor debe ser un número positivo");
+        }
+        System.out.println("📅 ReservaService: Obteniendo reservas de HOY para tutor " + idTutor);
+        long inicio = System.currentTimeMillis();
+        List<ReservaResponseDto> reservas = reservaRepository.findReservasDeHoyPorTutor(idTutor);
+        long fin = System.currentTimeMillis();
+        System.out.println("✅ ReservaService: " + reservas.size() + " reservas encontradas para hoy en " + (fin - inicio) + "ms");
+        return reservas;
     }
 }

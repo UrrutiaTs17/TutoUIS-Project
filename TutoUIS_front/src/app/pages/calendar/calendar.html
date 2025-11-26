@@ -64,7 +64,6 @@
               {{ c.nombre }}
               <small class="text-muted">• {{ c.docente }}</small>
             </span>
-            <span class="badge bg-success-subtle text-success">{{ c.cupos }}</span>
           </li>
           <li *ngIf="showDropdown && searchControl.value && searchControl.value.trim() && !(activeIndex > -1) && (suggestions$ | async)?.length === 0"
               class="list-group-item text-muted text-center">
@@ -111,9 +110,6 @@
                             <article class="curso-card" [ngClass]="m.clase" [title]="m.tooltip || ''">
                               <h4 class="curso-title">{{ m.nombre }}</h4>
                               <p class="curso-meta">{{ m.detalle }}</p>
-                              <div class="curso-badges">
-                                <span class="badge-cap">Cupos: {{ m.cupos }}</span>
-                              </div>
                             </article>
                           </ng-container>
                           <!-- celda vacía accesible -->
@@ -169,9 +165,6 @@
                       <article class="curso-card" [ngClass]="m.clase" [title]="m.tooltip || ''">
                         <h4 class="curso-title">{{ m.nombre }}</h4>
                         <p class="curso-meta">{{ m.detalle }}</p>
-                        <div class="curso-badges">
-                          <span class="badge-cap">Cupos: {{ m.cupos }}</span>
-                        </div>
                       </article>
                     </ng-container>
                     <!-- celda vacía accesible -->
@@ -218,6 +211,33 @@
           </p>
         </div>
 
+        <!-- Modalidad Selection -->
+        <div class="mb-4">
+          <label class="form-label fw-semibold">
+            <i class="bi bi-gear-fill me-2"></i>MODALIDAD <span class="text-danger">*</span>
+          </label>
+          <div class="d-flex gap-2">
+            <button
+              type="button"
+              class="btn flex-fill"
+              [class.btn-success]="modalidad === 'Presencial'"
+              [class.btn-outline-secondary]="modalidad !== 'Presencial'"
+              (click)="selectModalidad('Presencial')"
+              [disabled]="creandoReserva">
+              <i class="bi bi-building me-2"></i>Presencial
+            </button>
+            <button
+              type="button"
+              class="btn flex-fill"
+              [class.btn-success]="modalidad === 'Virtual'"
+              [class.btn-outline-secondary]="modalidad !== 'Virtual'"
+              (click)="selectModalidad('Virtual')"
+              [disabled]="creandoReserva">
+              <i class="bi bi-laptop me-2"></i>Virtual
+            </button>
+          </div>
+        </div>
+
         <!-- Slots disponibles -->
         <div class="slots-grid">
           <button
@@ -225,8 +245,12 @@
             type="button"
             class="slot-button"
             [class.selected]="selectedSlot?.inicio === slot.inicio"
+            [class.ocupado]="slot.ocupado"
+            [disabled]="slot.ocupado"
             (click)="selectSlot(slot)">
-            <i class="bi bi-clock-fill me-2"></i>{{ slot.display }}
+            <i class="bi" [ngClass]="slot.ocupado ? 'bi-lock-fill' : 'bi-clock-fill'" class="me-2"></i>
+            {{ slot.display }}
+            <span *ngIf="slot.ocupado" class="badge bg-danger ms-2">Ocupado</span>
           </button>
         </div>
 
@@ -267,81 +291,6 @@
           <span *ngIf="creandoReserva" class="spinner-border spinner-border-sm me-2"></span>
           <i *ngIf="!creandoReserva" class="bi bi-check-circle me-2"></i>
           {{ creandoReserva ? 'Creando...' : 'Confirmar Reserva' }}
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Modal: Lista de Reservas de la Disponibilidad (Modo Tutor) -->
-<div *ngIf="showReservationsModal" class="modal-overlay" (click)="closeReservationsModal()">
-  <div class="modal-dialog" (click)="$event.stopPropagation()">
-    <div class="modal-content">
-      <!-- Header -->
-      <div class="modal-header">
-        <h5 class="modal-title">
-          <i class="bi bi-people me-2"></i>Reservas de la franja
-        </h5>
-        <button type="button" class="btn-close" (click)="closeReservationsModal()"></button>
-      </div>
-
-      <!-- Body -->
-      <div class="modal-body">
-        <div class="tutoria-info mb-3">
-          <h6 class="text-success mb-1">
-            <i class="bi bi-book me-2"></i>{{ selectedTutoria?.nombre || 'Tutoría' }}
-          </h6>
-          <p class="text-muted mb-1">
-            <i class="bi bi-person me-2"></i>{{ selectedTutoria?.nombreTutor || 'Tutor' }}
-          </p>
-          <p class="text-muted mb-0">
-            <i class="bi bi-calendar-week me-2"></i>{{ selectedDisponibilidad?.diaSemana }}
-            <span class="ms-2">
-              <i class="bi bi-clock me-1"></i>{{ selectedDisponibilidad?.horaInicio }} - {{ selectedDisponibilidad?.horaFin }}
-            </span>
-          </p>
-        </div>
-
-        <div *ngIf="loadingReservations" class="text-center py-4">
-          <div class="spinner-border text-success" role="status"></div>
-          <p class="mt-2 text-muted">Cargando reservas...</p>
-        </div>
-
-        <div *ngIf="!loadingReservations && reservationsError" class="alert alert-danger">
-          <i class="bi bi-exclamation-triangle me-2"></i>{{ reservationsError }}
-        </div>
-
-        <div *ngIf="!loadingReservations && !reservationsError">
-          <div *ngIf="reservationsForSlot.length === 0" class="alert alert-info mb-0">
-            <i class="bi bi-info-circle me-2"></i>No hay reservas para esta franja.
-          </div>
-
-          <ul *ngIf="reservationsForSlot.length > 0" class="list-group">
-            <li class="list-group-item d-flex justify-content-between align-items-start" *ngFor="let r of reservationsForSlot">
-              <div class="ms-2 me-auto">
-                <div class="fw-semibold">
-                  <i class="bi bi-person-fill me-1"></i>{{ r.nombreEstudiante || ('Estudiante #' + r.idEstudiante) }}
-                </div>
-                <small class="text-muted">
-                  <i class="bi bi-clock me-1"></i>{{ r.horaInicio.substring(0,5) }} - {{ r.horaFin.substring(0,5) }}
-                </small>
-                <div *ngIf="r.observaciones" class="text-muted small mt-1">
-                  <i class="bi bi-chat-left-text me-1"></i>{{ r.observaciones }}
-                </div>
-              </div>
-              <span class="badge bg-success" *ngIf="(r.nombreEstado || '').toLowerCase() === 'confirmada'">{{ r.nombreEstado }}</span>
-              <span class="badge bg-secondary" *ngIf="!(r.nombreEstado || '').toLowerCase()">Pendiente</span>
-              <span class="badge bg-warning text-dark" *ngIf="(r.nombreEstado || '').toLowerCase() === 'pendiente'">Pendiente</span>
-              <span class="badge bg-danger" *ngIf="(r.nombreEstado || '').toLowerCase() === 'cancelada'">Cancelada</span>
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- Footer -->
-      <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary" (click)="closeReservationsModal()">
-          <i class="bi bi-x-circle me-2"></i>Cerrar
         </button>
       </div>
     </div>

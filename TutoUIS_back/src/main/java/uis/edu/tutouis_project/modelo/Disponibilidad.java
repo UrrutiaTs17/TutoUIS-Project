@@ -10,7 +10,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -60,10 +59,6 @@ public class Disponibilidad {
     @Schema(description = "Capacidad máxima de la sesión", example = "30")
     private Integer aforoMaximo;
 
-    @Column(name = "aforo_disponible", nullable = false)
-    @Schema(description = "Lugares disponibles en la sesión", example = "25")
-    private Integer aforoDisponible;
-
     @Column(name = "id_estado", nullable = false)
     @Schema(description = "ID del estado (1=Activa, 2=Inactiva, 3=Cancelada)", example = "1")
     private Integer idEstado;
@@ -92,7 +87,6 @@ public class Disponibilidad {
         this.horaFin = horaFin;
         this.aforo = aforoMaximo;
         this.aforoMaximo = aforoMaximo;
-        this.aforoDisponible = aforoMaximo;
         this.idEstado = 1;
     }
 
@@ -168,14 +162,6 @@ public class Disponibilidad {
         this.aforoMaximo = aforoMaximo;
     }
 
-    public Integer getAforoDisponible() {
-        return aforoDisponible;
-    }
-
-    public void setAforoDisponible(Integer aforoDisponible) {
-        this.aforoDisponible = aforoDisponible;
-    }
-
     public Integer getIdEstado() {
         return idEstado;
     }
@@ -219,7 +205,6 @@ public class Disponibilidad {
                 ", horaFin=" + horaFin +
                 ", aforo=" + aforo +
                 ", aforoMaximo=" + aforoMaximo +
-                ", aforoDisponible=" + aforoDisponible +
                 ", idEstado=" + idEstado +
                 '}';
     }

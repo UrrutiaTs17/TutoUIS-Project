@@ -13,7 +13,6 @@ export interface Disponibilidad {
   horaFin: string;
   aforo: number;
   aforoMaximo: number;
-  aforoDisponible: number;
   idEstado: number;
   razonCancelacion?: string;
   fechaCreacion?: string;

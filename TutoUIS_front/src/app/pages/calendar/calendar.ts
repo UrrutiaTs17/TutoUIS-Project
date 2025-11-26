@@ -6,14 +6,13 @@ import { debounceTime, distinctUntilChanged, map, startWith, catchError, finaliz
 import { ModalService } from '../../services/modal.service';
 import { TutoriaService, Tutoria } from '../../services/tutoria.service';
 import { DisponibilidadService, Disponibilidad } from '../../services/disponibilidad.service';
-import { ReservationService, CreateReservaDto, Reserva } from '../../services/reservation.service';
+import { ReservationService, CreateReservaDto } from '../../services/reservation.service';
 import { AuthService } from '../../services/auth.service';
 
 type MateriaCatalogo = {
   id: number;
   nombre: string;
   docente: string;
-  cupos: string;
   area?: 'math' | 'phys' | 'prog';
   idTutoria?: number;
   nombreCarrera?: string;
@@ -22,7 +21,6 @@ type MateriaCatalogo = {
 type MateriaCelda = {
   nombre: string;
   detalle: string;   // ej: "Arrays • Carlos Ruiz"
-  cupos: string;     // ej: "4/6"
   clase?: string;    // ej: "dept-prog" para pintar borde
   tooltip?: string;  // ej: "Laboratorio 3 • 12 semanas"
   idDisponibilidad?: number;
@@ -52,6 +50,9 @@ export class CalendarComponent implements OnInit {
   /** Emite las estadísticas cuando los datos se cargan */
   @Output() statsLoaded = new EventEmitter<CalendarStats>();
 
+  /** Emite el evento cuando se hace clic en un slot (para tutores en vista agenda) */
+  @Output() slotClicked = new EventEmitter<Disponibilidad>();
+
   // ======== Cabeceras de tabla ========
   dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
   horas = ['6:00 - 8:00', '8:00 - 10:00', '10:00 - 12:00', '12:00 - 14:00', '14:00 - 16:00', '16:00 - 18:00', '18:00 - 20:00'];
@@ -77,15 +78,12 @@ export class CalendarComponent implements OnInit {
   
   // Modal de slots de 15 minutos
   showSlotModal = false;
-  showReservationsModal = false;
   selectedDisponibilidad: Disponibilidad | null = null;
   selectedTutoria: Tutoria | null = null;
-  loadingReservations = false;
-  reservationsError = '';
-  reservationsForSlot: Reserva[] = [];
-  availableSlots: { inicio: string; fin: string; display: string }[] = [];
+  availableSlots: { inicio: string; fin: string; display: string; ocupado?: boolean }[] = [];
   selectedSlot: { inicio: string; fin: string } | null = null;
   observaciones = '';
+  modalidad: 'Presencial' | 'Virtual' = 'Presencial';
   creandoReserva = false;
   errorMessage = '';
 
@@ -295,7 +293,6 @@ export class CalendarComponent implements OnInit {
       const materia: MateriaCelda = {
         nombre: tutoria.nombre || 'Sin nombre',
         detalle: `${tutoria.descripcion || ''} • ${tutoria.nombreTutor || 'Sin tutor'}`,
-        cupos: `${disp.aforoDisponible}/${disp.aforoMaximo}`,
         clase: this.obtenerClaseColor(tutoria.nombreCarrera || ''),
         tooltip: `${tutoria.nombreCarrera || 'Sin carrera'} • ${disp.fecha}`,
         idDisponibilidad: disp.idDisponibilidad,
@@ -389,6 +386,13 @@ trackMateria = (_: number, m: MateriaCatalogo) => m.id; // o `${m.id}-${m.nombre
       return;
     }
 
+    // Si estamos en modo tutor (tutorId presente), emitir evento en lugar de abrir modal de reserva
+    if (this.tutorId) {
+      console.log('📅 CalendarComponent: Emitiendo evento slotClicked para tutor');
+      this.slotClicked.emit(disponibilidad);
+      return;
+    }
+
     // Buscar la tutoría asociada
     const tutoria = this.tutorias.find(t => t.idTutoria === disponibilidad.idTutoria);
     if (!tutoria) {
@@ -399,44 +403,15 @@ trackMateria = (_: number, m: MateriaCatalogo) => m.id; // o `${m.id}-${m.nombre
     this.selected = { hora, dia };
     this.selectedDisponibilidad = disponibilidad;
     this.selectedTutoria = tutoria;
-
-    // Si estamos en modo tutor (tutorId definido y buscador oculto), mostrar lista de reservas
-    if (this.tutorId && !this.showSearch) {
-      this.loadReservationsForDisponibilidad(disponibilidad.idDisponibilidad);
-      return;
-    }
-
-    // Modo estudiante: creación de reserva
     this.generateTimeSlots(disponibilidad);
     this.showSlotModal = true;
     this.errorMessage = '';
     this.cdr.detectChanges();
   }
 
-  private loadReservationsForDisponibilidad(idDisponibilidad: number) {
-    this.loadingReservations = true;
-    this.reservationsError = '';
-    this.reservationsForSlot = [];
-
-    this.reservationService.getReservationsByDisponibilidad(idDisponibilidad).subscribe({
-      next: (list) => {
-        this.reservationsForSlot = list || [];
-        this.loadingReservations = false;
-        this.showReservationsModal = true;
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('❌ Error cargando reservas de la disponibilidad:', err);
-        this.reservationsError = err?.error?.message || 'No se pudieron cargar las reservas de esta franja.';
-        this.loadingReservations = false;
-        this.showReservationsModal = true;
-        this.cdr.detectChanges();
-      }
-    });
-  }
-
   /**
    * Genera slots de 15 minutos dentro del rango de la disponibilidad
+   * y marca como ocupados los que ya tienen reservas
    */
   private generateTimeSlots(disponibilidad: Disponibilidad): void {
     this.availableSlots = [];
@@ -459,14 +434,58 @@ trackMateria = (_: number, m: MateriaCatalogo) => m.id; // o `${m.id}-${m.nombre
       const fin = `${String(slotEndHour).padStart(2, '0')}:${String(slotEndMin).padStart(2, '0')}:00`;
       const display = `${String(slotStartHour).padStart(2, '0')}:${String(slotStartMin).padStart(2, '0')} - ${String(slotEndHour).padStart(2, '0')}:${String(slotEndMin).padStart(2, '0')}`;
       
-      this.availableSlots.push({ inicio, fin, display });
+      this.availableSlots.push({ inicio, fin, display, ocupado: false });
     }
     
     console.log('🕐 Slots generados:', this.availableSlots.length, 'slots de 15 minutos');
+    
+    // Cargar reservas existentes para marcar slots ocupados
+    this.cargarReservasYMarcarOcupados(disponibilidad.idDisponibilidad);
   }
 
-  selectSlot(slot: { inicio: string; fin: string }): void {
+  /**
+   * Carga las reservas existentes y marca los slots como ocupados
+   */
+  private cargarReservasYMarcarOcupados(idDisponibilidad: number): void {
+    this.reservationService.getReservationsByDisponibilidad(idDisponibilidad).subscribe({
+      next: (reservas) => {
+        console.log('📋 Reservas encontradas:', reservas.length);
+        
+        // Marcar slots ocupados
+        reservas.forEach(reserva => {
+          const horaInicioReserva = reserva.horaInicio; // formato HH:mm:ss o HH:mm
+          
+          // Encontrar el slot correspondiente
+          const slotIndex = this.availableSlots.findIndex(slot => 
+            slot.inicio.startsWith(horaInicioReserva.substring(0, 5))
+          );
+          
+          if (slotIndex !== -1) {
+            this.availableSlots[slotIndex].ocupado = true;
+            console.log(`🔒 Slot ${this.availableSlots[slotIndex].display} marcado como ocupado`);
+          }
+        });
+        
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('❌ Error al cargar reservas:', error);
+      }
+    });
+  }
+
+  selectSlot(slot: { inicio: string; fin: string; ocupado?: boolean }): void {
+    if (slot.ocupado) {
+      this.errorMessage = 'Este horario ya está reservado. Por favor selecciona otro.';
+      return;
+    }
     this.selectedSlot = slot;
+    this.errorMessage = '';
+    this.cdr.detectChanges();
+  }
+
+  selectModalidad(modalidad: 'Presencial' | 'Virtual'): void {
+    this.modalidad = modalidad;
     this.cdr.detectChanges();
   }
 
@@ -477,16 +496,9 @@ trackMateria = (_: number, m: MateriaCatalogo) => m.id; // o `${m.id}-${m.nombre
     this.availableSlots = [];
     this.selectedSlot = null;
     this.observaciones = '';
+    this.modalidad = 'Presencial';
     this.errorMessage = '';
     this.creandoReserva = false;
-    this.cdr.detectChanges();
-  }
-
-  closeReservationsModal(): void {
-    this.showReservationsModal = false;
-    this.reservationsForSlot = [];
-    this.reservationsError = '';
-    this.loadingReservations = false;
     this.cdr.detectChanges();
   }
 
@@ -522,6 +534,7 @@ trackMateria = (_: number, m: MateriaCatalogo) => m.id; // o `${m.id}-${m.nombre
       idEstudiante: idUsuario,
       horaInicio: this.selectedSlot.inicio,
       horaFin: this.selectedSlot.fin,
+      modalidad: this.modalidad,
       observaciones: this.observaciones.trim() || undefined
     };
 
@@ -538,26 +551,7 @@ trackMateria = (_: number, m: MateriaCatalogo) => m.id; // o `${m.id}-${m.nombre
       },
       error: (error) => {
         console.error('❌ Error al crear reserva:', error);
-        
-        // Manejar el error de conflicto de horario
-        let mensajeError = 'Error al crear la reserva. Inténtalo de nuevo.';
-        
-        if (error.error && error.error.mensaje) {
-          const mensaje = error.error.mensaje;
-          
-          // Detectar si es un error de conflicto de horario
-          if (mensaje.includes('Ya existe una reserva en este horario')) {
-            mensajeError = '⚠️ Este horario ya está reservado. Por favor, selecciona otro espacio de tiempo disponible.';
-          } else if (mensaje.includes('No hay cupos disponibles')) {
-            mensajeError = '⚠️ No hay cupos disponibles en esta tutoría. Por favor, selecciona otro horario.';
-          } else {
-            mensajeError = mensaje;
-          }
-        } else if (error.message) {
-          mensajeError = error.message;
-        }
-        
-        this.errorMessage = mensajeError;
+        this.errorMessage = error.message || 'Error al crear la reserva. Inténtalo de nuevo.';
         this.creandoReserva = false;
         this.cdr.detectChanges();
       }
@@ -586,16 +580,10 @@ trackMateria = (_: number, m: MateriaCatalogo) => m.id; // o `${m.id}-${m.nombre
                carrera.toLowerCase().includes(v);
       })
       .map(tutoria => {
-        // Calcular cupos disponibles totales para esta tutoría
-        const disponibilidadesTutoria = this.disponibilidades.filter(d => d.idTutoria === tutoria.idTutoria);
-        const cuposDisponibles = disponibilidadesTutoria.reduce((sum, d) => sum + d.aforoDisponible, 0);
-        const cuposMaximos = disponibilidadesTutoria.reduce((sum, d) => sum + d.aforoMaximo, 0);
-        
         return {
           id: tutoria.idTutoria,
           nombre: tutoria.nombre || 'Sin nombre',
           docente: tutoria.nombreTutor || 'Sin tutor',
-          cupos: cuposMaximos > 0 ? `${cuposDisponibles}/${cuposMaximos}` : '0/0',
           idTutoria: tutoria.idTutoria,
           nombreCarrera: tutoria.nombreCarrera
         };

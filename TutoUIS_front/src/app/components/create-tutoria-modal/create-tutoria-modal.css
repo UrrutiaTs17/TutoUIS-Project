@@ -279,3 +279,53 @@ i.bi {
 .disponibilidad-item .btn-danger {
   font-size: 0.85rem;
 }
+
+/* Estilo para campo de día readonly (auto-calculado) */
+.dia-readonly {
+  background-color: #e9ecef !important;
+  cursor: not-allowed;
+  font-style: italic;
+  color: #6c757d;
+}
+
+/* Alertas de conflicto de horario */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.conflict-alert {
+  animation: slideDown 0.3s ease-out;
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+  border-left: 4px solid #ff9800;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 8px rgba(255, 152, 0, 0.2);
+}
+
+.conflict-alert .alert-heading {
+  color: #856404;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.conflict-alert p {
+  color: #856404;
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.conflict-alert i {
+  color: #ff9800;
+  font-size: 1.2rem;
+  margin-right: 0.5rem;
+}

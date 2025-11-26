@@ -86,10 +86,8 @@ public class TutoriaController {
             System.out.println("🔵 TutoriaController.crearTutoria - Datos recibidos:");
             System.out.println("   idTutor: " + tutoria.getIdTutor());
             System.out.println("   idAsignatura: " + tutoria.getIdAsignatura());
-            System.out.println("   modalidad: " + tutoria.getModalidad());
             System.out.println("   lugar: " + tutoria.getLugar());
             System.out.println("   descripcion: " + tutoria.getDescripcion());
-            System.out.println("   capacidadMaxima: " + tutoria.getCapacidadMaxima());
             System.out.println("   idEstadoTutoria: " + tutoria.getIdEstadoTutoria());
             
             Tutoria nueva = tutoriaRepository.save(tutoria);
@@ -106,20 +104,14 @@ public class TutoriaController {
     @SecurityRequirement(name = "bearer-jwt")
     @PostMapping("/con-disponibilidades")
     public ResponseEntity<?> crearTutoriaConDisponibilidades(@RequestBody uis.edu.tutouis_project.dto.CrearTutoriaConDisponibilidadDto dto) {
-        try {
-            System.out.println("🔵 TutoriaController.crearTutoriaConDisponibilidades - Datos recibidos:");
-            System.out.println("   idTutor: " + dto.getIdTutor());
-            System.out.println("   idAsignatura: " + dto.getIdAsignatura());
-            System.out.println("   disponibilidades: " + (dto.getDisponibilidades() != null ? dto.getDisponibilidades().size() : 0));
-            
-            Tutoria tutoriaCreada = tutoriaService.crearTutoriaConDisponibilidades(dto);
-            System.out.println("✅ Tutoría con disponibilidades guardada exitosamente con ID: " + tutoriaCreada.getIdTutoria());
-            return ResponseEntity.ok(tutoriaCreada);
-        } catch (Exception e) {
-            System.err.println("❌ Error guardando tutoría con disponibilidades: " + e.getMessage());
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
-        }
+        System.out.println("🔵 TutoriaController.crearTutoriaConDisponibilidades - Datos recibidos:");
+        System.out.println("   idTutor: " + dto.getIdTutor());
+        System.out.println("   idAsignatura: " + dto.getIdAsignatura());
+        System.out.println("   disponibilidades: " + (dto.getDisponibilidades() != null ? dto.getDisponibilidades().size() : 0));
+        
+        Tutoria tutoriaCreada = tutoriaService.crearTutoriaConDisponibilidades(dto);
+        System.out.println("✅ Tutoría con disponibilidades guardada exitosamente con ID: " + tutoriaCreada.getIdTutoria());
+        return ResponseEntity.ok(tutoriaCreada);
     }
 
     @Operation(summary = "Actualizar tutoría", description = "Requiere autenticación")
@@ -129,10 +121,8 @@ public class TutoriaController {
         return tutoriaRepository.findById(id)
                 .map(tutoria -> {
                     tutoria.setIdAsignatura(tutoriaActualizada.getIdAsignatura());
-                    tutoria.setModalidad(tutoriaActualizada.getModalidad());
                     tutoria.setLugar(tutoriaActualizada.getLugar());
                     tutoria.setDescripcion(tutoriaActualizada.getDescripcion());
-                    tutoria.setCapacidadMaxima(tutoriaActualizada.getCapacidadMaxima());
                     Tutoria actualizada = tutoriaRepository.save(tutoria);
                     return ResponseEntity.ok(actualizada);
                 })

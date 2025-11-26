@@ -11,7 +11,6 @@ export interface Tutoria {
   nombre?: string; // Nombre de la asignatura (legacy)
   nombreAsignatura?: string; // Nombre de la asignatura
   descripcion?: string;
-  capacidadMaxima: number;
   ubicacion?: string;
   estado: number; // DEPRECADO - Mantener por compatibilidad
   nombreTutor?: string;
@@ -26,16 +25,13 @@ export interface CreateTutoriaDto {
   idTutor: number;
   idCarrera: number; // Se envía para compatibilidad actual frontend (backend puede ignorarlo)
   idAsignatura: number; // Nueva relación con asignatura
-  modalidad: string; // Presencial | Virtual | Híbrida
   descripcion?: string;
-  capacidadMaxima: number;
   ubicacion?: string; // Mapeado a "lugar" en backend si existe
 }
 
 export interface UpdateTutoriaDto {
   nombre?: string;
   descripcion?: string;
-  capacidadMaxima?: number;
   ubicacion?: string;
   estado?: number;
 }
@@ -126,14 +122,11 @@ export class TutoriaService {
     console.log('🔑 Headers:', headers.keys().map(k => `${k}: ${headers.get(k)}`));
     
     // Adaptar payload a modelo backend Tutoria
-    // Campos BD: id_tutor, id_asignatura, modalidad, lugar, descripcion, capacidad_maxima, estado
     const payload: any = {
       idTutor: tutoria.idTutor,
       idAsignatura: tutoria.idAsignatura,
-      modalidad: tutoria.modalidad,
       lugar: tutoria.ubicacion || null,
       descripcion: tutoria.descripcion || null,
-      capacidadMaxima: tutoria.capacidadMaxima,
       estado: 1
     };
     

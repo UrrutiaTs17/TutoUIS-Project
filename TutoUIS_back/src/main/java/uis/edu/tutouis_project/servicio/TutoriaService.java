@@ -12,6 +12,7 @@ import uis.edu.tutouis_project.repositorio.CarreraRepository;
 import uis.edu.tutouis_project.repositorio.DisponibilidadRepository;
 import uis.edu.tutouis_project.repositorio.TutoriaRepository;
 import uis.edu.tutouis_project.repositorio.UsuarioRepository;
+import uis.edu.tutouis_project.exception.ConflictoHorarioException;
 
 import java.sql.Date;
 import java.sql.Time;
@@ -70,9 +71,7 @@ public class TutoriaService {
         dto.setIdTutor(tutoria.getIdTutor());
         dto.setIdCarrera(tutoria.getIdAsignatura());
         dto.setDescripcion(tutoria.getDescripcion());
-        dto.setCapacidadMaxima(tutoria.getCapacidadMaxima());
         dto.setUbicacion(tutoria.getLugar());
-        dto.setModalidad(tutoria.getModalidad());
         dto.setLugar(tutoria.getLugar());
         dto.setFechaCreacion(tutoria.getFechaCreacion());
         dto.setFechaUltimaModificacion(tutoria.getFechaUltimaModificacion());
@@ -121,9 +120,7 @@ public class TutoriaService {
         dto.setIdTutor(tutoria.getIdTutor());
         dto.setIdCarrera(tutoria.getIdAsignatura());
         dto.setDescripcion(tutoria.getDescripcion());
-        dto.setCapacidadMaxima(tutoria.getCapacidadMaxima());
         dto.setUbicacion(tutoria.getLugar());
-        dto.setModalidad(tutoria.getModalidad());
         dto.setLugar(tutoria.getLugar());
         dto.setFechaCreacion(tutoria.getFechaCreacion());
         dto.setFechaUltimaModificacion(tutoria.getFechaUltimaModificacion());
@@ -135,7 +132,7 @@ public class TutoriaService {
             dto.setDescripcionEstadoTutoria(tutoria.getEstadoTutoria().getDescripcion());
         }
         
-        System.out.println("  📝 Datos básicos: capacidad=" + dto.getCapacidadMaxima());
+        System.out.println("  📝 Datos básicos procesados");
         
         // Obtener nombre del tutor y su carrera
         if (tutoria.getIdTutor() != null) {
@@ -218,22 +215,14 @@ public class TutoriaService {
                     );
                     
                     if (!conflictos.isEmpty()) {
-                        Disponibilidad conflicto = conflictos.get(0);
                         String mensaje = String.format(
-                            "❌ CONFLICTO DE HORARIO: La disponibilidad %d (%s %s %s-%s) se solapa con una tutoría existente " +
-                            "(Tutoría ID: %d, %s %s-%s). El tutor ya tiene una tutoría programada en ese horario.",
-                            (i + 1),
+                            "Ya existe una tutoría en ese horario (%s de %s a %s).",
                             dispDto.getDiaSemana(),
-                            dispDto.getFecha(),
                             dispDto.getHoraInicio(),
-                            dispDto.getHoraFin(),
-                            conflicto.getIdTutoria(),
-                            conflicto.getFecha(),
-                            conflicto.getHoraInicio(),
-                            conflicto.getHoraFin()
+                            dispDto.getHoraFin()
                         );
-                        System.err.println(mensaje);
-                        throw new RuntimeException(mensaje);
+                        System.err.println("❌ CONFLICTO DE HORARIO: " + mensaje);
+                        throw new ConflictoHorarioException(mensaje);
                     }
                     
                     System.out.println("  ✅ Disponibilidad " + (i + 1) + ": Sin conflictos (" + 
@@ -252,10 +241,8 @@ public class TutoriaService {
         Tutoria tutoria = new Tutoria();
         tutoria.setIdTutor(dto.getIdTutor());
         tutoria.setIdAsignatura(dto.getIdAsignatura());
-        tutoria.setModalidad(dto.getModalidad());
         tutoria.setLugar(dto.getLugar());
         tutoria.setDescripcion(dto.getDescripcion());
-        tutoria.setCapacidadMaxima(dto.getCapacidadMaxima());
         
         Tutoria tutoriaGuardada = tutoriaRepository.save(tutoria);
         System.out.println("✅ Tutoría guardada con ID: " + tutoriaGuardada.getIdTutoria());
@@ -353,8 +340,8 @@ public class TutoriaService {
             // 3.2. Crear las nuevas disponibilidades
             System.out.println("   ➕ Creando " + disponibilidadesData.size() + " nueva(s) disponibilidad(es)");
             
-            // Obtener capacidad máxima de la tutoría para inicializar aforos
-            Integer capacidadMaxima = tutoria.getCapacidadMaxima();
+            // Capacidad fija de 8 personas por slot de 15 minutos
+            Integer aforoMaximo = 8;
             
             for (Map<String, Object> dispData : disponibilidadesData) {
                 String diaSemana = (String) dispData.get("diaSemana");
@@ -377,7 +364,7 @@ public class TutoriaService {
                     : horaFinStr);
                 
                 // Crear nueva disponibilidad usando el constructor
-                Disponibilidad nuevaDisp = new Disponibilidad(idTutoria, fecha, diaSemana, horaInicio, horaFin, capacidadMaxima);
+                Disponibilidad nuevaDisp = new Disponibilidad(idTutoria, fecha, diaSemana, horaInicio, horaFin, aforoMaximo);
                 
                 disponibilidadRepository.save(nuevaDisp);
                 System.out.println("      ✅ Disponibilidad creada: " + nuevaDisp.getDiaSemana() + " " + 

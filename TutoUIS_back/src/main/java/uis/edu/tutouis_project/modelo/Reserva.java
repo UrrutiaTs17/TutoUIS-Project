@@ -81,6 +81,19 @@ public class Reserva {
     @Schema(description = "Hora de fin de la reserva (sesión de 15 minutos)", example = "08:15:00")
     private LocalTime horaFin;
 
+    @Column(name = "modalidad", nullable = false, length = 100)
+    @NotNull(message = "La modalidad es obligatoria")
+    @Schema(description = "Modalidad de la tutoría (Presencial o Virtual)", example = "Presencial")
+    private String modalidad;
+
+    @Column(name = "meet_link", length = 500)
+    @Schema(description = "Enlace de Google Meet (solo para modalidad Virtual)", example = "https://meet.google.com/xxx-yyyy-zzz")
+    private String meetLink;
+
+    @Column(name = "google_event_id", length = 255)
+    @Schema(description = "ID del evento en Google Calendar", example = "abc123xyz")
+    private String googleEventId;
+
     public Reserva() {
     }
 
@@ -202,6 +215,30 @@ public class Reserva {
         this.horaFin = horaFin;
     }
 
+    public String getModalidad() {
+        return modalidad;
+    }
+
+    public void setModalidad(String modalidad) {
+        this.modalidad = modalidad;
+    }
+
+    public String getMeetLink() {
+        return meetLink;
+    }
+
+    public void setMeetLink(String meetLink) {
+        this.meetLink = meetLink;
+    }
+
+    public String getGoogleEventId() {
+        return googleEventId;
+    }
+
+    public void setGoogleEventId(String googleEventId) {
+        this.googleEventId = googleEventId;
+    }
+
     @Override
     public String toString() {
         return "Reserva{" +
@@ -211,6 +248,7 @@ public class Reserva {
                 ", idEstado=" + idEstado +
                 ", horaInicio=" + horaInicio +
                 ", horaFin=" + horaFin +
+                ", modalidad='" + modalidad + '\'' +
                 '}';
     }
 }

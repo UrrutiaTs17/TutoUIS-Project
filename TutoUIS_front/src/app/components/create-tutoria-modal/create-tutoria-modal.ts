@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TutoriaService, Carrera, TutorInfo, CreateTutoriaDto } from '../../services/tutoria.service';
@@ -33,10 +33,8 @@ export class CreateTutoriaModal implements OnInit {
     idTutor: '',
     idCarrera: '',
     idAsignatura: '',
-    modalidad: '',
     nombre: '',
     descripcion: '',
-    capacidadMaxima: 30,
     ubicacion: ''
   };
 
@@ -68,7 +66,8 @@ export class CreateTutoriaModal implements OnInit {
     private tutoriaService: TutoriaService,
     private adminService: AdminService,
     private asignaturaService: AsignaturaService,
-    private disponibilidadService: DisponibilidadService
+    private disponibilidadService: DisponibilidadService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -245,10 +244,8 @@ export class CreateTutoriaModal implements OnInit {
         idTutor: tutoria.idTutor?.toString() || '',
         idCarrera: tutoria.idCarrera?.toString() || '',
         idAsignatura: tutoria.idAsignatura?.toString() || '',
-        modalidad: tutoria.modalidad || '',
         nombre: tutoria.nombre || tutoria.nombreAsignatura || '',
         descripcion: tutoria.descripcion || '',
-        capacidadMaxima: tutoria.capacidadMaxima || 30,
         ubicacion: tutoria.ubicacion || tutoria.lugar || ''
       };
       
@@ -441,14 +438,6 @@ export class CreateTutoriaModal implements OnInit {
       this.errorMessage = 'Por favor selecciona una asignatura';
       return;
     }
-    if (!this.form.modalidad) {
-      this.errorMessage = 'Por favor selecciona una modalidad';
-      return;
-    }
-    if (this.form.capacidadMaxima < 1) {
-      this.errorMessage = 'La capacidad máxima debe ser mayor a 0';
-      return;
-    }
 
     // Validar disponibilidades
     if (this.disponibilidades.length === 0) {
@@ -478,16 +467,14 @@ export class CreateTutoriaModal implements OnInit {
       idTutor: parseInt(this.form.idTutor),
       idCarrera: parseInt(this.form.idCarrera),
       idAsignatura: parseInt(this.form.idAsignatura),
-      modalidad: this.form.modalidad,
       descripcion: this.form.descripcion.trim() || undefined,
-      capacidadMaxima: this.form.capacidadMaxima,
       ubicacion: this.form.ubicacion.trim() || undefined,
       disponibilidades: this.disponibilidades.map(disp => ({
         diaSemana: disp.diaSemana,
         fecha: disp.fecha,
         horaInicio: disp.horaInicio + ':00', // Agregar segundos
         horaFin: disp.horaFin + ':00', // Agregar segundos
-        aforoMaximo: this.form.capacidadMaxima
+        aforoMaximo: 8 // Aforo fijo de 8 personas por slot de 15 minutos
       }))
     };
 
@@ -595,10 +582,8 @@ export class CreateTutoriaModal implements OnInit {
       idTutor: '',
       idCarrera: '',
       idAsignatura: '',
-      modalidad: '',
       nombre: '',
       descripcion: '',
-      capacidadMaxima: 30,
       ubicacion: ''
     };
     this.disponibilidades = [];
@@ -652,5 +637,56 @@ export class CreateTutoriaModal implements OnInit {
       return 'Creando tutoría...';
     }
     return 'Crear nueva tutoría';
+  }
+
+  /**
+   * Actualiza automáticamente el día de la semana cuando se selecciona una fecha
+   */
+  onFechaChange(index: number, fecha: string): void {
+    if (!fecha) {
+      this.disponibilidades[index].diaSemana = '';
+      return;
+    }
+
+    try {
+      const fechaObj = new Date(fecha + 'T00:00:00');
+      const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+      const diaSemana = diasSemana[fechaObj.getDay()];
+      
+      this.disponibilidades[index].diaSemana = diaSemana;
+      this.cdr.detectChanges();
+      
+      console.log(`📅 Fecha cambiada: ${fecha} -> ${diaSemana}`);
+    } catch (error) {
+      console.error('Error al procesar fecha:', error);
+      this.disponibilidades[index].diaSemana = '';
+    }
+  }
+
+  /**
+   * Detecta si un mensaje de error es de conflicto de horario
+   */
+  isConflictError(errorMsg: string): boolean {
+    return errorMsg?.toLowerCase().includes('conflicto') || 
+           errorMsg?.toLowerCase().includes('horario') ||
+           errorMsg?.toLowerCase().includes('ya existe');
+  }
+
+  /**
+   * Formatea el mensaje de error para mostrarlo de manera amigable
+   */
+  formatErrorMessage(errorMsg: string): string {
+    if (!errorMsg) return 'Error desconocido';
+    
+    // Si es un error de conflicto, extraer solo el mensaje relevante
+    if (this.isConflictError(errorMsg)) {
+      // Buscar el patrón "Ya existe una tutoría..."
+      const match = errorMsg.match(/Ya existe una tutoría[^.]*\./i);
+      if (match) {
+        return match[0];
+      }
+    }
+    
+    return errorMsg;
   }
 }

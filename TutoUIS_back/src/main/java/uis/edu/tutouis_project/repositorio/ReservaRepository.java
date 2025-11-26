@@ -21,6 +21,8 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
             r.idDisponibilidad,
             CAST(d.horaInicio AS LocalTime),
             CAST(d.horaFin AS LocalTime),
+            d.fecha,
+            d.diaSemana,
             r.idEstudiante,
             CONCAT(COALESCE(est.nombre, ''), ' ', COALESCE(est.apellido, '')),
             r.idEstado,
@@ -32,7 +34,10 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
             r.horaInicio,
             r.horaFin,
             a.nombre,
-            CONCAT(COALESCE(tut.nombre, ''), ' ', COALESCE(tut.apellido, ''))
+            CONCAT(COALESCE(tut.nombre, ''), ' ', COALESCE(tut.apellido, '')),
+            r.modalidad,
+            r.meetLink,
+            t.lugar
         )
         FROM Reserva r
         INNER JOIN Disponibilidad d ON r.idDisponibilidad = d.idDisponibilidad
@@ -66,7 +71,7 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
     /**
      * OPTIMIZADO: Query con JOINs que retorna directamente DTOs
      * Evita el problema N+1 al traer todos los datos en una sola consulta SQL
-     * Incluye: Reserva + Disponibilidad + Tutoría + Asignatura + Tutor + Estudiante + Estado
+     * Incluye: Reserva + Disponibilidad + Tutoría + Asignatura + Tutor + Estudiante + Estado + Modalidad + MeetLink + Fecha + Día
      */
     @Query("""
         SELECT new uis.edu.tutouis_project.modelo.dto.ReservaResponseDto(
@@ -74,6 +79,8 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
             r.idDisponibilidad,
             CAST(d.horaInicio AS LocalTime),
             CAST(d.horaFin AS LocalTime),
+            d.fecha,
+            d.diaSemana,
             r.idEstudiante,
             CONCAT(COALESCE(est.nombre, ''), ' ', COALESCE(est.apellido, '')),
             r.idEstado,
@@ -85,7 +92,10 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
             r.horaInicio,
             r.horaFin,
             a.nombre,
-            CONCAT(COALESCE(tut.nombre, ''), ' ', COALESCE(tut.apellido, ''))
+            CONCAT(COALESCE(tut.nombre, ''), ' ', COALESCE(tut.apellido, '')),
+            r.modalidad,
+            r.meetLink,
+            t.lugar
         )
         FROM Reserva r
         INNER JOIN Disponibilidad d ON r.idDisponibilidad = d.idDisponibilidad
@@ -105,6 +115,90 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
      * Encuentra todas las reservas de una disponibilidad
      */
     List<Reserva> findByIdDisponibilidad(Integer idDisponibilidad);
+
+        /**
+         * OPTIMIZADO: Query que retorna reservas de una disponibilidad con todos los detalles como DTOs
+         * Evita el problema N+1
+         */
+        @Query("""
+            SELECT new uis.edu.tutouis_project.modelo.dto.ReservaResponseDto(
+                r.idReserva,
+                r.idDisponibilidad,
+                CAST(d.horaInicio AS LocalTime),
+                CAST(d.horaFin AS LocalTime),
+                d.fecha,
+                d.diaSemana,
+                r.idEstudiante,
+                CONCAT(COALESCE(est.nombre, ''), ' ', COALESCE(est.apellido, '')),
+                r.idEstado,
+                er.nombre,
+                r.observaciones,
+                r.fechaCreacion,
+                r.fechaCancelacion,
+                r.razonCancelacion,
+                r.horaInicio,
+                r.horaFin,
+                a.nombre,
+                CONCAT(COALESCE(tut.nombre, ''), ' ', COALESCE(tut.apellido, '')),
+                r.modalidad,
+                r.meetLink,
+                t.lugar
+            )
+            FROM Reserva r
+            INNER JOIN Disponibilidad d ON r.idDisponibilidad = d.idDisponibilidad
+            INNER JOIN Tutoria t ON d.idTutoria = t.idTutoria
+            INNER JOIN Asignatura a ON t.idAsignatura = a.idAsignatura
+            INNER JOIN Usuario tut ON t.idTutor = tut.id_usuario
+            INNER JOIN Usuario est ON r.idEstudiante = est.id_usuario
+            INNER JOIN EstadoReserva er ON r.idEstado = er.idEstado
+            WHERE r.idDisponibilidad = :idDisponibilidad
+            ORDER BY r.horaInicio ASC
+        """)
+        List<uis.edu.tutouis_project.modelo.dto.ReservaResponseDto> findReservasConDetallesPorDisponibilidad(
+            @Param("idDisponibilidad") Integer idDisponibilidad
+        );
+
+            /**
+             * Obtiene las reservas del tutor para la fecha actual (hoy) filtradas por la fecha de la disponibilidad.
+             * Se usa CURRENT_DATE para evaluar la fecha en la base de datos.
+             */
+            @Query("""
+            SELECT new uis.edu.tutouis_project.modelo.dto.ReservaResponseDto(
+                r.idReserva,
+                r.idDisponibilidad,
+                CAST(d.horaInicio AS LocalTime),
+                CAST(d.horaFin AS LocalTime),
+                d.fecha,
+                d.diaSemana,
+                r.idEstudiante,
+                CONCAT(COALESCE(est.nombre, ''), ' ', COALESCE(est.apellido, '')),
+                r.idEstado,
+                er.nombre,
+                r.observaciones,
+                r.fechaCreacion,
+                r.fechaCancelacion,
+                r.razonCancelacion,
+                r.horaInicio,
+                r.horaFin,
+                a.nombre,
+                CONCAT(COALESCE(tut.nombre, ''), ' ', COALESCE(tut.apellido, '')),
+                r.modalidad,
+                r.meetLink,
+                t.lugar
+            )
+            FROM Reserva r
+            INNER JOIN Disponibilidad d ON r.idDisponibilidad = d.idDisponibilidad
+            INNER JOIN Tutoria t ON d.idTutoria = t.idTutoria
+            INNER JOIN Asignatura a ON t.idAsignatura = a.idAsignatura
+            INNER JOIN Usuario tut ON t.idTutor = tut.id_usuario
+            INNER JOIN Usuario est ON r.idEstudiante = est.id_usuario
+            INNER JOIN EstadoReserva er ON r.idEstado = er.idEstado
+            WHERE t.idTutor = :idTutor AND d.fecha = CURRENT_DATE
+            ORDER BY r.horaInicio ASC
+            """)
+            List<uis.edu.tutouis_project.modelo.dto.ReservaResponseDto> findReservasDeHoyPorTutor(
+                @Param("idTutor") Integer idTutor
+            );
     
     /**
      * Encuentra todas las reservas con un estado específico
