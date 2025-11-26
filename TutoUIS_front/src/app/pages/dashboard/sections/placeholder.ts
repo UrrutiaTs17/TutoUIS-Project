@@ -91,15 +91,7 @@ interface UserProfile {
                   <span class="info-value">{{ profileData?.codigo }}</span>
                 </div>
               </div>
-              <div class="info-row">
-                <div class="info-icon orange">
-                  <i class="bi bi-key"></i>
-                </div>
-                <div class="info-details">
-                  <span class="info-label">ID de Usuario</span>
-                  <span class="info-value">#{{ profileData?.id_usuario }}</span>
-                </div>
-              </div>
+              
             }
           </div>
         </div>
