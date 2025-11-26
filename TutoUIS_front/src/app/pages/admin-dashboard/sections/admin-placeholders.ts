@@ -301,6 +301,8 @@ export class AdminReports implements OnInit {
   selectedPeriod: string = 'mes';
   lastUpdate: Date = new Date();
   searchMateria: string = '';
+  isLoading: boolean = true;
+  hasError: boolean = false;
 
   constructor(private reporteService: ReporteService) {}
   
@@ -361,8 +363,15 @@ export class AdminReports implements OnInit {
   }
 
   loadStats(): void {
+    this.isLoading = true;
+    this.hasError = false;
+    
+    console.log('AdminReports - Cargando estadísticas...');
+    
     this.reporteService.getDashboardStats().subscribe({
       next: (data) => {
+        console.log('AdminReports - Datos recibidos:', data);
+        
         this.stats = {
             ...data.stats,
             reservasTrend: 12.5, // Mocked
@@ -381,6 +390,10 @@ export class AdminReports implements OnInit {
         this.materiasDetalle = data.materiasDetalle || [];
         this.horariosPico = data.horariosPico || [];
         
+        console.log('AdminReports - Stats procesados:', this.stats);
+        console.log('AdminReports - Materias:', this.materiasDetalle.length);
+        console.log('AdminReports - Reservas por día:', this.reservasPorDia);
+        
         // Calcular el máximo de reservas por día para la escala de la gráfica
         if (this.reservasPorDia.length > 0) {
           const maxCount = Math.max(...this.reservasPorDia.map(d => d.count));
@@ -388,10 +401,18 @@ export class AdminReports implements OnInit {
         }
         
         this.lastUpdate = new Date();
+        this.isLoading = false;
       },
       error: (err) => {
-        console.error('Error loading stats', err);
-        alert('Error al cargar las estadísticas. Verifica que el backend esté funcionando.');
+        console.error('AdminReports - Error al cargar estadísticas:', err);
+        console.error('AdminReports - Detalles del error:', {
+          status: err.status,
+          message: err.message,
+          error: err.error
+        });
+        this.hasError = true;
+        this.isLoading = false;
+        alert('Error al cargar las estadísticas. Verifica que el backend esté funcionando y revisa la consola para más detalles.');
       }
     });
   }
