@@ -149,15 +149,6 @@ interface UserProfile {
                   <span class="info-value">{{ getCarreraName(profileData?.id_carrera) }}</span>
                 </div>
               </div>
-              <div class="info-row">
-                <div class="info-icon pink">
-                  <i class="bi bi-calendar-check"></i>
-                </div>
-                <div class="info-details">
-                  <span class="info-label">Estado de Cuenta</span>
-                  <span class="info-value">{{ profileData?.activo ? 'Cuenta Activa' : 'Cuenta Inactiva' }}</span>
-                </div>
-              </div>
             }
           </div>
         </div>
