@@ -1,0 +1,273 @@
+<!-- Header mejorado -->
+<div class="reservations-header">
+  <div class="header-content">
+    <div class="header-title-section">
+      <div class="icon-wrapper">
+        <i class="bi bi-calendar-check"></i>
+      </div>
+      <div>
+        <h2 class="page-title">Gestión de Reservas</h2>
+        <p class="page-subtitle">Administra y monitorea todas las reservas del sistema</p>
+      </div>
+    </div>
+    <a routerLink="/admin-dashboard" class="btn-back">
+      <i class="bi bi-arrow-left"></i>
+      <span>Volver al panel</span>
+    </a>
+  </div>
+</div>
+
+<!-- Tarjetas de estadísticas -->
+<div class="stats-grid" *ngIf="!loading && !error && reservas.length > 0">
+  <div class="stat-card stat-total">
+    <div class="stat-icon">
+      <i class="bi bi-calendar-event"></i>
+    </div>
+    <div class="stat-info">
+      <h3>{{ reservas.length }}</h3>
+      <p>Total Reservas</p>
+    </div>
+  </div>
+  <div class="stat-card stat-activas">
+    <div class="stat-icon">
+      <i class="bi bi-check-circle"></i>
+    </div>
+    <div class="stat-info">
+      <h3>{{ getReservasPorEstado('Reservada') }}</h3>
+      <p>Activas</p>
+    </div>
+  </div>
+  <div class="stat-card stat-pendientes">
+    <div class="stat-icon">
+      <i class="bi bi-clock-history"></i>
+    </div>
+    <div class="stat-info">
+      <h3>{{ getReservasPorEstado('Pendiente') }}</h3>
+      <p>Pendientes</p>
+    </div>
+  </div>
+  <div class="stat-card stat-completadas">
+    <div class="stat-icon">
+      <i class="bi bi-check2-all"></i>
+    </div>
+    <div class="stat-info">
+      <h3>{{ getReservasPorEstado('Completada') }}</h3>
+      <p>Completadas</p>
+    </div>
+  </div>
+</div>
+
+<!-- Contenido principal -->
+<div class="main-card">
+  <!-- Error -->
+  <div *ngIf="error" class="alert-modern alert-danger">
+    <div class="alert-icon">
+      <i class="bi bi-exclamation-triangle-fill"></i>
+    </div>
+    <div class="alert-content">
+      <h4>Error al cargar reservas</h4>
+      <p>{{ error }}</p>
+    </div>
+    <button class="btn-retry" (click)="loadReservations()">
+      <i class="bi bi-arrow-clockwise"></i>
+      Reintentar
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner-modern"></div>
+    <h4>Cargando reservas...</h4>
+    <p>Por favor espera un momento</p>
+  </div>
+
+  <!-- Estado vacío -->
+  <div *ngIf="!loading && !error && reservas.length === 0" class="empty-state-modern">
+    <div class="empty-icon">
+      <i class="bi bi-calendar-x"></i>
+    </div>
+    <h3>No hay reservas registradas</h3>
+    <p>Aún no se han creado reservas en el sistema. Las nuevas reservas aparecerán aquí.</p>
+  </div>
+
+  <!-- Contenido con reservas -->
+  <div *ngIf="!loading && !error && reservas.length > 0">
+    <!-- Barra de filtros mejorada -->
+    <div class="filters-bar">
+      <div class="search-box-modern">
+        <i class="bi bi-search"></i>
+        <input 
+          type="text" 
+          placeholder="Buscar por ID, estudiante o disponibilidad..."
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="applyFilters()">
+        <button *ngIf="searchTerm" class="clear-search" (click)="searchTerm = ''; applyFilters()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <div class="filter-group">
+        <div class="filter-item">
+          <i class="bi bi-funnel"></i>
+          <select [(ngModel)]="filterEstado" (ngModelChange)="applyFilters()">
+            <option value="">Todos los estados</option>
+            <option value="Reservada">Reservada</option>
+            <option value="Pendiente">Pendiente</option>
+            <option value="Completada">Completada</option>
+            <option value="Cancelada">Cancelada</option>
+          </select>
+        </div>
+
+        <div class="filter-item">
+          <i class="bi bi-calendar-range"></i>
+          <select [(ngModel)]="filterFecha" (ngModelChange)="applyFilters()">
+            <option value="">Todas las fechas</option>
+            <option value="hoy">Hoy</option>
+            <option value="semana">Esta semana</option>
+            <option value="mes">Este mes</option>
+          </select>
+        </div>
+
+        <button 
+          *ngIf="searchTerm || filterEstado || filterFecha" 
+          class="btn-clear-filters" 
+          (click)="clearFilters()">
+          <i class="bi bi-x-circle"></i>
+          Limpiar filtros
+        </button>
+      </div>
+    </div>
+
+    <!-- Información de resultados -->
+    <div class="results-info">
+      <span class="results-count">
+        Mostrando <strong>{{ reservasFiltradas.length }}</strong> de <strong>{{ reservas.length }}</strong> reservas
+      </span>
+      <button class="btn-refresh" (click)="loadReservations()" [disabled]="loading">
+        <i class="bi bi-arrow-clockwise" [class.spinning]="loading"></i>
+        Actualizar
+      </button>
+    </div>
+
+    <!-- Tabla moderna -->
+    <div class="modern-table-wrapper">
+      <table class="modern-table">
+        <thead>
+          <tr>
+            <th>Estudiante</th>
+            <th>Asignatura</th>
+            <th>Horario Reserva</th>
+            <th>Estado</th>
+            <th>Observaciones</th>
+            <th>Fecha Creación</th>
+            <th class="text-center">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let reserva of reservasFiltradas; let i = index" class="table-row" [style.animation-delay]="i * 0.05 + 's'">
+            <td>
+              <div class="user-cell">
+                <div class="user-avatar">
+                  <i class="bi bi-person-fill"></i>
+                </div>
+                <div class="user-info">
+                  <span class="user-name">{{ reserva.nombreEstudiante || 'Sin nombre' }}</span>
+                  <small class="user-id">ID: {{ reserva.idEstudiante }}</small>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="subject-cell">
+                <i class="bi bi-book"></i>
+                <span *ngIf="reserva.nombreAsignatura">
+                  {{ reserva.nombreAsignatura }}
+                </span>
+                <span *ngIf="!reserva.nombreAsignatura" class="text-muted">
+                  Sin asignatura
+                </span>
+              </div>
+            </td>
+            <td>
+              <div class="time-cell time-cell-highlight">
+                <i class="bi bi-clock-fill"></i>
+                <span *ngIf="reserva.horaInicio && reserva.horaFin">
+                  {{ reserva.horaInicio }} - {{ reserva.horaFin }}
+                </span>
+                <span *ngIf="!reserva.horaInicio || !reserva.horaFin" class="text-muted">
+                  Sin horario
+                </span>
+              </div>
+            </td>
+            <td>
+              <span class="status-badge" [ngClass]="{
+                'status-reservada': reserva.nombreEstado === 'Reservada',
+                'status-pendiente': reserva.nombreEstado === 'Pendiente',
+                'status-cancelada': reserva.nombreEstado === 'Cancelada',
+                'status-completada': reserva.nombreEstado === 'Completada'
+              }">
+                <span class="status-dot"></span>
+                {{ reserva.nombreEstado || 'Sin estado' }}
+              </span>
+            </td>
+            <td>
+              <div class="observations-cell" [title]="reserva.observaciones || 'Sin observaciones'">
+                {{ (reserva.observaciones && reserva.observaciones.length > 40) 
+                   ? (reserva.observaciones | slice:0:40) + '...' 
+                   : (reserva.observaciones || 'Sin observaciones') }}
+              </div>
+            </td>
+            <td>
+              <div class="date-cell">
+                <i class="bi bi-clock"></i>
+                <span *ngIf="reserva.fechaCreacion">
+                  {{ reserva.fechaCreacion | date:'dd/MM/yyyy' }}<br>
+                  <small>{{ reserva.fechaCreacion | date:'HH:mm' }}</small>
+                </span>
+                <span *ngIf="!reserva.fechaCreacion" class="text-muted">
+                  No registrada
+                </span>
+              </div>
+            </td>
+            <td class="actions-cell">
+              <div class="action-buttons">
+                <button class="btn-action btn-view" title="Ver detalles" (click)="verDetalles(reserva)">
+                  <i class="bi bi-eye"></i>
+                </button>
+                <button class="btn-action btn-edit" title="Editar reserva" (click)="editarReserva(reserva)">
+                  <i class="bi bi-pencil-square"></i>
+                </button>
+                <button class="btn-action btn-cancel" title="Cancelar reserva" (click)="cancelarReserva(reserva)">
+                  <i class="bi bi-x-circle"></i>
+                </button>
+                <button class="btn-action btn-delete" title="Eliminar reserva" (click)="eliminarReserva(reserva)">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Estado sin resultados -->
+    <div *ngIf="reservasFiltradas.length === 0 && reservas.length > 0" class="no-results">
+      <div class="no-results-icon">
+        <i class="bi bi-search"></i>
+      </div>
+      <h4>No se encontraron resultados</h4>
+      <p>No hay reservas que coincidan con los filtros aplicados</p>
+      <button class="btn-secondary" (click)="clearFilters()">
+        <i class="bi bi-x-circle"></i>
+        Limpiar filtros
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Detalles/Edición de Reserva -->
+<app-reserva-detail-modal
+  [reserva]="selectedReserva"
+  [isEditMode]="isEditMode"
+  (onSaved)="onReservaSaved()"
+  (onCancelled)="onReservaCancelled()">
+</app-reserva-detail-modal>

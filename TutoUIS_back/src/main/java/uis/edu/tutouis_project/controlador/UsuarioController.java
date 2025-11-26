@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import uis.edu.tutouis_project.modelo.Usuario;
+import uis.edu.tutouis_project.modelo.dto.UsuarioConRolDto;
 import uis.edu.tutouis_project.servicio.IUsuarioService;
 
 @RestController
@@ -28,10 +29,10 @@ public class UsuarioController {
         return ResponseEntity.ok(creado);
     }
 
-    @Operation(summary = "Listar usuarios", description = "Retorna la lista completa de usuarios (protegido)")
+    @Operation(summary = "Listar usuarios", description = "Retorna la lista completa de usuarios con información del rol (protegido)")
     @GetMapping("/list")
-    public List<Usuario> listarUsuarios() {
-        return usuarioService.getUsuarios();
+    public List<UsuarioConRolDto> listarUsuarios() {
+        return usuarioService.getUsuariosConRol();
     }
 
     @Operation(summary = "Obtener usuario por id", description = "Retorna un usuario dado su id (protegido)")
@@ -65,6 +66,15 @@ public class UsuarioController {
                     return ResponseEntity.status(400).body("El correo ya está en uso por otro usuario");
                 }
                 actual.setCorreo(usuario.getCorreo());
+            }
+            
+            // Validar que el código sea único (si se está cambiando)
+            if (usuario.getCodigo() != null && !usuario.getCodigo().equals(actual.getCodigo())) {
+                Usuario usuarioConCodigo = usuarioService.findByCodigo(usuario.getCodigo());
+                if (usuarioConCodigo != null) {
+                    return ResponseEntity.status(400).body("El código ya está en uso por otro usuario");
+                }
+                actual.setCodigo(usuario.getCodigo());
             }
             
             // Actualizar solo campos permitidos

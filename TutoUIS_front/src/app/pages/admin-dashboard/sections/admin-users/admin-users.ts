@@ -1,9 +1,9 @@
 import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AdminService, Usuario, Rol } from '../../../services/admin.service';
-import { CreateUserModal } from '../../../components/create-user-modal/create-user-modal';
-import { EditUserModal } from './edit-user-modal';
+import { AdminService, Usuario, Rol } from '../../../../services/admin.service';
+import { CreateUserModal } from '../../../../components/create-user-modal/create-user-modal';
+import { EditUserModal } from '../edit-user-modal/edit-user-modal';
 
 @Component({
   selector: 'app-admin-users',
@@ -91,11 +91,20 @@ export class AdminUsers implements OnInit {
         this.usuarios = usuarios;
         this.usuariosFiltrados = usuarios;
         this.loadingUsers = false;
+        
+        // Si el nombreRol viene del backend, actualizar el mapa de roles
+        usuarios.forEach(usuario => {
+          if (usuario.nombreRol && usuario.id_rol) {
+            this.rolesMap.set(usuario.id_rol, usuario.nombreRol);
+          }
+        });
+        
         this.cdr.detectChanges(); // Force change detection
         console.log('AdminUsers - Estado después de cargar:', {
           usuarios: this.usuarios.length,
           filtrados: this.usuariosFiltrados.length,
-          loading: this.loadingUsers
+          loading: this.loadingUsers,
+          rolesMap: Array.from(this.rolesMap.entries())
         });
       },
       error: (error) => {

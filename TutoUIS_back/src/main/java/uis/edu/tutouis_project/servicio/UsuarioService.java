@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import uis.edu.tutouis_project.modelo.JwtResponse;
 import uis.edu.tutouis_project.modelo.LoginDto;
 import uis.edu.tutouis_project.modelo.Usuario;
+import uis.edu.tutouis_project.modelo.dto.UsuarioConRolDto;
 import uis.edu.tutouis_project.repositorio.UsuarioRepository;
 import uis.edu.tutouis_project.util.JwtUtil;
 
@@ -29,6 +30,11 @@ public class UsuarioService implements IUsuarioService {
     @Override
     public List<Usuario> getUsuarios() {
         return usuarioRepository.findAll();
+    }
+
+    @Override
+    public List<UsuarioConRolDto> getUsuariosConRol() {
+        return usuarioRepository.findAllUsuariosConRol();
     }
 
     @Override

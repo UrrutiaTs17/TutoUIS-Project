@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AdminService, Usuario, Rol } from '../../../services/admin.service';
+import { AdminService, Usuario, Rol } from '../../../../services/admin.service';
 
 @Component({
   selector: 'app-edit-user-modal',

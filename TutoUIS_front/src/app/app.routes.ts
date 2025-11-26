@@ -10,9 +10,9 @@ import { ReservationForm } from './pages/dashboard/reservation/reservation-form'
 import { Agenda } from './pages/dashboard/agenda/agenda';
 import { Reservations, History, Profile, Settings } from './pages/dashboard/sections/placeholder';
 import { AdminLayout } from './pages/admin-dashboard/layout/admin-layout';
-import { AdminHome } from './pages/admin-dashboard/sections/admin-home';
-import { AdminUsers } from './pages/admin-dashboard/sections/admin-users';
-import { AdminTutorias } from './pages/admin-dashboard/sections/admin-tutorias';
+import { AdminHome } from './pages/admin-dashboard/sections/admin-home/admin-home';
+import { AdminUsers } from './pages/admin-dashboard/sections/admin-users/admin-users';
+import { AdminTutorias } from './pages/admin-dashboard/sections/admin-tutorias/admin-tutorias';
 import { AdminReservations, AdminReports, AdminSettings } from './pages/admin-dashboard/sections/admin-placeholders';
 
 export const routes: Routes = [

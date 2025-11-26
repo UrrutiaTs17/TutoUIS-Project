@@ -10,8 +10,8 @@ import { ReporteService } from '../../../services/reporte.service';
   selector: 'app-admin-reservations',
   standalone: true,
   imports: [CommonModule, RouterLink, FormsModule, ReservaDetailModalComponent],
-  templateUrl: './admin-reservations.html',
-  styleUrl: './admin-reservations.css'
+  templateUrl: './admin-reservations/admin-reservations.html',
+  styleUrl: './admin-reservations/admin-reservations.css'
 })
 export class AdminReservations implements OnInit {
   @ViewChild(ReservaDetailModalComponent) modalComponent!: ReservaDetailModalComponent;
@@ -293,9 +293,9 @@ export class AdminSpaces {}
 @Component({
   selector: 'app-admin-reports',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
-  templateUrl: './admin-reports.html',
-  styleUrl: './admin-reports.css'
+  imports: [CommonModule, FormsModule],
+  templateUrl: './admin-reports/admin-reports.html',
+  styleUrl: './admin-reports/admin-reports.css'
 })
 export class AdminReports implements OnInit {
   selectedPeriod: string = 'mes';
@@ -390,9 +390,19 @@ export class AdminReports implements OnInit {
         this.materiasDetalle = data.materiasDetalle || [];
         this.horariosPico = data.horariosPico || [];
         
+        // Usar materiasDetalle para topMaterias (ya vienen ordenadas por total)
+        this.topMaterias = this.materiasDetalle.slice(0, 5).map(m => ({
+          nombre: m.nombre,
+          codigo: m.codigo,
+          carrera: 'General', // Este dato no viene del backend
+          reservas: m.total
+        }));
+        
         console.log('AdminReports - Stats procesados:', this.stats);
         console.log('AdminReports - Materias:', this.materiasDetalle.length);
+        console.log('AdminReports - Top Materias:', this.topMaterias);
         console.log('AdminReports - Reservas por día:', this.reservasPorDia);
+        console.log('AdminReports - Horarios pico:', this.horariosPico);
         
         // Calcular el máximo de reservas por día para la escala de la gráfica
         if (this.reservasPorDia.length > 0) {

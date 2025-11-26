@@ -1,9 +1,9 @@
 import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { CreateTutoriaModal } from '../../../components/create-tutoria-modal/create-tutoria-modal';
-import { EditTutoriaModal } from '../../../components/edit-tutoria-modal/edit-tutoria-modal';
-import { TutoriaService, Tutoria } from '../../../services/tutoria.service';
+import { CreateTutoriaModal } from '../../../../components/create-tutoria-modal/create-tutoria-modal';
+import { EditTutoriaModal } from '../../../../components/edit-tutoria-modal/edit-tutoria-modal';
+import { TutoriaService, Tutoria } from '../../../../services/tutoria.service';
 
 @Component({
   selector: 'app-admin-tutorias',
