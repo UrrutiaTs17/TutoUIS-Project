@@ -9,7 +9,7 @@ interface Disponibilidad {
   fecha: string;
   horaInicio: string;
   horaFin: string;
-  aforoDisponible: number;
+  aforo: number;
   aforoMaximo: number;
   tutoria?: {
     nombreAsignatura: string;
@@ -186,19 +186,17 @@ export class ReservationModal {
           const errorMsgLower = errorMsg.toLowerCase();
           
           // Detectar el mensaje específico de reserva duplicada/conflicto de horario
-          if (errorMsgLower.includes('ya existe una reserva en este horario')) {
+          if (errorMsgLower.includes('ya tienes una reserva') || errorMsgLower.includes('reserva activa')) {
+            this.errorMessage = '⚠️ Ya tienes una reserva en este horario. Por favor, selecciona otro espacio de tiempo.';
+            console.log('✅ Mensaje de conflicto de horario establecido');
+          }
+          else if (errorMsgLower.includes('ya existe una reserva en este horario')) {
             this.errorMessage = '⚠️ Este horario ya está reservado. Por favor, selecciona otro espacio de tiempo disponible.';
             console.log('✅ Mensaje de horario ocupado establecido');
           } 
           else if (errorMsgLower.includes('ya existe')) {
             this.errorMessage = '⚠️ Este horario ya está ocupado. Por favor, selecciona otro espacio de tiempo disponible.';
             console.log('✅ Mensaje de horario ocupado establecido');
-          } 
-          else if (errorMsgLower.includes('no hay cupos disponibles')) {
-            this.errorMessage = '⚠️ No hay cupos disponibles en esta tutoría. Por favor, selecciona otro horario.';
-          }
-          else if (errorMsgLower.includes('cupo')) {
-            this.errorMessage = '⚠️ No hay cupos disponibles para esta tutoría.';
           } 
           else if (errorMsgLower.includes('rango') || errorMsgLower.includes('fuera')) {
             this.errorMessage = '⚠️ El horario seleccionado está fuera del rango de la disponibilidad.';

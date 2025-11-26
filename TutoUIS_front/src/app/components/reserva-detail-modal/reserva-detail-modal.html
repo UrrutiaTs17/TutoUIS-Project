@@ -73,6 +73,45 @@
             </div>
           </div>
 
+          <!-- Modalidad y Ubicación -->
+          <div class="info-section">
+            <h6 class="section-title">
+              <i class="bi bi-geo-alt-fill me-2"></i>
+              Modalidad y Ubicación
+            </h6>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="info-item">
+                  <label>Modalidad</label>
+                  <p>
+                    <span class="badge" [ngClass]="reserva.modalidad === 'Presencial' ? 'bg-info' : 'bg-primary'">
+                      <i class="bi" [ngClass]="reserva.modalidad === 'Presencial' ? 'bi-building' : 'bi-camera-video'"></i>
+                      {{ reserva.modalidad || 'No especificada' }}
+                    </span>
+                  </p>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="info-item" *ngIf="reserva.modalidad === 'Presencial'">
+                  <label>Lugar</label>
+                  <p>
+                    <i class="bi bi-pin-map-fill me-1"></i>
+                    {{ reserva.lugar || 'No especificado' }}
+                  </p>
+                </div>
+                <div class="info-item" *ngIf="reserva.modalidad === 'Virtual' && reserva.meetLink">
+                  <label>Enlace de Meet</label>
+                  <p>
+                    <a [href]="reserva.meetLink" target="_blank" class="btn btn-sm btn-outline-primary">
+                      <i class="bi bi-camera-video me-1"></i>
+                      Unirse a la reunión
+                    </a>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Horarios -->
           <div class="info-section">
             <h6 class="section-title">

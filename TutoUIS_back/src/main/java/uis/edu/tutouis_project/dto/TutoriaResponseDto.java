@@ -30,14 +30,8 @@ public class TutoriaResponseDto {
     @Schema(description = "Descripción de la tutoría", example = "Tutoría sobre integrales")
     private String descripcion;
     
-    @Schema(description = "Capacidad máxima", example = "30")
-    private Integer capacidadMaxima;
-    
     @Schema(description = "Ubicación", example = "Aula 101")
     private String ubicacion;
-    
-    @Schema(description = "Modalidad", example = "Presencial")
-    private String modalidad;
     
     @Schema(description = "Lugar", example = "Edificio C")
     private String lugar;
@@ -121,28 +115,12 @@ public class TutoriaResponseDto {
         this.descripcion = descripcion;
     }
     
-    public Integer getCapacidadMaxima() {
-        return capacidadMaxima;
-    }
-    
-    public void setCapacidadMaxima(Integer capacidadMaxima) {
-        this.capacidadMaxima = capacidadMaxima;
-    }
-    
     public String getUbicacion() {
         return ubicacion;
     }
     
     public void setUbicacion(String ubicacion) {
         this.ubicacion = ubicacion;
-    }
-    
-    public String getModalidad() {
-        return modalidad;
-    }
-    
-    public void setModalidad(String modalidad) {
-        this.modalidad = modalidad;
     }
     
     public String getLugar() {

@@ -114,9 +114,6 @@ public class DisponibilidadService implements IDisponibilidadService {
         }
 
         // Inicializar valores por defecto si no están definidos
-        if (disponibilidad.getAforoDisponible() == null) {
-            disponibilidad.setAforoDisponible(disponibilidad.getAforoMaximo());
-        }
         if (disponibilidad.getIdEstado() == null) {
             disponibilidad.setIdEstado(1); // Activa por defecto
         }
@@ -141,9 +138,6 @@ public class DisponibilidadService implements IDisponibilidadService {
         }
         if (disponibilidad.getAforoMaximo() != null) {
             existente.setAforoMaximo(disponibilidad.getAforoMaximo());
-        }
-        if (disponibilidad.getAforoDisponible() != null) {
-            existente.setAforoDisponible(disponibilidad.getAforoDisponible());
         }
         if (disponibilidad.getIdEstado() != null) {
             existente.setIdEstado(disponibilidad.getIdEstado());

@@ -36,7 +36,7 @@
             <strong>Horario:</strong> {{ disponibilidad.horaInicio }} - {{ disponibilidad.horaFin }}
           </div>
           <div class="col-md-4 mb-2">
-            <strong>Cupos:</strong> {{ disponibilidad.aforoDisponible }} / {{ disponibilidad.aforoMaximo }}
+            <strong>Cupos disponibles:</strong> {{ disponibilidad.aforoMaximo - disponibilidad.aforo }} / {{ disponibilidad.aforoMaximo }}
           </div>
         </div>
       </div>

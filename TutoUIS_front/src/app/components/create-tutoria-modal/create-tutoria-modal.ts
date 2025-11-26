@@ -33,10 +33,8 @@ export class CreateTutoriaModal implements OnInit {
     idTutor: '',
     idCarrera: '',
     idAsignatura: '',
-    modalidad: '',
     nombre: '',
     descripcion: '',
-    capacidadMaxima: 30,
     ubicacion: ''
   };
 
@@ -246,10 +244,8 @@ export class CreateTutoriaModal implements OnInit {
         idTutor: tutoria.idTutor?.toString() || '',
         idCarrera: tutoria.idCarrera?.toString() || '',
         idAsignatura: tutoria.idAsignatura?.toString() || '',
-        modalidad: tutoria.modalidad || '',
         nombre: tutoria.nombre || tutoria.nombreAsignatura || '',
         descripcion: tutoria.descripcion || '',
-        capacidadMaxima: tutoria.capacidadMaxima || 30,
         ubicacion: tutoria.ubicacion || tutoria.lugar || ''
       };
       
@@ -442,14 +438,6 @@ export class CreateTutoriaModal implements OnInit {
       this.errorMessage = 'Por favor selecciona una asignatura';
       return;
     }
-    if (!this.form.modalidad) {
-      this.errorMessage = 'Por favor selecciona una modalidad';
-      return;
-    }
-    if (this.form.capacidadMaxima < 1) {
-      this.errorMessage = 'La capacidad máxima debe ser mayor a 0';
-      return;
-    }
 
     // Validar disponibilidades
     if (this.disponibilidades.length === 0) {
@@ -479,16 +467,14 @@ export class CreateTutoriaModal implements OnInit {
       idTutor: parseInt(this.form.idTutor),
       idCarrera: parseInt(this.form.idCarrera),
       idAsignatura: parseInt(this.form.idAsignatura),
-      modalidad: this.form.modalidad,
       descripcion: this.form.descripcion.trim() || undefined,
-      capacidadMaxima: this.form.capacidadMaxima,
       ubicacion: this.form.ubicacion.trim() || undefined,
       disponibilidades: this.disponibilidades.map(disp => ({
         diaSemana: disp.diaSemana,
         fecha: disp.fecha,
         horaInicio: disp.horaInicio + ':00', // Agregar segundos
         horaFin: disp.horaFin + ':00', // Agregar segundos
-        aforoMaximo: this.form.capacidadMaxima
+        aforoMaximo: 8 // Aforo fijo de 8 personas por slot de 15 minutos
       }))
     };
 
@@ -596,10 +582,8 @@ export class CreateTutoriaModal implements OnInit {
       idTutor: '',
       idCarrera: '',
       idAsignatura: '',
-      modalidad: '',
       nombre: '',
       descripcion: '',
-      capacidadMaxima: 30,
       ubicacion: ''
     };
     this.disponibilidades = [];

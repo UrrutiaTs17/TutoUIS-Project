@@ -86,10 +86,8 @@ public class TutoriaController {
             System.out.println("🔵 TutoriaController.crearTutoria - Datos recibidos:");
             System.out.println("   idTutor: " + tutoria.getIdTutor());
             System.out.println("   idAsignatura: " + tutoria.getIdAsignatura());
-            System.out.println("   modalidad: " + tutoria.getModalidad());
             System.out.println("   lugar: " + tutoria.getLugar());
             System.out.println("   descripcion: " + tutoria.getDescripcion());
-            System.out.println("   capacidadMaxima: " + tutoria.getCapacidadMaxima());
             System.out.println("   idEstadoTutoria: " + tutoria.getIdEstadoTutoria());
             
             Tutoria nueva = tutoriaRepository.save(tutoria);
@@ -123,10 +121,8 @@ public class TutoriaController {
         return tutoriaRepository.findById(id)
                 .map(tutoria -> {
                     tutoria.setIdAsignatura(tutoriaActualizada.getIdAsignatura());
-                    tutoria.setModalidad(tutoriaActualizada.getModalidad());
                     tutoria.setLugar(tutoriaActualizada.getLugar());
                     tutoria.setDescripcion(tutoriaActualizada.getDescripcion());
-                    tutoria.setCapacidadMaxima(tutoriaActualizada.getCapacidadMaxima());
                     Tutoria actualizada = tutoriaRepository.save(tutoria);
                     return ResponseEntity.ok(actualizada);
                 })

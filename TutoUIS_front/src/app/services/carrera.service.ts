@@ -1,7 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { isPlatformBrowser } from '@angular/common';
 
 export interface Carrera {
   idCarrera: number;
@@ -20,24 +21,31 @@ export class CarreraService {
   private carrerasSubject = new BehaviorSubject<Carrera[]>([]);
   public carreras$ = this.carrerasSubject.asObservable();
 
-  constructor(private http: HttpClient) {
+  constructor(
+    private http: HttpClient,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {
     this.loadCachedCarreras();
   }
 
   private loadCachedCarreras(): void {
-    const cachedCarreras = localStorage.getItem(this.CARRERAS_KEY);
-    if (cachedCarreras) {
-      try {
-        const carreras = JSON.parse(cachedCarreras);
-        this.carrerasSubject.next(carreras);
-      } catch (error) {
-        console.warn('Error al cargar carreras desde caché:', error);
+    if (isPlatformBrowser(this.platformId)) {
+      const cachedCarreras = localStorage.getItem(this.CARRERAS_KEY);
+      if (cachedCarreras) {
+        try {
+          const carreras = JSON.parse(cachedCarreras);
+          this.carrerasSubject.next(carreras);
+        } catch (error) {
+          console.warn('Error al cargar carreras desde caché:', error);
+        }
       }
     }
   }
 
   private getAuthHeaders(): HttpHeaders {
-    const token = localStorage.getItem('auth_token');
+    const token = isPlatformBrowser(this.platformId) 
+      ? localStorage.getItem('auth_token') 
+      : null;
     return new HttpHeaders({
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
@@ -50,7 +58,9 @@ export class CarreraService {
       .pipe(
         tap(carreras => {
           // Cachear las carreras
-          localStorage.setItem(this.CARRERAS_KEY, JSON.stringify(carreras));
+          if (isPlatformBrowser(this.platformId)) {
+            localStorage.setItem(this.CARRERAS_KEY, JSON.stringify(carreras));
+          }
           this.carrerasSubject.next(carreras);
         })
       );

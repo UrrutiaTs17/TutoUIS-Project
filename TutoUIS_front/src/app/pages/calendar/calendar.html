@@ -64,7 +64,6 @@
               {{ c.nombre }}
               <small class="text-muted">• {{ c.docente }}</small>
             </span>
-            <span class="badge bg-success-subtle text-success">{{ c.cupos }}</span>
           </li>
           <li *ngIf="showDropdown && searchControl.value && searchControl.value.trim() && !(activeIndex > -1) && (suggestions$ | async)?.length === 0"
               class="list-group-item text-muted text-center">
@@ -111,9 +110,6 @@
                             <article class="curso-card" [ngClass]="m.clase" [title]="m.tooltip || ''">
                               <h4 class="curso-title">{{ m.nombre }}</h4>
                               <p class="curso-meta">{{ m.detalle }}</p>
-                              <div class="curso-badges">
-                                <span class="badge-cap">Cupos: {{ m.cupos }}</span>
-                              </div>
                             </article>
                           </ng-container>
                           <!-- celda vacía accesible -->
@@ -169,9 +165,6 @@
                       <article class="curso-card" [ngClass]="m.clase" [title]="m.tooltip || ''">
                         <h4 class="curso-title">{{ m.nombre }}</h4>
                         <p class="curso-meta">{{ m.detalle }}</p>
-                        <div class="curso-badges">
-                          <span class="badge-cap">Cupos: {{ m.cupos }}</span>
-                        </div>
                       </article>
                     </ng-container>
                     <!-- celda vacía accesible -->
@@ -252,8 +245,12 @@
             type="button"
             class="slot-button"
             [class.selected]="selectedSlot?.inicio === slot.inicio"
+            [class.ocupado]="slot.ocupado"
+            [disabled]="slot.ocupado"
             (click)="selectSlot(slot)">
-            <i class="bi bi-clock-fill me-2"></i>{{ slot.display }}
+            <i class="bi" [ngClass]="slot.ocupado ? 'bi-lock-fill' : 'bi-clock-fill'" class="me-2"></i>
+            {{ slot.display }}
+            <span *ngIf="slot.ocupado" class="badge bg-danger ms-2">Ocupado</span>
           </button>
         </div>
 

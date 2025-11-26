@@ -13,7 +13,6 @@ type MateriaCatalogo = {
   id: number;
   nombre: string;
   docente: string;
-  cupos: string;
   area?: 'math' | 'phys' | 'prog';
   idTutoria?: number;
   nombreCarrera?: string;
@@ -22,7 +21,6 @@ type MateriaCatalogo = {
 type MateriaCelda = {
   nombre: string;
   detalle: string;   // ej: "Arrays • Carlos Ruiz"
-  cupos: string;     // ej: "4/6"
   clase?: string;    // ej: "dept-prog" para pintar borde
   tooltip?: string;  // ej: "Laboratorio 3 • 12 semanas"
   idDisponibilidad?: number;
@@ -82,7 +80,7 @@ export class CalendarComponent implements OnInit {
   showSlotModal = false;
   selectedDisponibilidad: Disponibilidad | null = null;
   selectedTutoria: Tutoria | null = null;
-  availableSlots: { inicio: string; fin: string; display: string }[] = [];
+  availableSlots: { inicio: string; fin: string; display: string; ocupado?: boolean }[] = [];
   selectedSlot: { inicio: string; fin: string } | null = null;
   observaciones = '';
   modalidad: 'Presencial' | 'Virtual' = 'Presencial';
@@ -295,7 +293,6 @@ export class CalendarComponent implements OnInit {
       const materia: MateriaCelda = {
         nombre: tutoria.nombre || 'Sin nombre',
         detalle: `${tutoria.descripcion || ''} • ${tutoria.nombreTutor || 'Sin tutor'}`,
-        cupos: `${disp.aforoDisponible}/${disp.aforoMaximo}`,
         clase: this.obtenerClaseColor(tutoria.nombreCarrera || ''),
         tooltip: `${tutoria.nombreCarrera || 'Sin carrera'} • ${disp.fecha}`,
         idDisponibilidad: disp.idDisponibilidad,
@@ -414,6 +411,7 @@ trackMateria = (_: number, m: MateriaCatalogo) => m.id; // o `${m.id}-${m.nombre
 
   /**
    * Genera slots de 15 minutos dentro del rango de la disponibilidad
+   * y marca como ocupados los que ya tienen reservas
    */
   private generateTimeSlots(disponibilidad: Disponibilidad): void {
     this.availableSlots = [];
@@ -436,14 +434,53 @@ trackMateria = (_: number, m: MateriaCatalogo) => m.id; // o `${m.id}-${m.nombre
       const fin = `${String(slotEndHour).padStart(2, '0')}:${String(slotEndMin).padStart(2, '0')}:00`;
       const display = `${String(slotStartHour).padStart(2, '0')}:${String(slotStartMin).padStart(2, '0')} - ${String(slotEndHour).padStart(2, '0')}:${String(slotEndMin).padStart(2, '0')}`;
       
-      this.availableSlots.push({ inicio, fin, display });
+      this.availableSlots.push({ inicio, fin, display, ocupado: false });
     }
     
     console.log('🕐 Slots generados:', this.availableSlots.length, 'slots de 15 minutos');
+    
+    // Cargar reservas existentes para marcar slots ocupados
+    this.cargarReservasYMarcarOcupados(disponibilidad.idDisponibilidad);
   }
 
-  selectSlot(slot: { inicio: string; fin: string }): void {
+  /**
+   * Carga las reservas existentes y marca los slots como ocupados
+   */
+  private cargarReservasYMarcarOcupados(idDisponibilidad: number): void {
+    this.reservationService.getReservationsByDisponibilidad(idDisponibilidad).subscribe({
+      next: (reservas) => {
+        console.log('📋 Reservas encontradas:', reservas.length);
+        
+        // Marcar slots ocupados
+        reservas.forEach(reserva => {
+          const horaInicioReserva = reserva.horaInicio; // formato HH:mm:ss o HH:mm
+          
+          // Encontrar el slot correspondiente
+          const slotIndex = this.availableSlots.findIndex(slot => 
+            slot.inicio.startsWith(horaInicioReserva.substring(0, 5))
+          );
+          
+          if (slotIndex !== -1) {
+            this.availableSlots[slotIndex].ocupado = true;
+            console.log(`🔒 Slot ${this.availableSlots[slotIndex].display} marcado como ocupado`);
+          }
+        });
+        
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('❌ Error al cargar reservas:', error);
+      }
+    });
+  }
+
+  selectSlot(slot: { inicio: string; fin: string; ocupado?: boolean }): void {
+    if (slot.ocupado) {
+      this.errorMessage = 'Este horario ya está reservado. Por favor selecciona otro.';
+      return;
+    }
     this.selectedSlot = slot;
+    this.errorMessage = '';
     this.cdr.detectChanges();
   }
 
@@ -543,16 +580,10 @@ trackMateria = (_: number, m: MateriaCatalogo) => m.id; // o `${m.id}-${m.nombre
                carrera.toLowerCase().includes(v);
       })
       .map(tutoria => {
-        // Calcular cupos disponibles totales para esta tutoría
-        const disponibilidadesTutoria = this.disponibilidades.filter(d => d.idTutoria === tutoria.idTutoria);
-        const cuposDisponibles = disponibilidadesTutoria.reduce((sum, d) => sum + d.aforoDisponible, 0);
-        const cuposMaximos = disponibilidadesTutoria.reduce((sum, d) => sum + d.aforoMaximo, 0);
-        
         return {
           id: tutoria.idTutoria,
           nombre: tutoria.nombre || 'Sin nombre',
           docente: tutoria.nombreTutor || 'Sin tutor',
-          cupos: cuposMaximos > 0 ? `${cuposDisponibles}/${cuposMaximos}` : '0/0',
           idTutoria: tutoria.idTutoria,
           nombreCarrera: tutoria.nombreCarrera
         };
