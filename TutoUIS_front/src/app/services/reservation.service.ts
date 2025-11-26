@@ -25,6 +25,7 @@ export interface Reserva {
   nombreTutor?: string; // Nombre completo del tutor
   modalidad?: string; // Modalidad: Presencial o Virtual
   meetLink?: string; // Enlace de Google Meet (solo para modalidad Virtual)
+  lugar?: string; // Lugar de la reserva
 }
 
 export interface CreateReservaDto {

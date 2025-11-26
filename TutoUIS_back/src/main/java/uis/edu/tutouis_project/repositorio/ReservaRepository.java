@@ -36,7 +36,8 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
             a.nombre,
             CONCAT(COALESCE(tut.nombre, ''), ' ', COALESCE(tut.apellido, '')),
             r.modalidad,
-            r.meetLink
+            r.meetLink,
+            t.lugar
         )
         FROM Reserva r
         INNER JOIN Disponibilidad d ON r.idDisponibilidad = d.idDisponibilidad
@@ -93,7 +94,8 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
             a.nombre,
             CONCAT(COALESCE(tut.nombre, ''), ' ', COALESCE(tut.apellido, '')),
             r.modalidad,
-            r.meetLink
+            r.meetLink,
+            t.lugar
         )
         FROM Reserva r
         INNER JOIN Disponibilidad d ON r.idDisponibilidad = d.idDisponibilidad
@@ -139,7 +141,8 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
                 a.nombre,
                 CONCAT(COALESCE(tut.nombre, ''), ' ', COALESCE(tut.apellido, '')),
                 r.modalidad,
-                r.meetLink
+                r.meetLink,
+                t.lugar
             )
             FROM Reserva r
             INNER JOIN Disponibilidad d ON r.idDisponibilidad = d.idDisponibilidad
@@ -180,7 +183,8 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
                 a.nombre,
                 CONCAT(COALESCE(tut.nombre, ''), ' ', COALESCE(tut.apellido, '')),
                 r.modalidad,
-                r.meetLink
+                r.meetLink,
+                t.lugar
             )
             FROM Reserva r
             INNER JOIN Disponibilidad d ON r.idDisponibilidad = d.idDisponibilidad

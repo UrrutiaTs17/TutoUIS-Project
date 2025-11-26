@@ -68,6 +68,9 @@ public class ReservaResponseDto {
     @Schema(description = "Enlace de Google Meet (solo para modalidad Virtual)", example = "https://meet.google.com/xxx-yyyy-zzz")
     private String meetLink;
 
+    @Schema(description = "Lugar/ubicación para modalidad presencial", example = "Edificio 4, Aula 204")
+    private String lugar;
+
     public ReservaResponseDto() {
     }
 
@@ -141,7 +144,8 @@ public class ReservaResponseDto {
             String nombreAsignatura,
             String nombreTutor,
             String modalidad,
-            String meetLink) {
+            String meetLink,
+            String lugar) {
         this.idReserva = idReserva;
         this.idDisponibilidad = idDisponibilidad;
         this.disponibilidadHoraInicio = disponibilidadHoraInicio;
@@ -162,6 +166,7 @@ public class ReservaResponseDto {
         this.nombreTutor = nombreTutor;
         this.modalidad = modalidad;
         this.meetLink = meetLink;
+        this.lugar = lugar;
     }
 
     // Getters and Setters
@@ -323,5 +328,13 @@ public class ReservaResponseDto {
 
     public void setMeetLink(String meetLink) {
         this.meetLink = meetLink;
+    }
+
+    public String getLugar() {
+        return lugar;
+    }
+
+    public void setLugar(String lugar) {
+        this.lugar = lugar;
     }
 }

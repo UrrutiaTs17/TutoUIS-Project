@@ -85,6 +85,13 @@ import { AuthService } from '../../../services/auth.service';
                     </div>
                   }
 
+                  @if (reserva.modalidad === 'Presencial' && reserva.lugar) {
+                    <div class="detail-item">
+                      <i class="bi bi-geo-alt"></i>
+                      <span>{{ reserva.lugar }}</span>
+                    </div>
+                  }
+
                   @if (reserva.modalidad === 'Virtual' && reserva.meetLink) {
                     <div class="detail-item meet-link">
                       <i class="bi bi-link-45deg"></i>
