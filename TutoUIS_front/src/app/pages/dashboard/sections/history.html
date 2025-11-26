@@ -1,0 +1,166 @@
+<div class="section-content">
+  <!-- Header -->
+  <div class="history-header">
+    <div class="header-content">
+      <div class="header-icon">
+        <i class="bi bi-clock-history"></i>
+      </div>
+      <div>
+        <h1 class="page-title">Historial de Reservas</h1>
+        <p class="page-subtitle">Todas tus sesiones de tutoría completadas</p>
+      </div>
+    </div>
+    <div class="header-stats">
+      <div class="stat-badge">
+        <i class="bi bi-check-circle"></i>
+        <span>{{ completedCount }} Completadas</span>
+      </div>
+      <div class="stat-badge cancelled">
+        <i class="bi bi-x-circle"></i>
+        <span>{{ cancelledCount }} Canceladas</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-bar">
+    <div class="filter-group">
+      <button class="filter-btn" [class.active]="currentFilter === 'all'" (click)="setFilter('all')">
+        <i class="bi bi-calendar-check"></i>
+        Todas ({{ filteredList.length }})
+      </button>
+      <button class="filter-btn" [class.active]="currentFilter === 'completed'" (click)="setFilter('completed')">
+        <i class="bi bi-check-circle"></i>
+        Completadas
+      </button>
+      <button class="filter-btn" [class.active]="currentFilter === 'cancelled'" (click)="setFilter('cancelled')">
+        <i class="bi bi-x-circle"></i>
+        Canceladas
+      </button>
+    </div>
+    <div class="search-box">
+      <i class="bi bi-search"></i>
+      <input type="text" placeholder="Buscar por materia o tutor..." [(ngModel)]="searchText" (input)="applyFilters()">
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading) {
+    <div class="loading-container">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+      <p class="mt-3">Cargando historial de reservas...</p>
+    </div>
+  }
+
+  <!-- Empty State -->
+  @else if (filteredList.length === 0 && !isLoading) {
+    <div class="empty-state">
+      <i class="bi bi-inbox"></i>
+      <h3>No se encontraron reservas</h3>
+      <p>{{ searchText ? 'Intenta con otro término de búsqueda' : 'Aún no has realizado ninguna reserva' }}</p>
+    </div>
+  }
+
+  <!-- Timeline -->
+  @else {
+    <div class="history-timeline">
+      @for (item of filteredList; track item.idReserva) {
+        <div class="timeline-item" [class.cancelled]="item.nombreEstado === 'Cancelada'">
+          <div class="timeline-marker">
+            <i class="bi" [class.bi-check-circle-fill]="item.nombreEstado === 'Realizada'" 
+               [class.bi-x-circle-fill]="item.nombreEstado === 'Cancelada'"></i>
+          </div>
+          <div class="timeline-card">
+            <div class="card-header-row">
+              <div class="subject-info">
+                <h3>{{ item.nombreAsignatura || 'Asignatura no disponible' }}</h3>
+                <span class="badge" [class.badge-success]="item.nombreEstado === 'Realizada'"
+                      [class.badge-danger]="item.nombreEstado === 'Cancelada'"
+                      [class.badge-warning]="item.nombreEstado === 'Reservada'"
+                      [class.badge-secondary]="item.nombreEstado === 'No Asistida'">
+                  {{ item.nombreEstado }}
+                </span>
+              </div>
+            </div>
+            
+            <div class="card-details">
+              <div class="detail-row">
+                <i class="bi bi-person"></i>
+                <span>Tutor: <strong>{{ item.nombreTutor || 'No disponible' }}</strong></span>
+              </div>
+              <div class="detail-row">
+                <i class="bi bi-calendar3"></i>
+                <span>{{ formatDate(item.fechaCreacion) }}</span>
+              </div>
+              <div class="detail-row">
+                <i class="bi bi-clock"></i>
+                <span>{{ formatTime(item.horaInicio) }} - {{ formatTime(item.horaFin) }}</span>
+              </div>
+              @if (item.observaciones) {
+                <div class="detail-row">
+                  <i class="bi bi-file-text"></i>
+                  <span>{{ item.observaciones }}</span>
+                </div>
+              }
+            </div>
+
+            @if (item.nombreEstado === 'Cancelada' && item.razonCancelacion) {
+              <div class="cancel-reason">
+                <i class="bi bi-info-circle"></i>
+                <span>{{ item.razonCancelacion }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Stats Summary -->
+  <div class="summary-section">
+    <h3 class="summary-title">
+      <i class="bi bi-bar-chart"></i>
+      Resumen de Actividad
+    </h3>
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="summary-icon blue">
+          <i class="bi bi-calendar-check"></i>
+        </div>
+        <div class="summary-data">
+          <span class="summary-value">{{ allReservations.length }}</span>
+          <span class="summary-label">Total Reservas</span>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-icon green">
+          <i class="bi bi-check-circle"></i>
+        </div>
+        <div class="summary-data">
+          <span class="summary-value">{{ completedCount }}</span>
+          <span class="summary-label">Realizadas</span>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-icon red">
+          <i class="bi bi-x-circle"></i>
+        </div>
+        <div class="summary-data">
+          <span class="summary-value">{{ cancelledCount }}</span>
+          <span class="summary-label">Canceladas</span>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-icon purple">
+          <i class="bi bi-clock"></i>
+        </div>
+        <div class="summary-data">
+          <span class="summary-value">{{ activeCount }}</span>
+          <span class="summary-label">Activas</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
