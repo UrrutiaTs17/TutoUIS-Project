@@ -21,6 +21,8 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
             r.idDisponibilidad,
             CAST(d.horaInicio AS LocalTime),
             CAST(d.horaFin AS LocalTime),
+            d.fecha,
+            d.diaSemana,
             r.idEstudiante,
             CONCAT(COALESCE(est.nombre, ''), ' ', COALESCE(est.apellido, '')),
             r.idEstado,
@@ -32,7 +34,10 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
             r.horaInicio,
             r.horaFin,
             a.nombre,
-            CONCAT(COALESCE(tut.nombre, ''), ' ', COALESCE(tut.apellido, ''))
+            CONCAT(COALESCE(tut.nombre, ''), ' ', COALESCE(tut.apellido, '')),
+            r.modalidad,
+            r.meetLink,
+            t.lugar
         )
         FROM Reserva r
         INNER JOIN Disponibilidad d ON r.idDisponibilidad = d.idDisponibilidad
@@ -66,7 +71,7 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
     /**
      * OPTIMIZADO: Query con JOINs que retorna directamente DTOs
      * Evita el problema N+1 al traer todos los datos en una sola consulta SQL
-     * Incluye: Reserva + Disponibilidad + Tutoría + Asignatura + Tutor + Estudiante + Estado
+     * Incluye: Reserva + Disponibilidad + Tutoría + Asignatura + Tutor + Estudiante + Estado + Modalidad + MeetLink + Fecha + Día
      */
     @Query("""
         SELECT new uis.edu.tutouis_project.modelo.dto.ReservaResponseDto(
@@ -74,6 +79,8 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
             r.idDisponibilidad,
             CAST(d.horaInicio AS LocalTime),
             CAST(d.horaFin AS LocalTime),
+            d.fecha,
+            d.diaSemana,
             r.idEstudiante,
             CONCAT(COALESCE(est.nombre, ''), ' ', COALESCE(est.apellido, '')),
             r.idEstado,
@@ -85,7 +92,10 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
             r.horaInicio,
             r.horaFin,
             a.nombre,
-            CONCAT(COALESCE(tut.nombre, ''), ' ', COALESCE(tut.apellido, ''))
+            CONCAT(COALESCE(tut.nombre, ''), ' ', COALESCE(tut.apellido, '')),
+            r.modalidad,
+            r.meetLink,
+            t.lugar
         )
         FROM Reserva r
         INNER JOIN Disponibilidad d ON r.idDisponibilidad = d.idDisponibilidad
@@ -116,6 +126,8 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
                 r.idDisponibilidad,
                 CAST(d.horaInicio AS LocalTime),
                 CAST(d.horaFin AS LocalTime),
+                d.fecha,
+                d.diaSemana,
                 r.idEstudiante,
                 CONCAT(COALESCE(est.nombre, ''), ' ', COALESCE(est.apellido, '')),
                 r.idEstado,
@@ -129,7 +141,8 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
                 a.nombre,
                 CONCAT(COALESCE(tut.nombre, ''), ' ', COALESCE(tut.apellido, '')),
                 r.modalidad,
-                r.meetLink
+                r.meetLink,
+                t.lugar
             )
             FROM Reserva r
             INNER JOIN Disponibilidad d ON r.idDisponibilidad = d.idDisponibilidad
@@ -155,6 +168,8 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
                 r.idDisponibilidad,
                 CAST(d.horaInicio AS LocalTime),
                 CAST(d.horaFin AS LocalTime),
+                d.fecha,
+                d.diaSemana,
                 r.idEstudiante,
                 CONCAT(COALESCE(est.nombre, ''), ' ', COALESCE(est.apellido, '')),
                 r.idEstado,
@@ -168,7 +183,8 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
                 a.nombre,
                 CONCAT(COALESCE(tut.nombre, ''), ' ', COALESCE(tut.apellido, '')),
                 r.modalidad,
-                r.meetLink
+                r.meetLink,
+                t.lugar
             )
             FROM Reserva r
             INNER JOIN Disponibilidad d ON r.idDisponibilidad = d.idDisponibilidad

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReservationService, Reserva } from '../../../services/reservation.service';
 import { AuthService } from '../../../services/auth.service';
 import { CalendarComponent } from '../../calendar/calendar';
-import { Disponibilidad } from '../../../services/disponibilidad.service';
+import { Disponibilidad, DisponibilidadService } from '../../../services/disponibilidad.service';
 
 @Component({
   selector: 'app-agenda',
@@ -32,7 +32,8 @@ export class Agenda implements OnInit {
     private reservationService: ReservationService,
     private authService: AuthService,
     private cdr: ChangeDetectorRef,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private disponibilidadService: DisponibilidadService
   ) {}
 
   ngOnInit(): void {
@@ -146,6 +147,54 @@ export class Agenda implements OnInit {
           this.cdr.detectChanges();
         }
       });
+  }
+
+  /**
+   * Abre el modal y carga reservas a partir del idDisponibilidad
+   */
+  openReservasForDisponibilidadId(idDisponibilidad: number): void {
+    // Primero obtenemos los datos del slot para mostrar info en el modal
+    this.loadingReservas = true;
+    this.showReservasModal = true;
+
+    this.disponibilidadService.getDisponibilidadById(idDisponibilidad).subscribe({
+      next: (disp: Disponibilidad) => {
+        this.slotSeleccionado = disp;
+        // Luego cargamos las reservas del slot
+        this.reservationService.getReservationsByDisponibilidad(idDisponibilidad).subscribe({
+          next: (reservas) => {
+            console.log('✅ Agenda: Reservas cargadas:', reservas.length);
+            this.reservasDelSlot = reservas;
+            this.loadingReservas = false;
+            this.cdr.detectChanges();
+          },
+          error: (err) => {
+            console.error('❌ Agenda: Error al cargar reservas:', err);
+            this.reservasDelSlot = [];
+            this.loadingReservas = false;
+            this.cdr.detectChanges();
+          }
+        });
+      },
+      error: (err) => {
+        console.error('❌ Agenda: Error al obtener disponibilidad:', err);
+        this.slotSeleccionado = null;
+        // Aun así intentamos cargar reservas
+        this.reservationService.getReservationsByDisponibilidad(idDisponibilidad).subscribe({
+          next: (reservas) => {
+            this.reservasDelSlot = reservas;
+            this.loadingReservas = false;
+            this.cdr.detectChanges();
+          },
+          error: (err2) => {
+            console.error('❌ Agenda: Error al cargar reservas:', err2);
+            this.reservasDelSlot = [];
+            this.loadingReservas = false;
+            this.cdr.detectChanges();
+          }
+        });
+      }
+    });
   }
 
   /**

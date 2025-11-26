@@ -2,6 +2,7 @@ package uis.edu.tutouis_project.modelo.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Schema(description = "DTO de respuesta para una reserva con información completa")
@@ -18,6 +19,12 @@ public class ReservaResponseDto {
 
     @Schema(description = "Hora de fin de la disponibilidad", example = "10:00:00")
     private LocalTime disponibilidadHoraFin;
+
+    @Schema(description = "Fecha de la disponibilidad", example = "2025-11-25")
+    private LocalDate fechaDisponibilidad;
+
+    @Schema(description = "Día de la semana de la disponibilidad", example = "Lunes")
+    private String diaSemana;
 
     @Schema(description = "ID del estudiante", example = "4")
     private Integer idEstudiante;
@@ -60,6 +67,9 @@ public class ReservaResponseDto {
 
     @Schema(description = "Enlace de Google Meet (solo para modalidad Virtual)", example = "https://meet.google.com/xxx-yyyy-zzz")
     private String meetLink;
+
+    @Schema(description = "Lugar/ubicación para modalidad presencial", example = "Edificio 4, Aula 204")
+    private String lugar;
 
     public ReservaResponseDto() {
     }
@@ -113,12 +123,14 @@ public class ReservaResponseDto {
         this.nombreTutor = nombreTutor;
     }
 
-    // Constructor extendido (incluye modalidad y meetLink)
+    // Constructor extendido (incluye modalidad, meetLink, fecha y día)
     public ReservaResponseDto(
             Integer idReserva,
             Integer idDisponibilidad,
             LocalTime disponibilidadHoraInicio,
             LocalTime disponibilidadHoraFin,
+            java.sql.Date fechaDisponibilidad,
+            String diaSemana,
             Integer idEstudiante,
             String nombreEstudiante,
             Integer idEstado,
@@ -132,12 +144,29 @@ public class ReservaResponseDto {
             String nombreAsignatura,
             String nombreTutor,
             String modalidad,
-            String meetLink) {
-        this(idReserva, idDisponibilidad, disponibilidadHoraInicio, disponibilidadHoraFin, idEstudiante,
-             nombreEstudiante, idEstado, nombreEstado, observaciones, fechaCreacion, fechaCancelacion,
-             razonCancelacion, horaInicio, horaFin, nombreAsignatura, nombreTutor);
+            String meetLink,
+            String lugar) {
+        this.idReserva = idReserva;
+        this.idDisponibilidad = idDisponibilidad;
+        this.disponibilidadHoraInicio = disponibilidadHoraInicio;
+        this.disponibilidadHoraFin = disponibilidadHoraFin;
+        this.fechaDisponibilidad = fechaDisponibilidad != null ? fechaDisponibilidad.toLocalDate() : null;
+        this.diaSemana = diaSemana;
+        this.idEstudiante = idEstudiante;
+        this.nombreEstudiante = nombreEstudiante;
+        this.idEstado = idEstado;
+        this.nombreEstado = nombreEstado;
+        this.observaciones = observaciones;
+        this.fechaCreacion = fechaCreacion;
+        this.fechaCancelacion = fechaCancelacion;
+        this.razonCancelacion = razonCancelacion;
+        this.horaInicio = horaInicio;
+        this.horaFin = horaFin;
+        this.nombreAsignatura = nombreAsignatura;
+        this.nombreTutor = nombreTutor;
         this.modalidad = modalidad;
         this.meetLink = meetLink;
+        this.lugar = lugar;
     }
 
     // Getters and Setters
@@ -171,6 +200,22 @@ public class ReservaResponseDto {
 
     public void setDisponibilidadHoraFin(LocalTime disponibilidadHoraFin) {
         this.disponibilidadHoraFin = disponibilidadHoraFin;
+    }
+
+    public LocalDate getFechaDisponibilidad() {
+        return fechaDisponibilidad;
+    }
+
+    public void setFechaDisponibilidad(LocalDate fechaDisponibilidad) {
+        this.fechaDisponibilidad = fechaDisponibilidad;
+    }
+
+    public String getDiaSemana() {
+        return diaSemana;
+    }
+
+    public void setDiaSemana(String diaSemana) {
+        this.diaSemana = diaSemana;
     }
 
     public Integer getIdEstudiante() {
@@ -283,5 +328,13 @@ public class ReservaResponseDto {
 
     public void setMeetLink(String meetLink) {
         this.meetLink = meetLink;
+    }
+
+    public String getLugar() {
+        return lugar;
+    }
+
+    public void setLugar(String lugar) {
+        this.lugar = lugar;
     }
 }

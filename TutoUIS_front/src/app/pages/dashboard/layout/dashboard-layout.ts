@@ -62,14 +62,11 @@ import { AuthService } from '../../../services/auth.service';
           <div class="top-bar-left">
             <button class="btn btn-link mobile-menu-toggle" (click)="toggleSidebar()">
               <i class="bi bi-list"></i>
-            </button>
-            <h3 class="page-title">{{ currentPageTitle }}</h3>
-          </div>
-          <div class="top-bar-right">
-          </div>
+          </button>
+          <h3 class="page-title">{{ currentPageTitle }}</h3>
         </div>
-
-        <!-- Content Area - Router Outlet -->
+        <div class="top-bar-right"></div>
+      </div>        <!-- Content Area - Router Outlet -->
         <div class="content-area">
           <router-outlet></router-outlet>
         </div>

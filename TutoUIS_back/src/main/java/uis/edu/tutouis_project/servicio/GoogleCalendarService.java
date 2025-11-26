@@ -86,9 +86,9 @@ public class GoogleCalendarService {
      * @param correoEstudiante Correo del estudiante
      * @param correoTutor Correo del tutor
      * @param incluirMeet Si es true, crea Google Meet; si es false, solo crea el evento
-     * @return URL del Google Meet creado (null si incluirMeet es false)
+     * @return Array con [eventId, meetLink] (meetLink será null si incluirMeet es false)
      */
-    public String crearEventoCalendar(String titulo, String descripcion, LocalDate fecha, 
+    public String[] crearEventoCalendar(String titulo, String descripcion, LocalDate fecha, 
                                       LocalTime horaInicio, LocalTime horaFin, 
                                       String correoEstudiante, String correoTutor,
                                       boolean incluirMeet) {
@@ -162,16 +162,17 @@ public class GoogleCalendarService {
                         .execute();
             }
 
+            String eventId = event.getId();
             String meetLink = incluirMeet ? event.getHangoutLink() : null;
             System.out.println("✅ Evento creado exitosamente");
-            System.out.println("  - ID del evento: " + event.getId());
+            System.out.println("  - ID del evento: " + eventId);
             if (incluirMeet && meetLink != null) {
                 System.out.println("  - Enlace Meet: " + meetLink);
             } else {
                 System.out.println("  - Evento presencial (sin Meet)");
             }
 
-            return meetLink;
+            return new String[]{eventId, meetLink};
 
         } catch (Exception e) {
             System.err.println("❌ Error al crear evento de Google Calendar: " + e.getMessage());
@@ -182,8 +183,9 @@ public class GoogleCalendarService {
 
     /**
      * Método de conveniencia para crear evento con Google Meet (modalidad Virtual)
+     * @return Array con [eventId, meetLink]
      */
-    public String crearEventoMeet(String titulo, String descripcion, LocalDate fecha, 
+    public String[] crearEventoMeet(String titulo, String descripcion, LocalDate fecha, 
                                    LocalTime horaInicio, LocalTime horaFin, 
                                    String correoEstudiante, String correoTutor) {
         return crearEventoCalendar(titulo, descripcion, fecha, horaInicio, horaFin, 
@@ -192,13 +194,13 @@ public class GoogleCalendarService {
 
     /**
      * Método de conveniencia para crear evento presencial (sin Google Meet)
+     * @return Array con [eventId, null]
      */
-    public String crearEventoPresencial(String titulo, String descripcion, LocalDate fecha, 
+    public String[] crearEventoPresencial(String titulo, String descripcion, LocalDate fecha, 
                                         LocalTime horaInicio, LocalTime horaFin, 
                                         String correoEstudiante, String correoTutor) {
-        crearEventoCalendar(titulo, descripcion, fecha, horaInicio, horaFin, 
+        return crearEventoCalendar(titulo, descripcion, fecha, horaInicio, horaFin, 
                            correoEstudiante, correoTutor, false);
-        return null; // No hay enlace de Meet para eventos presenciales
     }
 
     /**

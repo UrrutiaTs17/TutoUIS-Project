@@ -301,9 +301,10 @@ public class ReservaService implements IReservaService {
             
             // Crear evento según la modalidad
             String meetLink = null;
+            String googleEventId = null;
             if ("Virtual".equalsIgnoreCase(createDto.getModalidad())) {
                 // Modalidad Virtual: crear evento con Google Meet
-                meetLink = googleCalendarService.crearEventoMeet(
+                String[] resultado = googleCalendarService.crearEventoMeet(
                     titulo,
                     descripcion,
                     fecha,
@@ -313,14 +314,19 @@ public class ReservaService implements IReservaService {
                     correoTutor
                 );
                 
-                // Guardar el enlace de Meet en la reserva
+                googleEventId = resultado[0];
+                meetLink = resultado[1];
+                
+                // Guardar el enlace de Meet y el eventId en la reserva
                 reservaGuardada.setMeetLink(meetLink);
+                reservaGuardada.setGoogleEventId(googleEventId);
                 reservaGuardada = reservaRepository.save(reservaGuardada);
                 
                 System.out.println("✅ Evento virtual creado con Google Meet: " + meetLink);
+                System.out.println("  - Event ID: " + googleEventId);
             } else {
                 // Modalidad Presencial: crear evento sin Google Meet
-                googleCalendarService.crearEventoPresencial(
+                String[] resultado = googleCalendarService.crearEventoPresencial(
                     titulo,
                     descripcion,
                     fecha,
@@ -330,7 +336,14 @@ public class ReservaService implements IReservaService {
                     correoTutor
                 );
                 
+                googleEventId = resultado[0];
+                
+                // Guardar solo el eventId en la reserva
+                reservaGuardada.setGoogleEventId(googleEventId);
+                reservaGuardada = reservaRepository.save(reservaGuardada);
+                
                 System.out.println("✅ Evento presencial creado en Google Calendar (sin Meet)");
+                System.out.println("  - Event ID: " + googleEventId);
             }
             
         } catch (Exception e) {
@@ -387,6 +400,20 @@ public class ReservaService implements IReservaService {
 
         reserva.setIdEstado(2); // Cancelada
         reserva.setRazonCancelacion(razonCancelacion);
+
+        // Eliminar evento de Google Calendar si existe
+        if (reserva.getGoogleEventId() != null && !reserva.getGoogleEventId().trim().isEmpty()) {
+            try {
+                System.out.println("🗑️  Cancelando evento de Google Calendar: " + reserva.getGoogleEventId());
+                googleCalendarService.eliminarEvento(reserva.getGoogleEventId());
+                System.out.println("✅ Evento de Google Calendar cancelado exitosamente");
+            } catch (Exception e) {
+                System.err.println("⚠️ Error al cancelar evento de Google Calendar: " + e.getMessage());
+                System.err.println("⚠️ La reserva se cancelará de todos modos");
+                e.printStackTrace();
+                // No lanzamos excepción para que la cancelación de la reserva se complete
+            }
+        }
 
         // Incrementar el aforo disponible
         Disponibilidad disponibilidad = disponibilidadRepository.findById(reserva.getIdDisponibilidad())
