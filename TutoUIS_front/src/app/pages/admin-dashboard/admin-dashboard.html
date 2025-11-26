@@ -140,15 +140,22 @@
       <!-- Sección: Gestión de Usuarios -->
       @if (activeSection === 'usuarios') {
         <div class="section-content">
-          <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-              <h4 class="mb-0">
-                <i class="bi bi-people me-2"></i>Gestión de Usuarios
-              </h4>
-              <button class="btn btn-primary" (click)="openCreateUserModal()">
+          <div class="welcome-banner mb-4">
+            <div class="welcome-content">
+              <h2>
+                <i class="bi bi-people me-2"></i>
+                Gestión de Usuarios
+              </h2>
+              <p>Administra los usuarios del sistema</p>
+            </div>
+            <div class="header-actions">
+               <button class="btn btn-light text-success fw-bold" (click)="openCreateUserModal()">
                 <i class="bi bi-person-plus me-2"></i>Nuevo Usuario
               </button>
             </div>
+          </div>
+
+          <div class="card">
             <div class="card-body">
               <!-- Barra de búsqueda y filtros -->
               <div class="search-filter-bar">
@@ -309,17 +316,24 @@
       <!-- Sección: Gestión de Reservas -->
       @if (activeSection === 'reservas') {
         <div class="section-content">
-          <div class="card">
-            <div class="card-header">
-              <h4 class="mb-0">
-                <i class="bi bi-calendar-check me-2"></i>Gestión de Reservas
-              </h4>
+          <div class="welcome-banner mb-4">
+            <div class="welcome-content">
+              <h2>
+                <i class="bi bi-calendar-check me-2"></i>
+                Gestión de Reservas
+              </h2>
+              <p>Lista completa de reservas del sistema</p>
             </div>
+            <div class="header-actions">
+               <button class="btn btn-light text-success fw-bold" (click)="setActiveSection('inicio')">
+                <i class="bi bi-arrow-left me-2"></i>Volver
+              </button>
+            </div>
+          </div>
+
+          <div class="card">
             <div class="card-body">
               <p class="text-muted">Aquí se mostrará la lista completa de reservas del sistema</p>
-              <button class="btn btn-outline-secondary" (click)="setActiveSection('inicio')">
-                <i class="bi bi-arrow-left me-2"></i>Volver al panel
-              </button>
             </div>
           </div>
         </div>
@@ -328,15 +342,22 @@
       <!-- Sección: Gestión de Espacios -->
       @if (activeSection === 'espacios') {
         <div class="section-content">
-          <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-              <h4 class="mb-0">
-                <i class="bi bi-door-open me-2"></i>Gestión de Espacios
-              </h4>
-              <button class="btn btn-success">
+          <div class="welcome-banner mb-4">
+            <div class="welcome-content">
+              <h2>
+                <i class="bi bi-door-open me-2"></i>
+                Gestión de Espacios
+              </h2>
+              <p>Administra los espacios disponibles</p>
+            </div>
+            <div class="header-actions">
+               <button class="btn btn-light text-success fw-bold">
                 <i class="bi bi-plus-circle me-2"></i>Nuevo Espacio
               </button>
             </div>
+          </div>
+
+          <div class="card">
             <div class="card-body">
               <p class="text-muted">Aquí se mostrará la lista de espacios disponibles con opciones de edición</p>
               <button class="btn btn-outline-secondary" (click)="setActiveSection('inicio')">
@@ -350,36 +371,88 @@
       <!-- Sección: Reportes y Estadísticas -->
       @if (activeSection === 'reportes') {
         <div class="section-content">
-          <div class="card">
-            <div class="card-header">
-              <h4 class="mb-0">
-                <i class="bi bi-graph-up me-2"></i>Reportes y Estadísticas
-              </h4>
+          <div class="reportes-grid">
+            <!-- Reservas por Día -->
+            <div class="card report-card">
+              <div class="card-header d-flex align-items-center">
+                <i class="bi bi-bar-chart-line me-2"></i>
+                <h5 class="mb-0">Reservas por Día</h5>
+              </div>
+              <div class="card-body">
+                <p class="text-muted mb-3">Distribución de reservas en el período seleccionado</p>
+                <!-- Aquí va el gráfico de barras -->
+                <div class="chart-area">
+                  <!-- <canvas id="reservasPorDiaChart"></canvas> -->
+                  <ng-container *ngIf="reservasPorDiaData.length > 0">
+                    <!-- Aquí renderiza tu gráfico -->
+                  </ng-container>
+                  <ng-container *ngIf="reservasPorDiaData.length === 0">
+                    <div class="text-center text-muted py-4">
+                      <i class="bi bi-graph-up" style="font-size:2rem;"></i>
+                      <p class="mt-2">No hay datos de reservas para mostrar</p>
+                    </div>
+                  </ng-container>
+                </div>
+              </div>
             </div>
-            <div class="card-body">
-              <p class="text-muted">Aquí se mostrarán gráficas y reportes del sistema</p>
-              <button class="btn btn-outline-secondary" (click)="setActiveSection('inicio')">
-                <i class="bi bi-arrow-left me-2"></i>Volver al panel
-              </button>
+            <!-- Estado de Reservas -->
+            <div class="card report-card">
+              <div class="card-header d-flex align-items-center">
+                <i class="bi bi-pie-chart me-2"></i>
+                <h5 class="mb-0">Estado de Reservas</h5>
+              </div>
+              <div class="card-body">
+                <p class="text-muted mb-3">Distribución por estado</p>
+                <div class="chart-area">
+                  <!-- <canvas id="estadoReservasChart"></canvas> -->
+                  <ng-container *ngIf="estadoReservasData.length > 0">
+                    <!-- Aquí renderiza tu gráfico -->
+                  </ng-container>
+                  <ng-container *ngIf="estadoReservasData.length === 0">
+                    <div class="text-center text-muted py-4">
+                      <i class="bi bi-pie-chart" style="font-size:2rem;"></i>
+                      <p class="mt-2">No hay datos de estado de reservas</p>
+                    </div>
+                  </ng-container>
+                </div>
+                <!-- Leyenda -->
+                <div class="estado-leyenda mt-4">
+                  <div class="leyenda-item" *ngFor="let estado of estadoReservasLeyenda">
+                    <span class="leyenda-color" [ngStyle]="{'background': estado.color}"></span>
+                    <span class="leyenda-nombre">{{ estado.nombre }}</span>
+                    <span class="leyenda-cantidad">{{ estado.cantidad }}</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
+          <button class="btn btn-outline-secondary mt-4" (click)="setActiveSection('inicio')">
+            <i class="bi bi-arrow-left me-2"></i>Volver al panel
+          </button>
         </div>
       }
 
       <!-- Sección: Configuración -->
       @if (activeSection === 'configuracion') {
         <div class="section-content">
-          <div class="card">
-            <div class="card-header">
-              <h4 class="mb-0">
-                <i class="bi bi-gear me-2"></i>Configuración del Sistema
-              </h4>
+          <div class="welcome-banner mb-4">
+            <div class="welcome-content">
+              <h2>
+                <i class="bi bi-gear me-2"></i>
+                Configuración del Sistema
+              </h2>
+              <p>Configura parámetros globales del sistema</p>
             </div>
+             <div class="header-actions">
+               <button class="btn btn-light text-success fw-bold" (click)="setActiveSection('inicio')">
+                <i class="bi bi-arrow-left me-2"></i>Volver
+              </button>
+            </div>
+          </div>
+
+          <div class="card">
             <div class="card-body">
               <p class="text-muted">Aquí podrás configurar parámetros globales del sistema</p>
-              <button class="btn btn-outline-secondary" (click)="setActiveSection('inicio')">
-                <i class="bi bi-arrow-left me-2"></i>Volver al panel
-              </button>
             </div>
           </div>
         </div>

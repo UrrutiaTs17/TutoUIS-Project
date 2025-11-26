@@ -74,8 +74,10 @@
       <i class="bi bi-calendar-check"></i>
     </div>
     <div class="kpi-content">
-      <h3 class="kpi-value">{{ stats.totalReservas }}</h3>
-      <p class="kpi-label">Total Reservas</p>
+      <div class="kpi-row">
+        <h3 class="kpi-value">{{ stats.totalReservas }}</h3>
+        <p class="kpi-label">Total Reservas</p>
+      </div>
       <div class="kpi-trend" [class.positive]="stats.reservasTrend > 0" [class.negative]="stats.reservasTrend < 0">
         <i class="bi" [ngClass]="stats.reservasTrend > 0 ? 'bi-arrow-up' : 'bi-arrow-down'"></i>
         <span>{{ stats.reservasTrend > 0 ? '+' : '' }}{{ stats.reservasTrend }}%</span>
@@ -89,8 +91,10 @@
       <i class="bi bi-check-circle"></i>
     </div>
     <div class="kpi-content">
-      <h3 class="kpi-value">{{ stats.reservasCompletadas }}</h3>
-      <p class="kpi-label">Completadas</p>
+      <div class="kpi-row">
+        <h3 class="kpi-value">{{ stats.reservasCompletadas }}</h3>
+        <p class="kpi-label">Completadas</p>
+      </div>
       <div class="kpi-percentage">
         <div class="percentage-bar">
           <div class="percentage-fill" [style.width.%]="stats.tasaCompletadas"></div>
@@ -105,8 +109,10 @@
       <i class="bi bi-hourglass-split"></i>
     </div>
     <div class="kpi-content">
-      <h3 class="kpi-value">{{ stats.reservasPendientes }}</h3>
-      <p class="kpi-label">Pendientes</p>
+      <div class="kpi-row">
+        <h3 class="kpi-value">{{ stats.reservasPendientes }}</h3>
+        <p class="kpi-label">Pendientes</p>
+      </div>
       <div class="kpi-percentage">
         <div class="percentage-bar">
           <div class="percentage-fill warning" [style.width.%]="stats.tasaPendientes"></div>
@@ -121,8 +127,10 @@
       <i class="bi bi-people"></i>
     </div>
     <div class="kpi-content">
-      <h3 class="kpi-value">{{ stats.estudiantesActivos }}</h3>
-      <p class="kpi-label">Estudiantes Activos</p>
+      <div class="kpi-row">
+        <h3 class="kpi-value">{{ stats.estudiantesActivos }}</h3>
+        <p class="kpi-label">Estudiantes Activos</p>
+      </div>
       <div class="kpi-trend positive">
         <i class="bi bi-arrow-up"></i>
         <span>+{{ stats.estudiantesTrend }}%</span>
@@ -133,9 +141,10 @@
 </div>
 
 <!-- Gráficos principales -->
-<div class="charts-grid">
-  <!-- Gráfico de reservas por día -->
-  <div class="chart-card large">
+
+<!-- Gráficos combinados: Reservas por Día y Estado de Reservas -->
+<div class="charts-combined-card">
+  <div class="charts-combined-left">
     <div class="chart-header">
       <div>
         <h3 class="chart-title">
@@ -164,20 +173,9 @@
       </div>
     </div>
   </div>
-
-  <!-- Distribución por estado -->
-  <div class="chart-card">
-    <div class="chart-header">
-      <div>
-        <h3 class="chart-title">
-          <i class="bi bi-pie-chart"></i>
-          Estado de Reservas
-        </h3>
-        <p class="chart-subtitle">Distribución por estado</p>
-      </div>
-    </div>
-    <div class="chart-body">
-      <div class="donut-chart">
+  <div class="charts-combined-right">
+    <div class="header-with-chart">
+      <div class="donut-chart-mini">
         <svg viewBox="0 0 200 200" class="donut-svg">
           <circle cx="100" cy="100" r="80" fill="none" stroke="#e9ecef" stroke-width="40"/>
           <circle 
@@ -192,37 +190,45 @@
         </svg>
         <div class="donut-center">
           <div class="donut-percentage">{{ stats.tasaCompletadas }}%</div>
-          <div class="donut-label">Completadas</div>
         </div>
       </div>
-      <div class="chart-legend">
-        <div class="legend-item">
-          <span class="legend-dot" style="background: #10b981;"></span>
-          <span class="legend-label">Completadas</span>
-          <span class="legend-value">{{ stats.reservasCompletadas }}</span>
-        </div>
-        <div class="legend-item">
-          <span class="legend-dot" style="background: #3b82f6;"></span>
-          <span class="legend-label">Reservadas</span>
-          <span class="legend-value">{{ stats.reservasActivas }}</span>
-        </div>
-        <div class="legend-item">
-          <span class="legend-dot" style="background: #f59e0b;"></span>
-          <span class="legend-label">Pendientes</span>
-          <span class="legend-value">{{ stats.reservasPendientes }}</span>
-        </div>
-        <div class="legend-item">
-          <span class="legend-dot" style="background: #ef4444;"></span>
-          <span class="legend-label">Canceladas</span>
-          <span class="legend-value">{{ stats.reservasCanceladas }}</span>
-        </div>
+      <div class="header-info">
+        <h3 class="chart-title">
+          Estado de Reservas
+        </h3>
+        <p class="chart-subtitle">Distribución por estado</p>
+      </div>
+    </div>
+
+    <div class="chart-legend">
+      <div class="legend-item">
+        <span class="legend-dot" style="background: #10b981;"></span>
+        <span class="legend-label">Completadas</span>
+        <span class="legend-value">{{ stats.reservasCompletadas }}</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-dot" style="background: #3b82f6;"></span>
+        <span class="legend-label">Reservadas</span>
+        <span class="legend-value">{{ stats.reservasActivas }}</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-dot" style="background: #f59e0b;"></span>
+        <span class="legend-label">Pendientes</span>
+        <span class="legend-value">{{ stats.reservasPendientes }}</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-dot" style="background: #ef4444;"></span>
+        <span class="legend-label">Canceladas</span>
+        <span class="legend-value">{{ stats.reservasCanceladas }}</span>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Rankings y Top -->
-<div class="rankings-grid">
+<!-- Middle Section: Rankings + Metrics Column -->
+<div class="reports-middle-section">
+  <!-- Rankings y Top -->
+  <div class="rankings-grid">
   <!-- Materias más solicitadas -->
   <div class="ranking-card">
     <div class="ranking-header">
@@ -251,34 +257,7 @@
     </div>
   </div>
 
-  <!-- Tutores destacados -->
-  <div class="ranking-card">
-    <div class="ranking-header">
-      <h3 class="ranking-title">
-        <i class="bi bi-star"></i>
-        Tutores Destacados
-      </h3>
-      <span class="ranking-badge">Top 5</span>
-    </div>
-    <div class="ranking-list">
-      <div class="ranking-item" *ngFor="let tutor of topTutores; let i = index" [style.animation-delay]="i * 0.1 + 's'">
-        <div class="ranking-position" [class.gold]="i === 0" [class.silver]="i === 1" [class.bronze]="i === 2">
-          {{ i + 1 }}
-        </div>
-        <div class="ranking-info">
-          <h4 class="ranking-name">{{ tutor.nombre }}</h4>
-          <div class="tutor-rating">
-            <i class="bi bi-star-fill" *ngFor="let star of [1,2,3,4,5]" [class.active]="star <= tutor.rating"></i>
-            <span class="rating-value">{{ tutor.rating }}/5</span>
-          </div>
-        </div>
-        <div class="ranking-stats">
-          <span class="ranking-count">{{ tutor.tutorias }}</span>
-          <small class="text-muted">tutorías</small>
-        </div>
-      </div>
-    </div>
-  </div>
+
 
   <!-- Horarios pico -->
   <div class="ranking-card">
@@ -333,27 +312,9 @@
     </div>
   </div>
 
-  <div class="metric-card">
-    <div class="metric-icon purple">
-      <i class="bi bi-arrow-repeat"></i>
-    </div>
-    <div class="metric-content">
-      <h4 class="metric-value">{{ metrics.reincidencia }}%</h4>
-      <p class="metric-label">Tasa de Reincidencia</p>
-      <small class="metric-detail">Estudiantes recurrentes</small>
-    </div>
-  </div>
 
-  <div class="metric-card">
-    <div class="metric-icon orange">
-      <i class="bi bi-star"></i>
-    </div>
-    <div class="metric-content">
-      <h4 class="metric-value">{{ metrics.satisfaccion }}/5</h4>
-      <p class="metric-label">Satisfacción</p>
-      <small class="metric-detail">Calificación promedio</small>
-    </div>
-  </div>
+
+
 
   <div class="metric-card">
     <div class="metric-icon red">
@@ -377,6 +338,7 @@
     </div>
   </div>
 </div>
+</div>
 
 <!-- Tabla de análisis detallado -->
 <div class="detail-section">
@@ -390,7 +352,7 @@
         <i class="bi bi-search"></i>
         <input type="text" placeholder="Buscar materia..." [(ngModel)]="searchMateria">
       </div>
-      <button class="btn-export-small">
+      <button class="btn-export-small" (click)="exportarExcel()">
         <i class="bi bi-file-earmark-excel"></i>
         Excel
       </button>
@@ -408,11 +370,10 @@
           <th class="text-center">Pendientes</th>
           <th class="text-center">Canceladas</th>
           <th class="text-center">Tasa Éxito</th>
-          <th class="text-center">Calificación</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let materia of materiasDetalle; let i = index" [style.animation-delay]="i * 0.05 + 's'">
+        <tr *ngFor="let materia of filteredMaterias; let i = index" [style.animation-delay]="i * 0.05 + 's'">
           <td>
             <div class="materia-cell">
               <div class="materia-icon">{{ materia.inicial }}</div>
@@ -431,16 +392,12 @@
             <span class="badge-status danger">{{ materia.canceladas }}</span>
           </td>
           <td class="text-center">
-            <div class="progress-mini">
-              <div class="progress-bar-mini" [style.width.%]="materia.tasaExito"></div>
+            <div class="success-rate-wrapper">
+              <span class="progress-label">{{ materia.tasaExito }}%</span>
+              <div class="progress-mini">
+                <div class="progress-bar-mini" [style.width.%]="materia.tasaExito"></div>
+              </div>
             </div>
-            <span class="progress-label">{{ materia.tasaExito }}%</span>
-          </td>
-          <td class="text-center">
-            <div class="rating-stars">
-              <i class="bi bi-star-fill" *ngFor="let star of [1,2,3,4,5]" [class.active]="star <= materia.rating"></i>
-            </div>
-            <span class="rating-number">{{ materia.rating }}</span>
           </td>
         </tr>
       </tbody>

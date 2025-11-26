@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ReservationService, Reserva } from '../../../services/reservation.service';
 import { ReservaDetailModalComponent } from '../../../components/reserva-detail-modal/reserva-detail-modal';
+import { ReporteService } from '../../../services/reporte.service';
 
 @Component({
   selector: 'app-admin-reservations',
@@ -300,244 +301,85 @@ export class AdminReports implements OnInit {
   selectedPeriod: string = 'mes';
   lastUpdate: Date = new Date();
   searchMateria: string = '';
+
+  constructor(private reporteService: ReporteService) {}
   
+  get filteredMaterias() {
+    if (!this.searchMateria) {
+      return this.materiasDetalle;
+    }
+    const search = this.searchMateria.toLowerCase();
+    return this.materiasDetalle.filter(m => 
+      m.nombre.toLowerCase().includes(search) || 
+      m.codigo.toLowerCase().includes(search)
+    );
+  }
+
   // Estadísticas principales
-  stats = {
-    totalReservas: 248,
-    reservasTrend: 12.5,
-    reservasCompletadas: 186,
-    tasaCompletadas: 75,
-    reservasPendientes: 35,
-    tasaPendientes: 14,
-    reservasActivas: 27,
+  stats: any = {
+    totalReservas: 0,
+    reservasTrend: 0,
+    reservasCompletadas: 0,
+    tasaCompletadas: 0,
+    reservasPendientes: 0,
+    tasaPendientes: 0,
+    reservasActivas: 0,
     reservasCanceladas: 0,
-    estudiantesActivos: 142,
-    estudiantesTrend: 8.3
+    estudiantesActivos: 0,
+    estudiantesTrend: 0
   };
 
   // Métricas adicionales
-  metrics = {
-    tiempoPromedio: 45,
-    asistencia: 92,
-    reincidencia: 68,
-    satisfaccion: 4.7,
-    cancelaciones: 8,
-    crecimiento: 15.3
+  metrics: any = {
+    tiempoPromedio: 0,
+    asistencia: 0,
+    reincidencia: 0,
+    satisfaccion: 0,
+    cancelaciones: 0,
+    crecimiento: 0
   };
 
   // Reservas por día (últimos 7 días)
-  reservasPorDia = [
-    { label: 'Lun', count: 32, index: 0 },
-    { label: 'Mar', count: 45, index: 1 },
-    { label: 'Mié', count: 38, index: 2 },
-    { label: 'Jue', count: 52, index: 3 },
-    { label: 'Vie', count: 41, index: 4 },
-    { label: 'Sáb', count: 28, index: 5 },
-    { label: 'Dom', count: 12, index: 6 }
-  ];
+  reservasPorDia: any[] = [];
 
   maxReservasDay = 52;
 
   // Top materias
-  topMaterias = [
-    { nombre: 'Cálculo Diferencial', codigo: 'MAT-101', carrera: 'Ingeniería', reservas: 45 },
-    { nombre: 'Programación I', codigo: 'SIS-201', carrera: 'Sistemas', reservas: 38 },
-    { nombre: 'Física Mecánica', codigo: 'FIS-301', carrera: 'Ingeniería', reservas: 32 },
-    { nombre: 'Química General', codigo: 'QUI-101', carrera: 'Química', reservas: 28 },
-    { nombre: 'Álgebra Lineal', codigo: 'MAT-102', carrera: 'Matemáticas', reservas: 25 }
-  ];
+  topMaterias: any[] = [];
 
   // Top tutores
-  topTutores = [
-    { nombre: 'Carlos Rodríguez', rating: 5, tutorias: 42 },
-    { nombre: 'Ana María López', rating: 5, tutorias: 38 },
-    { nombre: 'Juan Pérez Silva', rating: 4, tutorias: 35 },
-    { nombre: 'Laura Martínez', rating: 5, tutorias: 31 },
-    { nombre: 'Diego Gómez', rating: 4, tutorias: 28 }
-  ];
+  topTutores: any[] = [];
 
   // Horarios pico
-  horariosPico = [
-    { periodo: '10:00 - 12:00', descripcion: 'Mañana', reservas: 68 },
-    { periodo: '14:00 - 16:00', descripcion: 'Tarde', reservas: 52 },
-    { periodo: '16:00 - 18:00', descripcion: 'Tarde', reservas: 45 },
-    { periodo: '08:00 - 10:00', descripcion: 'Mañana', reservas: 38 },
-    { periodo: '18:00 - 20:00', descripcion: 'Noche', reservas: 25 }
-  ];
+  horariosPico: any[] = [];
 
   // Análisis detallado por materia
-  materiasDetalle = [
-    {
-      inicial: 'C',
-      nombre: 'Cálculo Diferencial',
-      codigo: 'MAT-101',
-      total: 45,
-      completadas: 35,
-      pendientes: 8,
-      canceladas: 2,
-      tasaExito: 78,
-      rating: 5
-    },
-    {
-      inicial: 'P',
-      nombre: 'Programación I',
-      codigo: 'SIS-201',
-      total: 38,
-      completadas: 30,
-      pendientes: 6,
-      canceladas: 2,
-      tasaExito: 79,
-      rating: 5
-    },
-    {
-      inicial: 'F',
-      nombre: 'Física Mecánica',
-      codigo: 'FIS-301',
-      total: 32,
-      completadas: 24,
-      pendientes: 5,
-      canceladas: 3,
-      tasaExito: 75,
-      rating: 4
-    },
-    {
-      inicial: 'Q',
-      nombre: 'Química General',
-      codigo: 'QUI-101',
-      total: 28,
-      completadas: 22,
-      pendientes: 4,
-      canceladas: 2,
-      tasaExito: 79,
-      rating: 4
-    },
-    {
-      inicial: 'A',
-      nombre: 'Álgebra Lineal',
-      codigo: 'MAT-102',
-      total: 25,
-      completadas: 19,
-      pendientes: 4,
-      canceladas: 2,
-      tasaExito: 76,
-      rating: 5
-    },
-    {
-      inicial: 'B',
-      nombre: 'Base de Datos',
-      codigo: 'SIS-301',
-      total: 22,
-      completadas: 17,
-      pendientes: 3,
-      canceladas: 2,
-      tasaExito: 77,
-      rating: 4
-    },
-    {
-      inicial: 'E',
-      nombre: 'Estructuras de Datos',
-      codigo: 'SIS-202',
-      total: 20,
-      completadas: 15,
-      pendientes: 3,
-      canceladas: 2,
-      tasaExito: 75,
-      rating: 5
-    },
-    {
-      inicial: 'I',
-      nombre: 'Ingeniería de Software',
-      codigo: 'SIS-401',
-      total: 18,
-      completadas: 14,
-      pendientes: 3,
-      canceladas: 1,
-      tasaExito: 78,
-      rating: 4
-    }
-  ];
+  materiasDetalle: any[] = [];
 
   ngOnInit(): void {
-    this.calculateStats();
+    this.loadStats();
   }
 
-  selectPeriod(period: string): void {
-    this.selectedPeriod = period;
-    this.calculateStats();
-  }
-
-  calculateStats(): void {
-    // Aquí se calcularían las estadísticas según el período seleccionado
-    this.lastUpdate = new Date();
-  }
-
-  getStrokeDasharray(percentage: number): string {
-    const circumference = 2 * Math.PI * 80; // radio = 80
-    const dash = (percentage / 100) * circumference;
-    return `${dash} ${circumference}`;
+  loadStats(): void {
+    this.reporteService.getDashboardStats().subscribe({
+      next: (data) => {
+        this.stats = {
+            ...data.stats,
+            reservasTrend: 12.5, // Mocked
+            tasaCompletadas: data.stats.totalReservas > 0 ? Math.round((data.stats.reservasCompletadas / data.stats.totalReservas) * 100) : 0,
+            tasaPendientes: data.stats.totalReservas > 0 ? Math.round((data.stats.reservasPendientes / data.stats.totalReservas) * 100) : 0,
+            reservasActivas: data.stats.reservasPendientes,
+            estudiantesTrend: 8.3 // Mocked
+        };
+        this.metrics = {
+            ...data.metrics,
+            reincidencia: 68, // Mocked
+            satisfaccion: 4.7, // Mocked
+            cancelaciones: data.stats.totalReservas > 0 ? Math.round((data.stats.reservasCanceladas / data.stats.totalReservas) * 100) : 0
+        };
+        this.reservasPorDia = data.reservasPorDia || [];
+      },
+      error: (err) => console.error('Error loading stats', err)
+    });
   }
 }
-
-@Component({
-  selector: 'app-admin-settings',
-  standalone: true,
-  imports: [CommonModule, RouterLink],
-  template: `
-    <div class="page-header">
-      <h2 class="page-title">
-        <i class="bi bi-gear me-2"></i>Configuración del Sistema
-      </h2>
-    </div>
-
-    <div class="card">
-      <div class="card-body">
-        <div class="empty-state">
-          <i class="bi bi-sliders"></i>
-          <h5>Configuración del Sistema</h5>
-          <p class="text-muted">Aquí podrás configurar parámetros globales del sistema</p>
-          <a routerLink="/admin-dashboard" class="btn btn-outline-secondary mt-3">
-            <i class="bi bi-arrow-left me-2"></i>Volver al panel
-          </a>
-        </div>
-      </div>
-    </div>
-  `,
-  styles: [`
-    .page-header {
-      margin-bottom: 30px;
-    }
-    .page-title {
-      color: #155724;
-      font-weight: 700;
-      margin: 0;
-      display: flex;
-      align-items: center;
-    }
-    .page-title i {
-      font-size: 1.8rem;
-    }
-    .card {
-      border: none;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    }
-    .card-body {
-      padding: 25px;
-    }
-    .empty-state {
-      text-align: center;
-      padding: 60px 20px;
-    }
-    .empty-state i {
-      font-size: 4rem;
-      color: #dee2e6;
-      margin-bottom: 20px;
-    }
-    .empty-state h5 {
-      color: #495057;
-      font-weight: 600;
-      margin-bottom: 10px;
-    }
-  `]
-})
-export class AdminSettings {}

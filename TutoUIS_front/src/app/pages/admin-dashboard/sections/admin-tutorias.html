@@ -1,10 +1,24 @@
 <!-- Admin Tutorías - Gestión de Tutorías -->
 <div class="admin-tutorias-container">
   <!-- Header -->
-  <div class="section-header mb-4">
-    <h2 class="mb-0">
-      <i class="bi bi-book-half me-2"></i> Gestión de Tutorías
-    </h2>
+  <div class="tutorias-header">
+    <div class="header-content">
+      <div class="header-title-section">
+        <div class="icon-wrapper">
+          <i class="bi bi-book-half"></i>
+        </div>
+        <div>
+          <h2 class="page-title">Gestión de Tutorías</h2>
+          <p class="page-subtitle">Administra las asignaturas y tutores disponibles</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn-header" (click)="abrirModalCrear()">
+          <i class="bi bi-plus-circle"></i>
+          <span>Nueva Tutoría</span>
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- Mensajes de Estado -->

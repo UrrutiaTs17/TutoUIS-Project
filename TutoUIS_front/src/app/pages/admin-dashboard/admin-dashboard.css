@@ -1,5 +1,76 @@
-/* ===============================================
-   ADMIN DASHBOARD LAYOUT - Sidebar Style
+/* ========== Reportes y Estadísticas ========== */
+.reportes-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 32px;
+  margin-top: 24px;
+}
+
+
+.reportes-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-top: 16px;
+}
+
+.report-card {
+  min-height: 220px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border-radius: 12px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+.report-card .card-header {
+  background: #fff;
+  border-bottom: 1px solid #f0f0f0;
+  padding: 10px 16px;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.report-card .card-body {
+  flex: 1;
+  padding: 12px 16px;
+}
+
+.chart-area {
+  min-height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.estado-leyenda {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.leyenda-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+}
+.leyenda-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 2px;
+}
+.leyenda-nombre {
+  min-width: 70px;
+  font-weight: 500;
+}
+.leyenda-cantidad {
+  font-weight: 700;
+  color: #222;
+}
    =============================================== */
 
 .dashboard-layout {
@@ -260,33 +331,41 @@
 .welcome-banner {
   background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
   color: white;
-  padding: 30px;
-  border-radius: 12px;
+  padding: 12px 20px;
+  border-radius: 8px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+  box-shadow: 0 2px 10px rgba(40, 167, 69, 0.2);
+  margin-bottom: 16px;
 }
 
 .welcome-content h2 {
-  margin: 0 0 10px;
-  font-size: 1.8rem;
+  margin: 0 0 2px;
+  font-size: 1.1rem;
   font-weight: 700;
+  display: flex;
+  align-items: center;
+}
+
+.welcome-content h2 i {
+  font-size: 1.1rem;
 }
 
 .welcome-content p {
   margin: 0;
-  font-size: 1rem;
+  font-size: 0.8rem;
   opacity: 0.9;
 }
 
 .welcome-date {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   background: rgba(255, 255, 255, 0.2);
-  padding: 10px 20px;
-  border-radius: 8px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
   font-weight: 500;
 }
 
@@ -301,10 +380,13 @@
 .stat-card {
   background: white;
   border-radius: 12px;
-  padding: 20px;
+  padding: 10px 8px;
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 8px;
+  min-width: 140px;
+  min-height: 70px;
+  font-size: 0.95rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
 }
@@ -545,7 +627,7 @@
   }
 
   .stat-card {
-    padding: 15px;
+    padding: 8px 6px;
   }
 
   .stat-icon {

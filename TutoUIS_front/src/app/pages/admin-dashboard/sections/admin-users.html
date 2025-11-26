@@ -1,15 +1,25 @@
 <!-- Page Header -->
-<div class="page-header">
-  <h2 class="page-title">
-    <i class="bi bi-people-fill me-2"></i>Gestión de Usuarios
-  </h2>
-  <div class="d-flex gap-2">
-    <button class="btn btn-outline-secondary" (click)="loadUsers()" title="Recargar lista">
-      <i class="bi bi-arrow-clockwise me-2"></i>Recargar
-    </button>
-    <button class="btn btn-primary" (click)="openCreateUserModal()">
-      <i class="bi bi-person-plus-fill me-2"></i>Nuevo Usuario
-    </button>
+<div class="users-header">
+  <div class="header-content">
+    <div class="header-title-section">
+      <div class="icon-wrapper">
+        <i class="bi bi-people-fill"></i>
+      </div>
+      <div>
+        <h2 class="page-title">Gestión de Usuarios</h2>
+        <p class="page-subtitle">Administra los usuarios, roles y permisos del sistema</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn-header-outline" (click)="loadUsers()" title="Recargar lista">
+        <i class="bi bi-arrow-clockwise"></i>
+        <span>Recargar</span>
+      </button>
+      <button class="btn-header" (click)="openCreateUserModal()">
+        <i class="bi bi-person-plus-fill"></i>
+        <span>Nuevo Usuario</span>
+      </button>
+    </div>
   </div>
 </div>
 

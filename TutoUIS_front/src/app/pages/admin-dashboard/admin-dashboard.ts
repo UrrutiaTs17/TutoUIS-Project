@@ -44,6 +44,30 @@ interface RecentActivity {
   styleUrl: './admin-dashboard.css'
 })
 export class AdminDashboard implements OnInit {
+    // Datos para gráficos de reportes y estadísticas
+    reservasPorDiaData: Array<{ dia: string, cantidad: number }> = [
+      { dia: 'Lun', cantidad: 32 },
+      { dia: 'Mar', cantidad: 45 },
+      { dia: 'Mié', cantidad: 38 },
+      { dia: 'Jue', cantidad: 52 },
+      { dia: 'Vie', cantidad: 41 },
+      { dia: 'Sáb', cantidad: 28 },
+      { dia: 'Dom', cantidad: 12 }
+    ];
+
+    estadoReservasData: Array<{ estado: string, porcentaje: number }> = [
+      { estado: 'Completadas', porcentaje: 75 },
+      { estado: 'Reservadas', porcentaje: 11 },
+      { estado: 'Pendientes', porcentaje: 14 },
+      { estado: 'Canceladas', porcentaje: 0 }
+    ];
+
+    estadoReservasLeyenda: Array<{ nombre: string, color: string, cantidad: number }> = [
+      { nombre: 'Completadas', color: '#17c964', cantidad: 186 },
+      { nombre: 'Reservadas', color: '#0070f3', cantidad: 27 },
+      { nombre: 'Pendientes', color: '#f5a524', cantidad: 35 },
+      { nombre: 'Canceladas', color: '#f31260', cantidad: 0 }
+    ];
   // Referencia al modal de creación de usuario
   @ViewChild(CreateUserModal) createUserModal!: CreateUserModal;
 
