@@ -23,7 +23,6 @@ import { AuthService } from '../../../services/auth.service';
         <div class="user-profile">
           <div class="avatar">{{ userInitials }}</div>
           <h6 class="user-name">{{ userName }}</h6>
-          <small class="user-email">{{ userEmail }}</small>
         </div>
 
         <nav class="nav-menu">
@@ -66,12 +65,7 @@ import { AuthService } from '../../../services/auth.service';
             </button>
             <h3 class="page-title">{{ currentPageTitle }}</h3>
           </div>
-          <div class="top-bar-right">
-            <button class="btn btn-icon" title="Notificaciones">
-              <i class="bi bi-bell"></i>
-              <span class="notification-badge">3</span>
-            </button>
-          </div>
+          <div class="top-bar-right"></div>
         </div>
 
         <!-- Content Area - Router Outlet -->
