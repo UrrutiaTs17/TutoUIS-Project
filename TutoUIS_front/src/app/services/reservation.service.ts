@@ -145,7 +145,8 @@ export class ReservationService {
     console.log('ReservationService - Cancelando reserva:', id);
     const headers = this.authService.getAuthHeaders();
     
-    return this.http.put<Reserva>(`${this.API_URL}/${id}/cancelar`, { razon }, { headers }).pipe(
+    // Enviar como 'razonCancelacion' para que coincida con el backend
+    return this.http.put<Reserva>(`${this.API_URL}/${id}/cancelar`, { razonCancelacion: razon }, { headers }).pipe(
       tap((reserva: Reserva) => {
         console.log('ReservationService - Reserva cancelada exitosamente:', reserva);
       })

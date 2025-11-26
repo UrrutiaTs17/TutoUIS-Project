@@ -184,9 +184,9 @@ public class ReservaService implements IReservaService {
         System.out.println("🔍 Buscando disponibilidad...");
         Disponibilidad disponibilidad = disponibilidadRepository.findById(createDto.getIdDisponibilidad())
                 .orElseThrow(() -> new RuntimeException("Disponibilidad no encontrada con ID: " + createDto.getIdDisponibilidad()));
+        
         System.out.println("✅ Disponibilidad encontrada: ID=" + disponibilidad.getIdDisponibilidad() + 
-                         ", Rango=" + disponibilidad.getHoraInicio() + " - " + disponibilidad.getHoraFin() +
-                         ", Aforo disponible=" + disponibilidad.getAforoDisponible());
+                         ", Rango=" + disponibilidad.getHoraInicio() + " - " + disponibilidad.getHoraFin());
 
         // Validar que la hora de inicio esté dentro del rango de la disponibilidad
         java.time.LocalTime dispHoraInicio = disponibilidad.getHoraInicio().toLocalTime();
@@ -197,11 +197,6 @@ public class ReservaService implements IReservaService {
             throw new RuntimeException("El horario de la reserva (" + createDto.getHoraInicio() + " - " + createDto.getHoraFin() + 
                                      ") debe estar dentro del rango de la disponibilidad (" + 
                                      dispHoraInicio + " - " + dispHoraFin + ")");
-        }
-
-        // Verificar que hay cupos disponibles
-        if (disponibilidad.getAforoDisponible() <= 0) {
-            throw new RuntimeException("No hay cupos disponibles en esta tutoría");
         }
 
         // Verificar que el usuario (estudiante) existe
@@ -240,8 +235,8 @@ public class ReservaService implements IReservaService {
                 });
         
         if (yaReservado) {
-            System.out.println("  🚫 RECHAZANDO: Ya existe una reserva en este horario");
-            throw new RuntimeException("Ya existe una reserva en este horario (" + createDto.getHoraInicio() + " - " + createDto.getHoraFin() + ")");
+            System.out.println("  🚫 RECHAZANDO: El estudiante ya tiene una reserva en este horario");
+            throw new RuntimeException("Ya tienes una reserva activa en este horario (" + createDto.getHoraInicio() + " - " + createDto.getHoraFin() + ")");
         }
         
         System.out.println("  ✅ No hay conflictos, procediendo a crear la reserva...");
@@ -353,9 +348,9 @@ public class ReservaService implements IReservaService {
             // No lanzamos excepción para que la reserva se complete aunque falle el calendario
         }
 
-        // Actualizar aforo disponible
-        System.out.println("📊 Actualizando aforo disponible de " + disponibilidad.getAforoDisponible() + " a " + (disponibilidad.getAforoDisponible() - 1));
-        disponibilidad.setAforoDisponible(disponibilidad.getAforoDisponible() - 1);
+        // Incrementar aforo (número de personas reservadas)
+        System.out.println("📊 Incrementando aforo de " + disponibilidad.getAforo() + " a " + (disponibilidad.getAforo() + 1));
+        disponibilidad.setAforo(disponibilidad.getAforo() + 1);
         disponibilidadRepository.save(disponibilidad);
 
         System.out.println("═══════════════════════════════════════════════════════");
@@ -400,6 +395,7 @@ public class ReservaService implements IReservaService {
 
         reserva.setIdEstado(2); // Cancelada
         reserva.setRazonCancelacion(razonCancelacion);
+        reserva.setFechaCancelacion(new java.sql.Timestamp(System.currentTimeMillis()));
 
         // Eliminar evento de Google Calendar si existe
         if (reserva.getGoogleEventId() != null && !reserva.getGoogleEventId().trim().isEmpty()) {
@@ -415,10 +411,10 @@ public class ReservaService implements IReservaService {
             }
         }
 
-        // Incrementar el aforo disponible
+        // Decrementar el aforo (liberar el cupo)
         Disponibilidad disponibilidad = disponibilidadRepository.findById(reserva.getIdDisponibilidad())
                 .orElseThrow(() -> new RuntimeException("Disponibilidad no encontrada"));
-        disponibilidad.setAforoDisponible(disponibilidad.getAforoDisponible() + 1);
+        disponibilidad.setAforo(disponibilidad.getAforo() - 1);
         disponibilidadRepository.save(disponibilidad);
 
         Reserva reservaCancelada = reservaRepository.save(reserva);
@@ -466,7 +462,7 @@ public class ReservaService implements IReservaService {
         if (reserva.getIdEstado() == 1) {
             Disponibilidad disponibilidad = disponibilidadRepository.findById(reserva.getIdDisponibilidad())
                     .orElseThrow(() -> new RuntimeException("Disponibilidad no encontrada"));
-            disponibilidad.setAforoDisponible(disponibilidad.getAforoDisponible() + 1);
+            disponibilidad.setAforo(disponibilidad.getAforo() - 1);
             disponibilidadRepository.save(disponibilidad);
         }
 

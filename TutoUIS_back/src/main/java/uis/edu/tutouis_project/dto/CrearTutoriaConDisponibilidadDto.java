@@ -7,10 +7,8 @@ public class CrearTutoriaConDisponibilidadDto {
     // Datos de la tutoría
     private Integer idTutor;
     private Integer idAsignatura;
-    private String modalidad;
     private String lugar;
     private String descripcion;
-    private Integer capacidadMaxima;
     
     // Datos de las disponibilidades
     private List<DisponibilidadDto> disponibilidades;
@@ -82,14 +80,6 @@ public class CrearTutoriaConDisponibilidadDto {
         this.idAsignatura = idAsignatura;
     }
     
-    public String getModalidad() {
-        return modalidad;
-    }
-    
-    public void setModalidad(String modalidad) {
-        this.modalidad = modalidad;
-    }
-    
     public String getLugar() {
         return lugar;
     }
@@ -104,14 +94,6 @@ public class CrearTutoriaConDisponibilidadDto {
     
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
-    }
-    
-    public Integer getCapacidadMaxima() {
-        return capacidadMaxima;
-    }
-    
-    public void setCapacidadMaxima(Integer capacidadMaxima) {
-        this.capacidadMaxima = capacidadMaxima;
     }
     
     public List<DisponibilidadDto> getDisponibilidades() {

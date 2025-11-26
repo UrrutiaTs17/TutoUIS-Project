@@ -84,6 +84,10 @@
                       <i class="bi bi-person-circle"></i>
                       <span>{{ r.nombreEstudiante }}</span>
                     </div>
+                    <div class="detail-row" *ngIf="r.modalidad === 'Presencial' && r.lugar">
+                      <i class="bi bi-pin-map-fill"></i>
+                      <span>{{ r.lugar }}</span>
+                    </div>
                 </div>
                 <div class="reservation-actions">
                   <button class="btn-action primary" (click)="onSlotSelected(r.idDisponibilidad)">
@@ -183,6 +187,13 @@
                     <div class="detail-item">
                       <i class="bi" [ngClass]="reserva.modalidad === 'Virtual' ? 'bi-camera-video' : 'bi-geo-alt'"></i>
                       <span>{{ reserva.modalidad }}</span>
+                    </div>
+                  }
+
+                  @if (reserva.modalidad === 'Presencial' && reserva.lugar) {
+                    <div class="detail-item">
+                      <i class="bi bi-pin-map-fill"></i>
+                      <span>{{ reserva.lugar }}</span>
                     </div>
                   }
 

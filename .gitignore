@@ -34,3 +34,4 @@ npm-debug.log*
 !**/wrapper/*.jar
 *.war
 *.ear
+TutoUIS_back/tokens/
