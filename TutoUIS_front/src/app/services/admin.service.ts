@@ -12,6 +12,7 @@ export interface Usuario {
   correo: string;
   telefono: string;
   id_rol: number;
+  nombreRol?: string; // Campo opcional con el nombre del rol
   id_carrera: number;
   activo: boolean;
   bloqueado: boolean;

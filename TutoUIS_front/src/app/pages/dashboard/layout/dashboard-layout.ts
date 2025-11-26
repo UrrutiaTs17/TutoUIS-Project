@@ -7,72 +7,7 @@ import { AuthService } from '../../../services/auth.service';
   selector: 'app-dashboard-layout',
   standalone: true,
   imports: [CommonModule, RouterModule],
-  template: `
-    <!-- Dashboard con Sidebar Layout -->
-    <div class="dashboard-layout" [class.sidebar-open]="isSidebarOpen">
-      <!-- Sidebar -->
-      <aside class="sidebar">
-        <div class="sidebar-header">
-          <img
-            src="/TutoUIS_Logo.png"
-            alt="Logo TutoUIS"
-            class="logo-sidebar"
-          />
-        </div>
-
-        <div class="user-profile">
-          <div class="avatar">{{ userInitials }}</div>
-          <h6 class="user-name">{{ userName }}</h6>
-        </div>
-
-        <nav class="nav-menu">
-          <a class="nav-item" [routerLink]="'/dashboard'" [routerLinkActive]="'active'" [routerLinkActiveOptions]="{ exact: true }">
-            <i class="bi bi-house-door"></i>
-            <span>Inicio</span>
-          </a>
-          <a class="nav-item" [routerLink]="'/dashboard/reservation'" [routerLinkActive]="'active'">
-            <i class="bi bi-calendar-plus"></i>
-            <span>Nueva Reserva</span>
-          </a>
-          <a class="nav-item" [routerLink]="'/dashboard/history'" [routerLinkActive]="'active'">
-            <i class="bi bi-clock-history"></i>
-            <span>Historial</span>
-          </a>
-          <a class="nav-item" [routerLink]="'/dashboard/profile'" [routerLinkActive]="'active'">
-            <i class="bi bi-person"></i>
-            <span>Mi Perfil</span>
-          </a>
-          <a *ngIf="userRole === 2" class="nav-item" [routerLink]="'/dashboard/agenda'" [routerLinkActive]="'active'">
-            <i class="bi bi-calendar-event"></i>
-            <span>Agenda</span>
-          </a>
-        </nav>
-
-        <div class="sidebar-footer">
-          <button class="btn btn-outline-light btn-sm w-100" (click)="logout()">
-            <i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión
-          </button>
-        </div>
-      </aside>
-
-      <!-- Main Content -->
-      <main class="main-content">
-        <!-- Top Bar -->
-        <div class="top-bar">
-          <div class="top-bar-left">
-            <button class="btn btn-link mobile-menu-toggle" (click)="toggleSidebar()">
-              <i class="bi bi-list"></i>
-          </button>
-          <h3 class="page-title">{{ currentPageTitle }}</h3>
-        </div>
-        <div class="top-bar-right"></div>
-      </div>        <!-- Content Area - Router Outlet -->
-        <div class="content-area">
-          <router-outlet></router-outlet>
-        </div>
-      </main>
-    </div>
-  `,
+  templateUrl: './dashboard-layout.html',
   styleUrl: './dashboard-layout.css'
 })
 export class DashboardLayout implements OnInit {
