@@ -382,4 +382,50 @@ export class AdminReports implements OnInit {
       error: (err) => console.error('Error loading stats', err)
     });
   }
+
+  selectPeriod(period: string) {
+    this.selectedPeriod = period;
+    // Aquí se podría recargar la data filtrada por periodo
+    console.log('Periodo seleccionado:', period);
+  }
+
+  getStrokeDasharray(percentage: number): string {
+    const circumference = 2 * Math.PI * 15.9155; // r=15.9155
+    const dash = (percentage / 100) * circumference;
+    return `${dash} ${circumference}`;
+  }
+
+  exportarExcel() {
+    console.log('Exportando a Excel...');
+    // Implementación futura
+    alert('Funcionalidad de exportación a Excel en desarrollo');
+  }
 }
+
+@Component({
+  selector: 'app-admin-settings',
+  standalone: true,
+  imports: [CommonModule, RouterLink],
+  template: `
+    <div class="page-header">
+      <h2 class="page-title">
+        <i class="bi bi-gear me-2"></i>Configuración
+      </h2>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <p class="text-muted">Configuración del sistema (En construcción)</p>
+        <a routerLink="/admin-dashboard" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Volver al panel
+        </a>
+      </div>
+    </div>
+  `,
+  styles: [`
+    .page-header { margin-bottom: 30px; }
+    .page-title { color: #155724; font-weight: 700; margin: 0; display: flex; align-items: center; }
+    .card { border: none; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .card-body { padding: 25px; }
+  `]
+})
+export class AdminSettings {}
