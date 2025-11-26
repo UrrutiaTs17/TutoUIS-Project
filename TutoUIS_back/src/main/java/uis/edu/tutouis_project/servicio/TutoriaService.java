@@ -12,6 +12,7 @@ import uis.edu.tutouis_project.repositorio.CarreraRepository;
 import uis.edu.tutouis_project.repositorio.DisponibilidadRepository;
 import uis.edu.tutouis_project.repositorio.TutoriaRepository;
 import uis.edu.tutouis_project.repositorio.UsuarioRepository;
+import uis.edu.tutouis_project.exception.ConflictoHorarioException;
 
 import java.sql.Date;
 import java.sql.Time;
@@ -218,22 +219,14 @@ public class TutoriaService {
                     );
                     
                     if (!conflictos.isEmpty()) {
-                        Disponibilidad conflicto = conflictos.get(0);
                         String mensaje = String.format(
-                            "❌ CONFLICTO DE HORARIO: La disponibilidad %d (%s %s %s-%s) se solapa con una tutoría existente " +
-                            "(Tutoría ID: %d, %s %s-%s). El tutor ya tiene una tutoría programada en ese horario.",
-                            (i + 1),
+                            "Ya existe una tutoría en ese horario (%s de %s a %s).",
                             dispDto.getDiaSemana(),
-                            dispDto.getFecha(),
                             dispDto.getHoraInicio(),
-                            dispDto.getHoraFin(),
-                            conflicto.getIdTutoria(),
-                            conflicto.getFecha(),
-                            conflicto.getHoraInicio(),
-                            conflicto.getHoraFin()
+                            dispDto.getHoraFin()
                         );
-                        System.err.println(mensaje);
-                        throw new RuntimeException(mensaje);
+                        System.err.println("❌ CONFLICTO DE HORARIO: " + mensaje);
+                        throw new ConflictoHorarioException(mensaje);
                     }
                     
                     System.out.println("  ✅ Disponibilidad " + (i + 1) + ": Sin conflictos (" + 

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TutoriaService, Carrera, TutorInfo, CreateTutoriaDto } from '../../services/tutoria.service';
@@ -68,7 +68,8 @@ export class CreateTutoriaModal implements OnInit {
     private tutoriaService: TutoriaService,
     private adminService: AdminService,
     private asignaturaService: AsignaturaService,
-    private disponibilidadService: DisponibilidadService
+    private disponibilidadService: DisponibilidadService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -652,5 +653,56 @@ export class CreateTutoriaModal implements OnInit {
       return 'Creando tutoría...';
     }
     return 'Crear nueva tutoría';
+  }
+
+  /**
+   * Actualiza automáticamente el día de la semana cuando se selecciona una fecha
+   */
+  onFechaChange(index: number, fecha: string): void {
+    if (!fecha) {
+      this.disponibilidades[index].diaSemana = '';
+      return;
+    }
+
+    try {
+      const fechaObj = new Date(fecha + 'T00:00:00');
+      const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+      const diaSemana = diasSemana[fechaObj.getDay()];
+      
+      this.disponibilidades[index].diaSemana = diaSemana;
+      this.cdr.detectChanges();
+      
+      console.log(`📅 Fecha cambiada: ${fecha} -> ${diaSemana}`);
+    } catch (error) {
+      console.error('Error al procesar fecha:', error);
+      this.disponibilidades[index].diaSemana = '';
+    }
+  }
+
+  /**
+   * Detecta si un mensaje de error es de conflicto de horario
+   */
+  isConflictError(errorMsg: string): boolean {
+    return errorMsg?.toLowerCase().includes('conflicto') || 
+           errorMsg?.toLowerCase().includes('horario') ||
+           errorMsg?.toLowerCase().includes('ya existe');
+  }
+
+  /**
+   * Formatea el mensaje de error para mostrarlo de manera amigable
+   */
+  formatErrorMessage(errorMsg: string): string {
+    if (!errorMsg) return 'Error desconocido';
+    
+    // Si es un error de conflicto, extraer solo el mensaje relevante
+    if (this.isConflictError(errorMsg)) {
+      // Buscar el patrón "Ya existe una tutoría..."
+      const match = errorMsg.match(/Ya existe una tutoría[^.]*\./i);
+      if (match) {
+        return match[0];
+      }
+    }
+    
+    return errorMsg;
   }
 }
