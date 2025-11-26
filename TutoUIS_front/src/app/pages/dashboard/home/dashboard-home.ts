@@ -1,20 +1,15 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-
-interface Reservation {
-  id: number;
-  roomName: string;
-  date: string;
-  time: string;
-  status: 'confirmed' | 'pending';
-}
+import { FormsModule } from '@angular/forms';
+import { ReservationService, Reserva } from '../../../services/reservation.service';
+import { AuthService } from '../../../services/auth.service';
 
 
 @Component({
   selector: 'app-dashboard-home',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, FormsModule],
   template: `
     <div class="section-content">
       <!-- Header de Bienvenida -->
@@ -22,81 +17,11 @@ interface Reservation {
         <div class="welcome-content">
           <div class="welcome-text">
             <h1 class="welcome-title">¡Bienvenido de nuevo! 👋</h1>
-            <p class="welcome-subtitle">Aquí está un resumen de tus actividades de tutoría</p>
-          </div>
-          <div class="welcome-actions">
-            <a class="btn-new-reservation" routerLink="/dashboard/reservation">
-              <i class="bi bi-plus-circle"></i>
-              <span>Nueva Reserva</span>
-            </a>
-            <a class="btn-view-calendar" routerLink="/dashboard/agenda">
-              <i class="bi bi-calendar3"></i>
-              <span>Ver Calendario</span>
-            </a>
+            <p class="welcome-subtitle">Aquí están tus reservas de tutoría</p>
           </div>
         </div>
       </div>
 
-      <!-- Estadísticas Rápidas -->
-      <div class="stats-grid">
-        <div class="stat-card-modern card-purple">
-          <div class="stat-icon-wrapper">
-            <i class="bi bi-calendar-check"></i>
-          </div>
-          <div class="stat-content">
-            <h3 class="stat-number">{{ stats.totalReservas }}</h3>
-            <p class="stat-label">Total Reservas</p>
-            <div class="stat-trend positive">
-              <i class="bi bi-arrow-up"></i>
-              <span>+3 este mes</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="stat-card-modern card-green">
-          <div class="stat-icon-wrapper">
-            <i class="bi bi-check-circle"></i>
-          </div>
-          <div class="stat-content">
-            <h3 class="stat-number">{{ stats.completadas }}</h3>
-            <p class="stat-label">Completadas</p>
-            <div class="stat-progress">
-              <div class="progress-bar-mini" [style.width.%]="stats.tasaCompletadas"></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="stat-card-modern card-blue">
-          <div class="stat-icon-wrapper">
-            <i class="bi bi-hourglass-split"></i>
-          </div>
-          <div class="stat-content">
-            <h3 class="stat-number">{{ stats.proximas }}</h3>
-            <p class="stat-label">Próximas</p>
-            <div class="stat-info">
-              <i class="bi bi-clock"></i>
-              <span>Esta semana</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="stat-card-modern card-orange">
-          <div class="stat-icon-wrapper">
-            <i class="bi bi-star-fill"></i>
-          </div>
-          <div class="stat-content">
-            <h3 class="stat-number">{{ stats.calificacion }}/5</h3>
-            <p class="stat-label">Calificación</p>
-            <div class="rating-stars">
-              @for (star of [1,2,3,4,5]; track star) {
-                <i class="bi bi-star-fill" [class.active]="star <= stats.calificacion"></i>
-              }
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Próximas Reservas -->
       <div class="main-section">
         <div class="section-header">
           <div class="section-title-wrapper">
@@ -104,185 +29,303 @@ interface Reservation {
               <i class="bi bi-calendar-event"></i>
               Mis Próximas Reservas
             </h2>
-            <span class="badge-count">{{ upcomingReservationsList.length }}</span>
-          </div>
-          <div class="section-filters">
-            <button class="filter-btn active">
-              <i class="bi bi-list-ul"></i>
-              Todas
-            </button>
-            <button class="filter-btn">
-              <i class="bi bi-clock"></i>
-              Hoy
-            </button>
-            <button class="filter-btn">
-              <i class="bi bi-calendar-week"></i>
-              Semana
-            </button>
+            <span class="badge-count">{{ userReservations.length }}</span>
           </div>
         </div>
 
-        @if (upcomingReservationsList.length === 0) {
+        @if (loading) {
+          <div class="empty-state-modern">
+            <div class="empty-illustration">
+              <i class="bi bi-hourglass-split"></i>
+            </div>
+            <h3 class="empty-title">Cargando reservas...</h3>
+          </div>
+        } @else if (userReservations.length === 0) {
           <div class="empty-state-modern">
             <div class="empty-illustration">
               <i class="bi bi-calendar-x"></i>
             </div>
-            <h3 class="empty-title">No tienes reservas próximas</h3>
-            <p class="empty-description">Comienza reservando tu primera sesión de tutoría</p>
-            <a class="btn-empty-action" routerLink="/dashboard/reservation">
-              <i class="bi bi-plus-circle"></i>
-              Crear mi primera reserva
-            </a>
+            <h3 class="empty-title">No tienes reservas</h3>
+            <p class="empty-description">Aún no has realizado ninguna reserva</p>
+          </div>
+        } @else {
+          <div class="reservations-list">
+            @for (reserva of userReservations; track reserva.idReserva) {
+              <div class="reserva-card">
+                <div class="reserva-header-row">
+                  <div class="estudiante-info">
+                    <i class="bi bi-book"></i>
+                    <div>
+                      <h4>{{ reserva.nombreAsignatura || 'Tutoría' }}</h4>
+                      <span class="tutor-name">{{ reserva.nombreTutor || 'Tutor' }}</span>
+                    </div>
+                  </div>
+                  <span class="badge-estado" [ngClass]="getEstadoBadgeClass(reserva.nombreEstado || '')">
+                    {{ reserva.nombreEstado || 'Pendiente' }}
+                  </span>
+                </div>
+
+                <div class="reserva-details">
+                  @if (reserva.diaSemana || reserva.fechaDisponibilidad) {
+                    <div class="detail-item">
+                      <i class="bi bi-calendar3"></i>
+                      <span>{{ reserva.diaSemana }} {{ formatDateShort(reserva.fechaDisponibilidad) }}</span>
+                    </div>
+                  }
+                  
+                  <div class="detail-item">
+                    <i class="bi bi-clock"></i>
+                    <span>{{ formatTime(reserva.horaInicio) }} - {{ formatTime(reserva.horaFin) }}</span>
+                  </div>
+                  
+                  @if (reserva.modalidad) {
+                    <div class="detail-item">
+                      <i class="bi" [ngClass]="reserva.modalidad === 'Virtual' ? 'bi-camera-video' : 'bi-geo-alt'"></i>
+                      <span>{{ reserva.modalidad }}</span>
+                    </div>
+                  }
+
+                  @if (reserva.modalidad === 'Virtual' && reserva.meetLink) {
+                    <div class="detail-item meet-link">
+                      <i class="bi bi-link-45deg"></i>
+                      <a [href]="reserva.meetLink" target="_blank" class="link-meet">
+                        Enlace de Meet
+                        <i class="bi bi-box-arrow-up-right"></i>
+                      </a>
+                    </div>
+                  }
+
+                  @if (reserva.observaciones) {
+                    <div class="detail-item observaciones">
+                      <i class="bi bi-chat-left-text"></i>
+                      <span>{{ reserva.observaciones }}</span>
+                    </div>
+                  }
+
+                  @if (reserva.fechaCreacion) {
+                    <div class="detail-item fecha-creacion">
+                      <i class="bi bi-calendar-plus"></i>
+                      <span class="text-muted">Creada: {{ formatDate(reserva.fechaCreacion) }}</span>
+                    </div>
+                  }
+                </div>
+
+                @if (canCancelReserva(reserva)) {
+                  <div class="reserva-actions">
+                    <button class="btn-cancel-reserva" (click)="openCancelModal(reserva)" [disabled]="cancellingReservaId === reserva.idReserva">
+                      @if (cancellingReservaId === reserva.idReserva) {
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        <span>Cancelando...</span>
+                      } @else {
+                        <i class="bi bi-x-circle"></i>
+                        <span>Cancelar Reserva</span>
+                      }
+                    </button>
+                  </div>
+                }
+              </div>
+            }
           </div>
         }
-
-        <div class="reservations-grid">
-          @for (reservation of upcomingReservationsList; track reservation.id) {
-            <div class="reservation-card" [class.confirmed]="reservation.status === 'confirmed'" [class.pending]="reservation.status === 'pending'">
-              <div class="reservation-badge" [class.badge-confirmed]="reservation.status === 'confirmed'" [class.badge-pending]="reservation.status === 'pending'">
-                <i class="bi" [ngClass]="reservation.status === 'confirmed' ? 'bi-check-circle-fill' : 'bi-clock-fill'"></i>
-                <span>{{ reservation.status === 'confirmed' ? 'Confirmada' : 'Pendiente' }}</span>
-              </div>
-              
-              <div class="reservation-header">
-                <div class="room-icon">
-                  <i class="bi bi-door-open"></i>
-                </div>
-                <div class="room-info">
-                  <h3 class="room-name">{{ reservation.roomName }}</h3>
-                  <p class="room-type">Sala de tutoría</p>
-                </div>
-              </div>
-
-              <div class="reservation-details-grid">
-                <div class="detail-item">
-                  <div class="detail-icon">
-                    <i class="bi bi-calendar3"></i>
-                  </div>
-                  <div class="detail-content">
-                    <span class="detail-label">Fecha</span>
-                    <span class="detail-value">{{ reservation.date }}</span>
-                  </div>
-                </div>
-
-                <div class="detail-item">
-                  <div class="detail-icon">
-                    <i class="bi bi-clock"></i>
-                  </div>
-                  <div class="detail-content">
-                    <span class="detail-label">Horario</span>
-                    <span class="detail-value">{{ reservation.time }}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="reservation-footer">
-                <button class="btn-card-action btn-view">
-                  <i class="bi bi-eye"></i>
-                  <span>Ver Detalles</span>
-                </button>
-                <button class="btn-card-action btn-cancel">
-                  <i class="bi bi-x-circle"></i>
-                  <span>Cancelar</span>
-                </button>
-              </div>
-
-              <div class="card-glow"></div>
-            </div>
-          }
-        </div>
-      </div>
-
-      <!-- Accesos Rápidos -->
-      <div class="quick-actions-section">
-        <h2 class="section-title">
-          <i class="bi bi-lightning-charge"></i>
-          Accesos Rápidos
-        </h2>
-        
-        <div class="quick-actions-grid">
-          <a class="quick-action-card" routerLink="/dashboard/reservation">
-            <div class="quick-action-icon purple">
-              <i class="bi bi-calendar-plus"></i>
-            </div>
-            <div class="quick-action-content">
-              <h4>Nueva Reserva</h4>
-              <p>Reserva una sesión de tutoría</p>
-            </div>
-            <i class="bi bi-arrow-right quick-action-arrow"></i>
-          </a>
-
-          <a class="quick-action-card" routerLink="/dashboard/agenda">
-            <div class="quick-action-icon blue">
-              <i class="bi bi-calendar3"></i>
-            </div>
-            <div class="quick-action-content">
-              <h4>Mi Agenda</h4>
-              <p>Ver calendario completo</p>
-            </div>
-            <i class="bi bi-arrow-right quick-action-arrow"></i>
-          </a>
-
-          <a class="quick-action-card" routerLink="/dashboard/history">
-            <div class="quick-action-icon green">
-              <i class="bi bi-clock-history"></i>
-            </div>
-            <div class="quick-action-content">
-              <h4>Historial</h4>
-              <p>Ver sesiones anteriores</p>
-            </div>
-            <i class="bi bi-arrow-right quick-action-arrow"></i>
-          </a>
-
-          <a class="quick-action-card" routerLink="/dashboard/profile">
-            <div class="quick-action-icon orange">
-              <i class="bi bi-person-gear"></i>
-            </div>
-            <div class="quick-action-content">
-              <h4>Mi Perfil</h4>
-              <p>Configurar preferencias</p>
-            </div>
-            <i class="bi bi-arrow-right quick-action-arrow"></i>
-          </a>
-        </div>
       </div>
     </div>
 
+    <!-- Modal de cancelación -->
+    @if (showCancelModal && reservaToCancel) {
+      <div class="modal-overlay" (click)="closeCancelModal()">
+        <div class="modal-cancel" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <h3>
+              <i class="bi bi-exclamation-triangle"></i>
+              Cancelar Reserva
+            </h3>
+            <button class="btn-close-modal" (click)="closeCancelModal()">
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </div>
+
+          <div class="modal-body">
+            <div class="reserva-info-cancel">
+              <p><strong>{{ reservaToCancel.nombreAsignatura }}</strong></p>
+              <p>{{ reservaToCancel.nombreTutor }}</p>
+              <p>{{ formatTime(reservaToCancel.horaInicio) }} - {{ formatTime(reservaToCancel.horaFin) }}</p>
+            </div>
+
+            <div class="form-group">
+              <label for="cancelReason">Razón de cancelación *</label>
+              <textarea 
+                id="cancelReason"
+                [(ngModel)]="cancelReason"
+                placeholder="Por favor indica el motivo de la cancelación..."
+                rows="4"
+                class="form-control"
+              ></textarea>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button class="btn-secondary" (click)="closeCancelModal()" [disabled]="isCancelling">
+              <i class="bi bi-x-circle"></i>
+              Cerrar
+            </button>
+            <button class="btn-danger" (click)="confirmCancel()" [disabled]="!cancelReason.trim() || isCancelling">
+              @if (isCancelling) {
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                <span>Cancelando...</span>
+              } @else {
+                <i class="bi bi-check-circle"></i>
+                <span>Confirmar Cancelación</span>
+              }
+            </button>
+          </div>
+        </div>
+      </div>
+    }
   `,
   styleUrl: './dashboard-home.css'
 })
-export class DashboardHome {
-  // Estadísticas del usuario
-  stats = {
-    totalReservas: 12,
-    completadas: 8,
-    tasaCompletadas: 67,
-    proximas: 3,
-    calificacion: 5
-  };
+export class DashboardHome implements OnInit {
+  userReservations: Reserva[] = [];
+  loading: boolean = false;
+  idEstudiante: number = 0;
+  
+  // Cancel modal
+  showCancelModal: boolean = false;
+  reservaToCancel: Reserva | null = null;
+  cancelReason: string = '';
+  isCancelling: boolean = false;
+  cancellingReservaId: number | null = null;
 
-  // Listas de datos
-  upcomingReservationsList: Reservation[] = [
-    {
-      id: 1,
-      roomName: 'Sala de Estudio B-302',
-      date: '15 de Oct, 2025',
-      time: '14:00 - 16:00',
-      status: 'confirmed'
-    },
-    {
-      id: 2,
-      roomName: 'Cubículo Individual 15',
-      date: '16 de Oct, 2025',
-      time: '10:00 - 12:00',
-      status: 'confirmed'
-    },
-    {
-      id: 3,
-      roomName: 'Sala Grupal A-105',
-      date: '18 de Oct, 2025',
-      time: '15:00 - 17:00',
-      status: 'pending'
+  constructor(
+    private reservationService: ReservationService,
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
+  ) {}
+
+  ngOnInit(): void {
+    const userData = this.authService.getUserData();
+    if (userData) {
+      this.idEstudiante = (userData as any).idUsuario || (userData as any).id_usuario;
+      console.log('📋 DashboardHome: idEstudiante:', this.idEstudiante);
+      this.loadUserReservations();
     }
-  ];
+  }
+
+  loadUserReservations(): void {
+    if (!this.idEstudiante) {
+      console.warn('DashboardHome: No hay idEstudiante');
+      return;
+    }
+
+    this.loading = true;
+    console.log('🔄 DashboardHome: Iniciando carga de reservas para estudiante:', this.idEstudiante);
+    
+    this.reservationService.getUserReservations(this.idEstudiante).subscribe({
+      next: (reservas) => {
+        console.log('✅ DashboardHome: Reservas cargadas:', reservas.length);
+        console.log('📦 DashboardHome: Datos de reservas:', reservas);
+        // Filtrar reservas canceladas
+        this.userReservations = reservas.filter(r => {
+          const estado = r.nombreEstado?.toLowerCase() || '';
+          return !estado.includes('cancelada');
+        });
+        console.log('🔍 DashboardHome: Reservas activas (sin canceladas):', this.userReservations.length);
+        this.loading = false;
+        console.log('🔍 DashboardHome: Estado después de cargar - loading:', this.loading, 'reservas:', this.userReservations.length);
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('❌ DashboardHome: Error al cargar reservas:', err);
+        this.userReservations = [];
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  canCancelReserva(reserva: Reserva): boolean {
+    const estado = reserva.nombreEstado?.toLowerCase() || '';
+    return estado.includes('reservada') || estado.includes('confirmada') || estado.includes('pendiente');
+  }
+
+  openCancelModal(reserva: Reserva): void {
+    this.reservaToCancel = reserva;
+    this.cancelReason = '';
+    this.showCancelModal = true;
+  }
+
+  closeCancelModal(): void {
+    if (!this.isCancelling) {
+      this.showCancelModal = false;
+      this.reservaToCancel = null;
+      this.cancelReason = '';
+    }
+  }
+
+  confirmCancel(): void {
+    if (!this.reservaToCancel || !this.cancelReason.trim()) {
+      return;
+    }
+
+    this.isCancelling = true;
+    this.cancellingReservaId = this.reservaToCancel.idReserva;
+
+    this.reservationService.cancelReservation(this.reservaToCancel.idReserva, this.cancelReason).subscribe({
+      next: (result) => {
+        console.log('✅ Reserva cancelada exitosamente:', result);
+        // Recargar las reservas
+        this.loadUserReservations();
+        this.isCancelling = false;
+        this.cancellingReservaId = null;
+        this.closeCancelModal();
+      },
+      error: (err) => {
+        console.error('❌ Error al cancelar reserva:', err);
+        alert('Error al cancelar la reserva. Por favor intenta de nuevo.');
+        this.isCancelling = false;
+        this.cancellingReservaId = null;
+      }
+    });
+  }
+
+  formatTime(time: string): string {
+    if (!time) return '';
+    return time.substring(0, 5);
+  }
+
+  formatDate(dateStr: string | null): string {
+    if (!dateStr) return '';
+    try {
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+    } catch {
+      return dateStr;
+    }
+  }
+
+  formatDateShort(dateStr: string | null | undefined): string {
+    if (!dateStr) return '';
+    try {
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+    } catch {
+      return dateStr;
+    }
+  }
+
+  getEstadoClass(estado: string | undefined): string {
+    const estadoLower = estado?.toLowerCase() || '';
+    if (estadoLower.includes('reservada') || estadoLower.includes('confirmada')) return 'confirmada';
+    if (estadoLower.includes('pendiente')) return 'pendiente';
+    return 'pendiente';
+  }
+
+  getEstadoBadgeClass(estado: string): string {
+    const estadoLower = estado.toLowerCase();
+    if (estadoLower.includes('reservada') || estadoLower.includes('confirmada')) return 'estado-confirmada';
+    if (estadoLower.includes('cancelada')) return 'estado-cancelada';
+    if (estadoLower.includes('realizada')) return 'estado-realizada';
+    if (estadoLower.includes('no asistida')) return 'estado-no-asistida';
+    return 'estado-default';
+  }
 }

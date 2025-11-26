@@ -9,6 +9,8 @@ export interface Reserva {
   idDisponibilidad: number;
   disponibilidadHoraInicio?: string; // Horario de inicio de la disponibilidad
   disponibilidadHoraFin?: string;    // Horario de fin de la disponibilidad
+  fechaDisponibilidad?: string; // Fecha de la disponibilidad
+  diaSemana?: string; // Día de la semana de la disponibilidad
   idEstudiante: number;
   nombreEstudiante?: string; // Nombre completo del estudiante
   idEstado: number;
