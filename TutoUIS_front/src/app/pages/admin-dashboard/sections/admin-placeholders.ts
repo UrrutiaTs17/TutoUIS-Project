@@ -380,8 +380,19 @@ export class AdminReports implements OnInit {
         this.reservasPorDia = data.reservasPorDia || [];
         this.materiasDetalle = data.materiasDetalle || [];
         this.horariosPico = data.horariosPico || [];
+        
+        // Calcular el máximo de reservas por día para la escala de la gráfica
+        if (this.reservasPorDia.length > 0) {
+          const maxCount = Math.max(...this.reservasPorDia.map(d => d.count));
+          this.maxReservasDay = maxCount > 0 ? maxCount : 1;
+        }
+        
+        this.lastUpdate = new Date();
       },
-      error: (err) => console.error('Error loading stats', err)
+      error: (err) => {
+        console.error('Error loading stats', err);
+        alert('Error al cargar las estadísticas. Verifica que el backend esté funcionando.');
+      }
     });
   }
 
