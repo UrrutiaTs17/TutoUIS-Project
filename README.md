@@ -9,27 +9,27 @@
   [![MySQL](https://img.shields.io/badge/MySQL-8.0+-orange.svg)](https://www.mysql.com/)
 </div>
 
-## 📋 Descripción del Proyecto
+##  Descripción del Proyecto
 
 TutoUIS es un sistema web desarrollado para la **Universidad Industrial de Santander** que permite gestionar y reservar tutorías académicas de manera eficiente. El proyecto facilita la comunicación entre estudiantes y tutores, optimizando el proceso de reserva y seguimiento de las sesiones de tutoría.
 
-### ✨ Características Principales
+###  Características Principales
 
-#### 🔐 Autenticación y Autorización
+####  Autenticación y Autorización
 - Sistema de login con **JWT (JSON Web Tokens)**
 - Roles diferenciados: **Administrador**, **Tutor** y **Estudiante**
 - Guards de rutas para protección de páginas según rol
 - Interceptores HTTP para manejo automático de tokens
 - Sesiones persistentes con almacenamiento local
 
-#### 👤 Gestión de Usuarios
+####  Gestión de Usuarios
 - **Panel de Administración** con CRUD completo de usuarios
 - Búsqueda y filtrado de usuarios por nombre, código o correo
 - Edición de información personal (código, correo, contraseña)
 - Asignación y cambio de roles
 - Visualización de usuarios con sus roles en una sola consulta optimizada
 
-#### 📅 Sistema de Tutorías
+####  Sistema de Tutorías
 - **Creación de tutorías** por tutores con información detallada
 - Selección de asignaturas, modalidad (presencial/virtual) y ubicación
 - Definición de **horarios de disponibilidad** personalizados
@@ -37,14 +37,14 @@ TutoUIS es un sistema web desarrollado para la **Universidad Industrial de Santa
 - Búsqueda y filtrado por asignatura, tutor, carrera y modalidad
 - **Integración con Google Calendar** para sincronización automática de eventos
 
-#### 🎫 Sistema de Reservas
+####  Sistema de Reservas
 - **Reserva de tutorías** con validación de disponibilidad
 - Visualización de reservas activas, completadas y canceladas
 - **Cancelación de reservas** con actualización de estados
 - Historial completo de reservas por estudiante
 - Notificaciones de confirmación y recordatorios
 
-#### 📊 Panel de Reportes y Estadísticas
+####  Panel de Reportes y Estadísticas
 - **Dashboard administrativo** con métricas del sistema
 - Estadísticas de usuarios, tutorías y reservas
 - **Actividad reciente del sistema** en tiempo real
@@ -52,20 +52,20 @@ TutoUIS es un sistema web desarrollado para la **Universidad Industrial de Santa
 - Gráficos y visualizaciones de datos
 - Consultas SQL optimizadas para mejor rendimiento
 
-#### 🔔 Sistema de Notificaciones
+####  Sistema de Notificaciones
 - Notificaciones en tiempo real de eventos importantes
 - Alertas de nuevas reservas para tutores
 - Recordatorios de tutorías próximas
 - Confirmaciones de acciones (creación, edición, cancelación)
 
-#### 🎨 Interfaz de Usuario
+####  Interfaz de Usuario
 - Diseño **responsive** compatible con móviles y tablets
 - Tema moderno con **Bootstrap 5** y estilos personalizados
 - Modales y componentes interactivos
 - Navegación intuitiva con menús contextuales
 - Indicadores de estado de carga y validación de formularios
 
-## 👥 Equipo de Desarrollo
+##  Equipo de Desarrollo
 
 | Desarrollador | GitHub | Código |
 |---------------|--------|--------|
@@ -73,7 +73,7 @@ TutoUIS es un sistema web desarrollado para la **Universidad Industrial de Santa
 | **Karen Dayana Mateus Gómez** | [@Kmateus8](https://github.com/Kmateus8) | 2212765 |
 | **William Andrés Urrutia Torres** | [@UrrutiaTs17](https://github.com/UrrutiaTs17) | 2220058 |
 
-## 🏗️ Arquitectura del Proyecto
+##  Arquitectura del Proyecto
 
 ```
 TutoUIS-Project/
@@ -134,7 +134,7 @@ TutoUIS-Project/
 - **Postman** - Pruebas de API
 - **MySQL Workbench** - Administración de base de datos
 
-## 📋 Prerequisitos
+##  Prerequisitos
 
 Antes de comenzar, asegúrate de tener instalado:
 
@@ -145,7 +145,7 @@ Antes de comenzar, asegúrate de tener instalado:
 - **Maven 3.6** o superior (opcional, incluye wrapper)
 - **Angular CLI** (se instalará automáticamente)
 
-## 🚀 Instalación y Configuración
+##  Instalación y Configuración
 
 ### 1. Clonar el Repositorio
 
@@ -265,7 +265,7 @@ npm start
 
 El frontend estará disponible en: `http://localhost:4200`
 
-## 🏃‍♂️ Ejecución en Modo Desarrollo
+##  Ejecución en Modo Desarrollo
 
 ### Opción 1: Ejecución Manual
 
@@ -316,7 +316,7 @@ timeout /t 10
 start cmd /k "cd TutoUIS_front && ng serve"
 ```
 
-## 🧪 Pruebas
+##  Pruebas
 
 ### Backend
 ```bash
@@ -346,7 +346,7 @@ ng build --prod
 ```
 Los archivos se generarán en `dist/TutoUIS_front/`
 
-## 🔧 Configuración Adicional
+##  Configuración Adicional
 
 ### Variables de Entorno
 
@@ -371,19 +371,19 @@ Puedes usar diferentes perfiles para diferentes entornos:
 - `application-prod.properties` - Producción
 - `application-test.properties` - Pruebas
 
-## 📚 Documentación Adicional
+##  Documentación Adicional
 
 ### Guías de Configuración
-- 📅 [Configuración de Google Calendar API](GOOGLE_CALENDAR_SETUP.md) - Guía completa para integrar Google Calendar
-- 📊 [Resumen del Primer Sprint](Entrega%20Primer%20Sprint/Resumen_Primer_Sprint.md) - Documentación inicial del proyecto
-- 🗄️ [Diseño de Base de Datos](Entrega%20Primer%20Sprint/Diseño_base_datos_TutoUIS.drawio.png) - Diagrama ER de la base de datos
+-  [Configuración de Google Calendar API](GOOGLE_CALENDAR_SETUP.md) - Guía completa para integrar Google Calendar
+-  [Resumen del Primer Sprint](Entrega%20Primer%20Sprint/Resumen_Primer_Sprint.md) - Documentación inicial del proyecto
+-  [Diseño de Base de Datos](Entrega%20Primer%20Sprint/Diseño_base_datos_TutoUIS.drawio.png) - Diagrama ER de la base de datos
 
 ### Recursos Externos
-- 🍃 [Spring Boot Documentation](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/)
-- 🅰️ [Angular Documentation](https://angular.io/docs)
-- 🔐 [JWT Best Practices](https://jwt.io/introduction)
-- 📅 [Google Calendar API Guide](https://developers.google.com/calendar/api/guides/overview)
-- 🎨 [Bootstrap 5 Components](https://getbootstrap.com/docs/5.3/getting-started/introduction/)
+-  [Spring Boot Documentation](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/)
+-  [Angular Documentation](https://angular.io/docs)
+-  [JWT Best Practices](https://jwt.io/introduction)
+-  [Google Calendar API Guide](https://developers.google.com/calendar/api/guides/overview)
+-  [Bootstrap 5 Components](https://getbootstrap.com/docs/5.3/getting-started/introduction/)
 
 ### Optimizaciones Implementadas
 
@@ -403,12 +403,12 @@ Puedes usar diferentes perfiles para diferentes entornos:
 
 ### Características de Seguridad
 
-- 🔒 **Autenticación JWT**: Tokens firmados y con expiración
-- 🛡️ **Bcrypt**: Hash de contraseñas con salt
-- 🚫 **CORS Configuration**: Control de orígenes permitidos
-- 🔑 **Route Guards**: Protección de rutas por rol
-- 📝 **Validación de Datos**: Sanitización en backend y frontend
-- 🔐 **HTTPS Ready**: Preparado para certificados SSL/TLS
+-  **Autenticación JWT**: Tokens firmados y con expiración
+-  **Bcrypt**: Hash de contraseñas con salt
+-  **CORS Configuration**: Control de orígenes permitidos
+-  **Route Guards**: Protección de rutas por rol
+-  **Validación de Datos**: Sanitización en backend y frontend
+-  **HTTPS Ready**: Preparado para certificados SSL/TLS
 
 ### Métricas del Proyecto
 
@@ -426,18 +426,18 @@ Frontend:
 - 30+ rutas configuradas
 ```
 
-## 📅 Integración con Google Calendar - Guía Detallada
+##  Integración con Google Calendar - Guía Detallada
 
 ### ¿Qué hace la integración?
 
 La integración con Google Calendar permite que las tutorías creadas en TutoUIS se sincronicen automáticamente con Google Calendar, facilitando:
 
-- ✅ **Creación automática de eventos** al publicar una tutoría
-- 📧 **Notificaciones y recordatorios** automáticos de Google
-- 👥 **Gestión de asistentes** (tutor y estudiantes)
-- 🔄 **Sincronización bidireccional** con el calendario
-- 📱 **Acceso desde cualquier dispositivo** con Google Calendar
-- ⏰ **Recordatorios personalizables** (email, notificaciones push)
+- **Creación automática de eventos** al publicar una tutoría
+- **Notificaciones y recordatorios** automáticos de Google
+- **Gestión de asistentes** (tutor y estudiantes)
+- **Sincronización bidireccional** con el calendario
+- **Acceso desde cualquier dispositivo** con Google Calendar
+- **Recordatorios personalizables** (email, notificaciones push)
 
 ### Configuración Paso a Paso
 
@@ -474,19 +474,19 @@ google.calendar.enabled=true
 ### Funcionalidades Implementadas
 
 **Al crear una tutoría:**
-- 📝 Evento automático en Google Calendar
-- 📍 Ubicación (sala o enlace virtual)
-- 👤 Tutor como organizador
-- 📄 Descripción detallada
+- Evento automático en Google Calendar
+- Ubicación (sala o enlace virtual)
+- Tutor como organizador
+- Descripción detallada
 
 **Al reservar una tutoría:**
-- 👥 Estudiante agregado como asistente
-- 📧 Email de invitación automático
-- 🔔 Recordatorios configurados
+- Estudiante agregado como asistente
+- Email de invitación automático
+- Recordatorios configurados
 
 **Recordatorios por defecto:**
-- 📧 Email: 24 horas antes
-- 🔔 Notificación: 30 minutos antes
+- Email: 24 horas antes
+- Notificación: 30 minutos antes
 
 ### Solución de Problemas Específicos
 
@@ -504,7 +504,7 @@ google.calendar.enabled=true
 
 Para más detalles: [GOOGLE_CALENDAR_SETUP.md](GOOGLE_CALENDAR_SETUP.md)
 
-## 🤝 Contribuir
+## Contribuir
 
 1. Fork el proyecto
 2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
@@ -520,7 +520,7 @@ Para más detalles: [GOOGLE_CALENDAR_SETUP.md](GOOGLE_CALENDAR_SETUP.md)
 - **Nombres**: CamelCase para clases, camelCase para variables/métodos
 - **Documentación**: Comentar código complejo y endpoints públicos
 
-## 🎯 Roadmap y Futuras Mejoras
+## Roadmap y Futuras Mejoras
 
 ### En Desarrollo
 - [ ] Notificaciones push en tiempo real con WebSockets
@@ -536,17 +536,17 @@ Para más detalles: [GOOGLE_CALENDAR_SETUP.md](GOOGLE_CALENDAR_SETUP.md)
 - [ ] Dashboard de analíticas con BI
 - [ ] Soporte multiidioma (Español/Inglés)
 
-## 🔄 Historial de Versiones
+## Historial de Versiones
 
 ### v1.0.0 (Actual)
-- ✅ Sistema completo de autenticación con JWT
-- ✅ CRUD de usuarios con roles
-- ✅ Gestión de tutorías y disponibilidad
-- ✅ Sistema de reservas
-- ✅ Integración con Google Calendar
-- ✅ Panel administrativo con estadísticas
-- ✅ Actividad reciente del sistema
-- ✅ Optimizaciones de rendimiento en consultas SQL
+- Sistema completo de autenticación con JWT
+- CRUD de usuarios con roles
+- Gestión de tutorías y disponibilidad
+- Sistema de reservas
+- Integración con Google Calendar
+- Panel administrativo con estadísticas
+- Actividad reciente del sistema
+- Optimizaciones de rendimiento en consultas SQL
 
 ### Sprint 3 y 4
 - Reorganización de archivos del admin-dashboard
@@ -560,11 +560,11 @@ Para más detalles: [GOOGLE_CALENDAR_SETUP.md](GOOGLE_CALENDAR_SETUP.md)
 - Estructura básica de backend y frontend
 - Sistema de autenticación básico
 
-## 📝 Notas de Desarrollo
+## Notas de Desarrollo
 
 ### Estructura de Roles y Funcionalidades
 
-#### 🔑 Administrador
+#### Administrador
 **Acceso completo al sistema**
 - Dashboard con estadísticas y métricas del sistema
 - Gestión completa de usuarios (crear, editar, eliminar, cambiar roles)
@@ -573,7 +573,7 @@ Para más detalles: [GOOGLE_CALENDAR_SETUP.md](GOOGLE_CALENDAR_SETUP.md)
 - Generación de reportes estadísticos
 - Configuración del sistema
 
-#### 👨‍🏫 Tutor
+#### Tutor
 **Gestión de tutorías y disponibilidad**
 - Dashboard personalizado con sus tutorías
 - Crear y publicar nuevas tutorías
@@ -595,7 +595,7 @@ Para más detalles: [GOOGLE_CALENDAR_SETUP.md](GOOGLE_CALENDAR_SETUP.md)
 - Recibir notificaciones de confirmación
 - Editar perfil personal
 
-### 📡 Endpoints de la API REST
+### Endpoints de la API REST
 
 #### Autenticación
 ```
@@ -651,7 +651,7 @@ GET    /api/reportes/tutorias              - Estadísticas de tutorías
 GET    /api/reportes/reservas              - Estadísticas de reservas
 ```
 
-### 🗄️ Estructura de la Base de Datos
+### Estructura de la Base de Datos
 
 #### Tablas Principales
 
@@ -697,7 +697,7 @@ GET    /api/reportes/reservas              - Estadísticas de reservas
 - `idCarrera` (PK)
 - `nombre`
 
-## 🐛 Solución de Problemas
+## Solución de Problemas
 
 ### Problemas Comunes
 
@@ -807,7 +807,7 @@ lsof -i :8080  # Backend
 lsof -i :4200  # Frontend
 ```
 
-## 📄 Licencia
+##  Licencia
 
 Este proyecto está desarrollado como parte del curso de **Programación Orientada a Objetos** de la Universidad Industrial de Santander.
 
