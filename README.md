@@ -92,7 +92,7 @@ TutoUIS-Project/
 └── Entrega Primer Sprint/ # Documentación del proyecto
 ```
 
-## 🛠️ Tecnologías Utilizadas
+##  Tecnologías Utilizadas
 
 ### Backend
 - **Spring Boot 3.5.6** - Framework principal de aplicación
@@ -584,7 +584,7 @@ Para más detalles: [GOOGLE_CALENDAR_SETUP.md](GOOGLE_CALENDAR_SETUP.md)
 - Editar o cancelar tutorías programadas
 - Sincronización automática con Google Calendar
 
-#### 🎓 Estudiante
+#### Estudiante
 **Búsqueda y reserva de tutorías**
 - Dashboard con calendario de tutorías disponibles
 - Buscar tutorías por asignatura, tutor o carrera
